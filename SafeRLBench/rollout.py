@@ -1,5 +1,7 @@
 import numpy as np
 
+__all__ = ['Rollout']
+
 class Rollout(object):
     """
     Wrapper class performing rollouts on environment
