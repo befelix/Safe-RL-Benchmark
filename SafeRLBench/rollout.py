@@ -17,13 +17,15 @@ class Rollout(object):
         """
         environment = self.environment
         state = environment.state
-        trace = [] 
+        trace = []
+
+        environment._reset()
 
         for i in range(self.max_it):
             action = policy(state)
-            state, reward, archieved = environment._update(action)
+            action, state, reward, achieved = environment._update(action)
             trace.append((action, state, reward))
-            if archieved: 
+            if achieved: 
                 break
         
-        return(trace, i)
+        return(trace, i, achieved)

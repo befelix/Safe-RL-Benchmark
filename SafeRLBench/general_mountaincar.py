@@ -59,12 +59,12 @@ class GeneralMountainCar(object):
         Parameters:
         action: dscalar
         """
-        force = max(min(action, 1.0), -1.0)
+        action = max(min(action, 1.0), -1.0)
 
         position = self.state[0]
         velocity = self.state[1]
 
-        velocity += (force * self.power - self.dydx(position) * self.gravitation)
+        velocity += (action * self.power - self.dydx(position) * self.gravitation)
         position += velocity
 
         velocity = max(min(velocity, self.max_velocity), -self.max_velocity)
@@ -74,10 +74,10 @@ class GeneralMountainCar(object):
 
         archieved = (position >= self.goal_position)
 
-        return self.state, self._reward(), archieved
+        return action, self.state, self._reward(), archieved
 
     def _reset(self):
-        self.state = self.inital_state
+        self.state = self.initial_state
 
     def _reward(self):
         return(self._height()-1)
