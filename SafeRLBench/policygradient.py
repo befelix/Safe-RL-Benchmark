@@ -5,8 +5,8 @@ from numpy.linalg import norm, solve
 __all__ = ['LinearFDEstimator']
 
 class LinearFDEstimator(object):
-    def __init__(self, executer, environment, max_it=500, eps=0.0001, var=0.1,
-                 parameter_domain=np.array([0,100]), rate=1):
+    def __init__(self, executer, environment, max_it=500, eps=0.01, var=0.1,
+                 parameter_domain=np.array([0,100]), rate=-0.1):
         self.executer    = executer
         self.environment = environment
         self.state_dim   = environment.state.shape[0]
@@ -20,6 +20,10 @@ class LinearFDEstimator(object):
         self.eps    = eps
         self.max_it = max_it
 
+        self.best_reward = -float("inf")
+        self.best_parameter = None
+        self.best_goal = False
+
     def _optimize(self, policy_scale):
         """           
         Parameters:
@@ -27,6 +31,8 @@ class LinearFDEstimator(object):
         """
         pard      = self.parameter_domain
         parameter = rand(self.par_dim)*(pard[1]-pard[0]) + pard[0]
+        
+        par_policy = lambda par: (lambda x: (par * policy_scale).dot(np.array([1,x[0],x[1]])))
 
         converged = False
 
@@ -35,16 +41,28 @@ class LinearFDEstimator(object):
 
         for n in range(self.max_it):
             self.parameters.append(parameter)
-            par_policy = lambda parameter: (lambda x: (parameter * policy_scale).dot(np.array([1,x[0],x[1]])))
-            grad = self._estimate_gradient(par_policy, parameter)
+            grad, trace, achieved = self._estimate_gradient(par_policy, parameter)
+            
+            # store best result
+            cummulative_reward = sum([x[2] for x in trace])
+
+            if (cummulative_reward > self.best_reward):
+                self.best_reward    = cummulative_reward
+                self.best_parameter = parameter
+                self.best_goal      = achievedi
+
+            # print once in a while for debugging
             if n % 10 == 0:
-                trace, i, achieved = self.executer.rollout(par_policy(parameter))
-                cummulative_reward = sum([x[2] for x in trace])
-                print("Run: "+str(n)+"  \tParameter: \t"+str(parameter)+"\tReward: "+str(cummulative_reward)+"\n\t\tGradient: \t"+str(grad))
+                print("Run: "+str(n)+"  \tParameter: \t"
+                        +str(parameter)+"\tReward: "+str(cummulative_reward)
+                        +"\n\t\tGradient: \t"+str(grad))
+
+            # stop when gradient converges
             if norm(grad) < self.eps:
                 converged = True
                 break
                 
+            # update parameter
             parameter += self.rate * grad
 
         return (parameter, converged)
@@ -70,4 +88,4 @@ class LinearFDEstimator(object):
 
         grad = solve(dV.T.dot(dV), dV.T.dot(dJ))
             
-        return grad
+        return grad, trace, achieved
