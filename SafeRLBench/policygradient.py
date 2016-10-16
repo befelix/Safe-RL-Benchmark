@@ -29,10 +29,9 @@ class LinearFDEstimator(object):
         Parameters:
         policy_scale: array with dimension state_dim+1
         """
-        pard      = self.parameter_domain
-        parameter = rand(self.par_dim)*(pard[1]-pard[0]) + pard[0]
-        
         par_policy = lambda par: (lambda x: (par * policy_scale).dot(np.array([1,x[0],x[1]])))
+        
+        parameter = self._initialize_parameters(par_policy)
 
         converged = False
 
@@ -49,12 +48,12 @@ class LinearFDEstimator(object):
             if (cummulative_reward > self.best_reward):
                 self.best_reward    = cummulative_reward
                 self.best_parameter = parameter
-                self.best_goal      = achievedi
+                self.best_goal      = achieved
 
             # print once in a while for debugging
             if n % 10 == 0:
-                print("Run: "+str(n)+"  \tParameter: \t"
-                        +str(parameter)+"\tReward: "+str(cummulative_reward)
+                print("Run: "+str(n)+"  \tParameter: \t"+str(parameter)
+                        +"\tReward: "+str(cummulative_reward)
                         +"\n\t\tGradient: \t"+str(grad))
 
             # stop when gradient converges
@@ -89,3 +88,15 @@ class LinearFDEstimator(object):
         grad = solve(dV.T.dot(dV), dV.T.dot(dJ))
             
         return grad, trace, achieved
+
+    def _initialize_parameters(self, par_policy):
+
+        pard = self.parameter_domain
+    
+        while True:
+            parameter = rand(self.par_dim) * (pard[1] - pard[0]) + pard[1]
+
+            grad, _, _ = self._estimate_gradient(par_policy, parameter)
+
+            if (norm(grad) >= self.eps):
+                return (parameter)
