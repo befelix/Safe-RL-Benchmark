@@ -94,7 +94,7 @@ class LinearFDEstimator(object):
         pard = self.parameter_domain
     
         while True:
-            parameter = rand(self.par_dim) * (pard[1] - pard[0]) + pard[1]
+            parameter = rand(self.par_dim) * (pard[1] - pard[0]) + pard[0]
 
             grad, _, _ = self._estimate_gradient(par_policy, parameter)
 
