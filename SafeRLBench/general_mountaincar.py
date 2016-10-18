@@ -52,7 +52,7 @@ class GeneralMountainCar(object):
         self.plot   = None
         self.point  = None
 
-    def _update(self, action):
+    def update(self, action):
         """
         Computes step considering the action
         ___________
@@ -76,19 +76,19 @@ class GeneralMountainCar(object):
 
         return action, self.state, self._reward(), archieved
 
-    def _reset(self):
+    def reset(self):
         self.state = self.initial_state
 
     def _reward(self):
-        return(self._height()-1)
+        return(self.height()-1)
 
-    def _height(self):
+    def height(self):
         return(self.hx(self.state[0]).item())
 
-    def _position(self):
+    def position(self):
         return(self.state[0])
 
-    def _plot(self):
+    def plot(self):
         """
         Plot contour with current position marked
         Update plot figure already exists
@@ -125,7 +125,7 @@ class GeneralMountainCar(object):
            
             self.figure.canvas.draw()
 
-    def _animate(self, action, steps):
+    def animate(self, action, steps):
         for n in range(steps):
             self._plot()
             self._update(action)

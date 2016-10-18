@@ -20,11 +20,13 @@ class LinearFDEstimator(object):
         self.eps    = eps
         self.max_it = max_it
 
+        self.var = var
+
         self.best_reward = -float("inf")
         self.best_parameter = None
         self.best_goal = False
 
-    def _optimize(self, policy_scale):
+    def optimize(self, policy_scale):
         """           
         Parameters:
         policy_scale: array with dimension state_dim+1
@@ -40,7 +42,9 @@ class LinearFDEstimator(object):
 
         for n in range(self.max_it):
             self.parameters.append(parameter)
-            grad, trace, achieved = self._estimate_gradient(par_policy, parameter)
+            grad, trace, achieved = self._estimate_gradient(par_policy, 
+                                                            parameter,
+                                                            2*self.par_dim)
             
             # store best result
             cummulative_reward = sum([x[2] for x in trace])
@@ -66,28 +70,58 @@ class LinearFDEstimator(object):
 
         return (parameter, converged)
 
-    def _estimate_gradient(self, par_policy, parameter):
+    def _estimate_gradient(self, par_policy, parameter, iterations):
+        grad, trace, achieved = self._estimate_forward_gradient(par_policy, parameter, iterations)
+        return(grad, trace, achieved)
+
+    def _estimate_forward_gradient(self, par_policy, parameter, iterations):
         executer = self.executer
         
         ## using forward differences
         trace, i, achieved = executer.rollout(par_policy(parameter))
         Jref = sum([x[2] for x in trace])/i
             
-        dJ = np.zeros((2*self.par_dim))
-        dV = np.zeros((2*self.par_dim,self.par_dim))
+        dJ = np.zeros((iterations))
+        dV = np.zeros((iterations,self.par_dim))
 
-        for n in range(2*self.par_dim):
+        for n in range(iterations):
             variation = rand(self.par_dim) 
-            variation /= norm(variation)
+            variation *= self.var / norm(variation)
             trace_n, i_n, achieved = executer.rollout(par_policy(parameter + variation))
             Jn = sum([x[2] for x in trace])/i_n
 
-            dJ[n] = Jn - Jref
+            dJ[n] = Jref - Jn
             dV[n] = variation
 
         grad = solve(dV.T.dot(dV), dV.T.dot(dJ))
             
         return grad, trace, achieved
+
+    def _estimate_central_gradient(self, par_policy, parameter, iterations):
+        executer = self.executer
+
+        trace, i, achieved = executer.rollout(par_policy(parameter))
+
+        dJ = np.zeros((iterations))
+        dV = np.zeros((iterations, self.par_dim))
+
+        for n in range(iterations):
+            variation = rand(self.par_dim)
+            variation *= self.var / norm(variation)
+            
+            trace_n,     i_n,     _ = executer.rollout(par_policy(parameter+variation))
+            trace_n_ref, i_n_ref, _ = executer.rollout(par_policy(parameter-variation))
+
+            Jn     = sum([x[2] for x in trace_n]) / i_n
+            Jn_ref = sum([x[2] for x in trace_n_ref]) / i_n_ref
+
+            dJ[n] = Jn - Jn_ref
+            dV[n] = variation
+
+        grad = solve(dV.T.dot(dV), dV.T.dot(dJ))
+
+        return grad, trace, achieved
+
 
     def _initialize_parameters(self, par_policy):
 
@@ -96,7 +130,7 @@ class LinearFDEstimator(object):
         while True:
             parameter = rand(self.par_dim) * (pard[1] - pard[0]) + pard[0]
 
-            grad, _, _ = self._estimate_gradient(par_policy, parameter)
+            grad, _, _ = self._estimate_gradient(par_policy, parameter, 2*self.par_dim)
 
             if (norm(grad) >= self.eps):
                 return (parameter)

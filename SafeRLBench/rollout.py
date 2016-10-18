@@ -19,11 +19,11 @@ class Rollout(object):
         state = environment.state
         trace = []
 
-        environment._reset()
+        environment.reset()
 
         for i in range(self.max_it):
             action = policy(state)
-            action, state, reward, achieved = environment._update(action)
+            action, state, reward, achieved = environment.update(action)
             trace.append((action, state, reward))
             if achieved: 
                 break
