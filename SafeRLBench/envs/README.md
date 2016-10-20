@@ -2,7 +2,7 @@
 
 Environments need to provide the following interface:
 
-- update(action):
+- `update(action)`:
   Computes a step
   - Parameter:
     - action:   element of action space
@@ -12,5 +12,5 @@ Environments need to provide the following interface:
     - reward:   float
     - achieved: boolean
 
-- reset():
+- `reset()`:
   Resets the environment
