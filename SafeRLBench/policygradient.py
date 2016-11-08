@@ -187,7 +187,7 @@ class GPOMDP(object):
                 self.best_goal      = achieved
 
             # print once in a while for debugging
-            if n % 10 == 0:
+            if n % 1 == 0:
                 print("Run: "+str(n)+"  \tParameter: \t"+str(parameter)
                         +"\tReward: "+str(cummulative_reward)
                         +"\n\t\tGradient: \t"+str(grad))
@@ -198,7 +198,7 @@ class GPOMDP(object):
                 break
                 
             # update parameter
-            parameter += self.rate * grad
+            parameter += self.rate * grad 
 
         return (parameter, converged)
 
@@ -219,6 +219,8 @@ class GPOMDP(object):
         b = np.zeros((H, shape))
         grad = np.zeros(shape)
         
+        a=0.25
+
         policy.setParameter(parameter)
 
         for n in range(self.max_it):
@@ -236,7 +238,7 @@ class GPOMDP(object):
             b_div = fac * b_div + b_n  / (n+1)
 
             for k, state in enumerate(trace):
-                b_nom[k] = fac * b_nom[k] + b_n[k] * state[2] / ((n+1) * (i+1))
+                b_nom[k] = fac * b_nom[k] + b_n[k] * state[2] * a**k / (n+1)
 
             b = b_nom / b_div
             
@@ -244,12 +246,12 @@ class GPOMDP(object):
             update = np.zeros(shape)
             for k, state in enumerate(trace):
                 update += policy.log_grad(state[1], state[0])
-                grad_update += update * (-b[k] + state[2] / (i+1))
-            
+                grad_update += update * (-b[k] + state[2] * a**k)
+
             if (norm(grad_update) < self.eps):
                 break
             grad += np.nan_to_num(grad_update)
-
+        
         return grad / (n+1), trace, achieved
                     
     def _initialize_parameters(self, policy):

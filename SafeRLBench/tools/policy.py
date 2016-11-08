@@ -25,7 +25,10 @@ class Policy(object):
 
     def log_grad(self, state, action):
         if self.gradient is not None:
-            return self.gradient(state, action)
+            par = self.parameter
+            sigma = self.sigma
+            ret = 2*(action-self.policy(state))*self.gradient(state,action,par)/sigma**2
+            return ret
         else:
             print("Gradient not set!")
             return np.zeros(parameter_shape)
