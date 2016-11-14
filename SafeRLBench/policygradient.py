@@ -1,8 +1,10 @@
+import time
+
 import numpy as np
 from numpy.random import rand
 from numpy.linalg import norm, solve
 
-__all__ = ['LinearFDEstimator', 'GPOMDP']
+__all__ = ['LinearFDEstimator', 'Reinforce', 'GPOMDP']
 
 class LinearFDEstimator(object):
     def __init__(self, executer, environment, max_it=500, eps=0.01, var=0.1,
@@ -27,10 +29,10 @@ class LinearFDEstimator(object):
         self.best_goal = False
 
     def optimize(self, policy):
-        """           
+        """
         Parameters:
         """
-        parameter = self._initialize_parameters(policy) 
+        parameter = self._initialize_parameters(policy)
 
         converged = False
 
@@ -40,7 +42,7 @@ class LinearFDEstimator(object):
         for n in range(self.max_it):
             self.parameters.append(np.copy(parameter))
             grad, trace, achieved = self._estimate_gradient(policy, parameter)
-            
+
             # store best result
             cummulative_reward = sum([x[2] for x in trace])
 
@@ -59,7 +61,7 @@ class LinearFDEstimator(object):
             if norm(grad) < self.eps:
                 converged = True
                 break
-                
+
             # update parameter
             parameter += self.rate * grad
 
@@ -78,27 +80,27 @@ class LinearFDEstimator(object):
 
     def _estimate_forward_gradient(self, policy, parameter):
         executer = self.executer
-        
+
         ## using forward differences
         policy.setParameter(parameter)
         trace, i, achieved = executer.rollout(policy)
         Jref = sum([x[2] for x in trace])/i
-            
+
         dJ = np.zeros((self.par_dim))
         dV = np.eye(self.par_dim)
 
         for n in range(self.par_dim):
-            variation = dV[n] 
-            
+            variation = dV[n]
+
             policy.setParameter(parameter + variation)
             trace_n, i_n, achieved = executer.rollout(policy)
-            
+
             Jn = sum([x[2] for x in trace])/i_n
 
             dJ[n] = Jref - Jn
 
         grad = solve(dV.T.dot(dV), dV.T.dot(dJ))
-            
+
         return grad, trace, achieved
 
     def _estimate_central_gradient(self, policy, parameter):
@@ -112,10 +114,10 @@ class LinearFDEstimator(object):
 
         for n in range(self.par_dim):
             variation = dV[n]
-            
+
             policy.setParameter(parameter+variation)
             trace_n,     i_n,     _ = executer.rollout(policy)
-            
+
             policy.setParameter(parameter-variation)
             trace_n_ref, i_n_ref, _ = executer.rollout(policy)
 
@@ -132,24 +134,163 @@ class LinearFDEstimator(object):
     def _initialize_parameters(self, policy):
 
         pard = self.parameter_domain
-    
+
         while True:
             parameter = rand(self.par_dim) * (pard[1] - pard[0]) + pard[0]
 
             grad, _, _ = self._estimate_gradient(policy, parameter)
-           
+
             if (norm(grad) >= self.eps):
                 return (parameter)
 
 
-class GPOMDP(object):
+class Reinforce(object):
+
     def __init__(self, executer, environment, max_it=200, eps=0.001,
                        parameter_domain=np.array([0,1]), rate=1):
         self.environment = environment
         self.executer    = executer
         self.state_dim   = environment.state.shape[0]
         self.par_dim     = self.state_dim+1
-        
+
+        self.parameter_domain = parameter_domain
+
+        self.parameters = []
+        self.rewards = []
+
+        self.rate   = rate
+        self.eps    = eps
+        self.max_it = max_it
+
+        self.best_reward = -float("inf")
+        self.best_parameter = None
+        self.best_goal = False
+
+    def optimize(self, policy):
+        """
+        Parameters:
+        """
+        parameter = self._initialize_parameters(policy)
+
+        converged = False
+
+        print("Start Reinforce optimization:")
+        print("Initial Parameters: "+str(parameter))
+
+        for n in range(self.max_it):
+            self.parameters.append(np.copy(parameter))
+            grad, trace, achieved = self._estimate_gradient(policy, parameter)
+
+            # store best result
+            cummulative_reward = sum([x[2] for x in trace])
+            self.rewards.append(cummulative_reward)
+
+            if (cummulative_reward > self.best_reward):
+                self.best_reward    = cummulative_reward
+                self.best_parameter = np.copy(parameter)
+                self.best_goal      = achieved
+
+            # print once in a while for debugging
+            if n % 10 == 0:
+                print("Run: "+str(n)+"  \tParameter: \t"+str(parameter)
+                        +"\tReward: "+str(cummulative_reward)
+                        +"\n\t\tGradient: \t"+str(grad))
+                if (n != 0):
+                    print("\t\tAverage Time: "+"\t{:.2f}".format((time.time()-t)/10)+"s/step")
+                t = time.time()
+
+            # stop when gradient converges
+            if norm(grad) < self.eps:
+                converged = True
+                break
+
+            # update parameter
+            parameter += self.rate * grad
+
+        print("Finished")
+
+        return (parameter, converged)
+
+    def reset(self):
+        self.parameters = []
+
+        self.best_reward = -float("inf")
+        self.best_parameter = None
+        self.best_goal = False
+
+    def _estimate_gradient(self, policy, parameter):
+        executer = self.executer
+        par_shape = parameter.shape
+        max_it = self.max_it
+
+        policy.setParameter(parameter)
+
+        b_div = []
+        b_nom = []
+
+        grads = []
+        grad = np.zeros(par_shape)
+
+        for n in range(max_it):
+            trace, i, achieved = executer.rollout(policy)
+
+            lam = 0.5
+
+            actions = [x[0] for x in trace]
+            states = [x[1] for x in trace]
+            rewards = [x[2] for x in trace]
+
+            rewards_adj = [r * lam**k for k, r in enumerate(rewards)]
+
+            log_grad = list(map(policy.log_grad, states, actions))
+
+            b_div_n = sum(log_grad)**2
+            b_nom_n = b_div_n * sum(rewards_adj)
+
+            b_div.append(b_div_n)
+            b_nom.append(b_nom_n)
+
+            b = sum(b_nom) / sum(b_div)
+            grad_n = sum(log_grad)*(sum(rewards_adj)-b)
+            #print(sum(rewards_adj)-b)
+            #print(b)
+            #print(sum(log_grad))
+            #print([r - b for r in rewards_adj])
+
+            grads.append(grad_n)
+
+            grad_old = grad
+            grad = sum(grads) / len(grads)
+
+            if (n > 2 and norm(grad_old - grad) < self.eps):
+                return grad, trace, achieved
+
+        print("Gradient did not converge!")
+        return grad, trace, achieved
+
+    def _initialize_parameters(self, policy):
+
+        pard = self.parameter_domain
+
+        while True:
+            parameter = rand(self.par_dim) * (pard[1] - pard[0]) + pard[0]
+
+            grad, _, _ = self._estimate_gradient(policy, parameter)
+
+            if (norm(grad) >= self.eps):
+                return (parameter)
+
+class GPOMDP(object):
+    '''
+    broken
+    '''
+    def __init__(self, executer, environment, max_it=200, eps=0.001,
+                       parameter_domain=np.array([0,1]), rate=1):
+        self.environment = environment
+        self.executer    = executer
+        self.state_dim   = environment.state.shape[0]
+        self.par_dim     = self.state_dim+1
+
         self.parameter_domain = parameter_domain
 
         self.parameters = []
@@ -161,13 +302,13 @@ class GPOMDP(object):
         self.best_reward = -float("inf")
         self.best_parameter = None
         self.best_goal = False
-        
+
 
     def optimize(self, policy):
-        """           
+        """
         Parameters:
         """
-        parameter = self._initialize_parameters(policy) 
+        parameter = self._initialize_parameters(policy)
 
         converged = False
 
@@ -177,7 +318,7 @@ class GPOMDP(object):
         for n in range(self.max_it):
             self.parameters.append(np.copy(parameter))
             grad, trace, achieved = self._estimate_gradient(policy, parameter)
-            
+
             # store best result
             cummulative_reward = sum([x[2] for x in trace])
 
@@ -196,9 +337,9 @@ class GPOMDP(object):
             if norm(grad) < self.eps:
                 converged = True
                 break
-                
+
             # update parameter
-            parameter += self.rate * grad 
+            parameter += self.rate * grad
 
         return (parameter, converged)
 
@@ -210,7 +351,7 @@ class GPOMDP(object):
         self.best_goal = False
 
     def _estimate_gradient(self, policy, parameter):
-        executer = self.executer        
+        executer = self.executer
         H = executer.max_it
         shape = policy.parameter_shape
 
@@ -218,7 +359,7 @@ class GPOMDP(object):
         b_div = np.zeros((H,shape))
         b = np.zeros((H, shape))
         grad = np.zeros(shape)
-        
+
         a=0.25
 
         policy.setParameter(parameter)
@@ -228,10 +369,10 @@ class GPOMDP(object):
             b_n = np.zeros((H,shape))
 
             for k, state in enumerate(trace):
-                update = policy.log_grad(state[1], state[0]) 
+                update = policy.log_grad(state[1], state[0])
                 for j in range(k+1):
                     b_n[j] += update
-            
+
             fac = n / (n+1)
 
             b_n = b_n**2
@@ -241,7 +382,7 @@ class GPOMDP(object):
                 b_nom[k] = fac * b_nom[k] + b_n[k] * state[2] * a**k / (n+1)
 
             b = b_nom / b_div
-            
+
             grad_update = np.zeros(shape)
             update = np.zeros(shape)
             for k, state in enumerate(trace):
@@ -251,19 +392,17 @@ class GPOMDP(object):
             if (norm(grad_update) < self.eps):
                 break
             grad += np.nan_to_num(grad_update)
-        
+
         return grad / (n+1), trace, achieved
-                    
+
     def _initialize_parameters(self, policy):
 
         pard = self.parameter_domain
-    
+
         while True:
             parameter = rand(self.par_dim) * (pard[1] - pard[0]) + pard[0]
 
             grad, _, _ = self._estimate_gradient(policy, parameter)
-            
+
             if (norm(grad) >= self.eps):
                 return (parameter)
-
-
