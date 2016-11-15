@@ -133,16 +133,17 @@ class ForwardFDEstimator(PolicyGradientEstimator):
         super().__init__(executer, environment, max_it, eps, rate)
         self.var = var
 
-    def _estimate_forward_gradient(self, policy, parameter):
+    def _estimate_gradient(self, policy, parameter):
         executer = self.executer
-
+        var = self.var
         ## using forward differences
         policy.setParameter(parameter)
         trace, i, achieved = executer.rollout(policy)
         Jref = sum([x[2] for x in trace])/i
 
-        dJ = np.zeros((self.par_dim))
-        dV = np.eye(self.par_dim)*self.var
+        dJ = np.zeros((2*self.par_dim))
+        dV = np.append(np.eye(self.par_dim), -np.eye(self.par_dim), axis=0)
+        dV *= var
 
         for n in range(self.par_dim):
             variation = dV[n]
@@ -167,7 +168,7 @@ class CentralFDEstimator(PolicyGradientEstimator):
         super().__init__(executer, environment, max_it, eps, rate)
         self.var = var
 
-    def _estimate_central_gradient(self, policy, parameter):
+    def _estimate_gradient(self, policy, parameter):
         executer = self.executer
 
         policy.setParameter(parameter)
@@ -248,9 +249,6 @@ class ReinforceEstimator(PolicyGradientEstimator):
         return grad, trace, achieved
 
 class GPOMDPEstimator(PolicyGradientEstimator):
-    '''
-    broken
-    '''
 
     name = 'GPOMDP'
 
