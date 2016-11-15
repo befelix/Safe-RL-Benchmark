@@ -4,7 +4,7 @@ from numpy.linalg import norm
 __all__=["LinearCar"]
 
 class LinearCar(object):
-    def __init__(self, initial_state=np.array([[0.],[0.]]), 
+    def __init__(self, initial_state=np.array([[0.],[0.]]),
                        goal_position=np.array([1.]),
                        step = 0.01, eps=0.01, ):
         self.initial_state    = initial_state
