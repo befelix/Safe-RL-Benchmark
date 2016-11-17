@@ -67,12 +67,12 @@ class PolicyGradient(object):
                 self.best_goal      = achieved
 
             # print once in a while for debugging
-            if n % 10 == 0:
+            if n % 100 == 0:
                 print("Run: "+str(n)+"  \tParameter: \t"+str(parameter)
                         +"\tReward: "+str(cummulative_reward)
                         +"\n\t\tGradient: \t"+str(grad))
                 if (n != 0):
-                    print("\t\tAverage Time: "+"\t{:.2f}".format((time.time()-t)/10)+"s/step")
+                    print("\t\tAverage Time: "+"\t{:.2f}".format((time.time()-t)/100)+"s/step")
                 t = time.time()
 
             # stop when gradient converges
