@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 get_script_dir () {
      SOURCE="${BASH_SOURCE[0]}"
@@ -22,4 +22,5 @@ find SafeRLBench -name \*.py -exec pep8 --ignore=E402,W503 {} +
 
 # Run unit tests
 echo "Running unit tests"
-python -m SafeRLBench.test
+nosetests --with-doctest SafeRLBench
+
