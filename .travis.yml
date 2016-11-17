@@ -20,6 +20,6 @@ install:
 
 # Run tests
 script:
-  - find safemdp -name \*.py -exec pep8 --ignore=E402 {} +
-  - python -m safemdp.test
+  - find SafeRLBench -name \*.py -exec pep8 --ignore=E402 {} +
+  - python -m SafeRLBench.test
 

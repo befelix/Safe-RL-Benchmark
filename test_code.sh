@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 get_script_dir () {
      SOURCE="${BASH_SOURCE[0]}"
