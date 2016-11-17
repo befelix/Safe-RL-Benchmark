@@ -2,6 +2,7 @@ import numpy as np
 
 __all__ = ['Rollout']
 
+
 class Rollout(object):
     """
     Wrapper class performing rollouts on environment
@@ -9,8 +10,8 @@ class Rollout(object):
     """
     def __init__(self, environment, max_it=200, abort=True):
         self.environment = environment
-        self.max_it      = max_it
-        self.abort       = abort
+        self.max_it = max_it
+        self.abort = abort
 
     def rollout(self, policy):
         """
@@ -18,7 +19,7 @@ class Rollout(object):
         """
         environment = self.environment
         environment.reset()
-        
+
         state = environment.state
         trace = []
 
@@ -26,7 +27,7 @@ class Rollout(object):
             action = policy(state)
             action, state, reward, achieved = environment.update(action)
             trace.append((action, np.copy(state), reward))
-            if self.abort and achieved: 
+            if self.abort and achieved:
                 break
-        
+
         return(trace, i, achieved)

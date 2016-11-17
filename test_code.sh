@@ -18,9 +18,8 @@ cd $(get_script_dir)
 
 # Run PEP8
 echo "Running style tests"
-find SafeRLBench -name \*.py -exec pep8 --ignore=E402 {} +
+find SafeRLBench -name \*.py -exec pep8 --ignore=E402,W503 {} +
 
 # Run unit tests
 echo "Running unit tests"
 python -m SafeRLBench.test
-

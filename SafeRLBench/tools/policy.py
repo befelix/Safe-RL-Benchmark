@@ -2,8 +2,10 @@ import numpy as np
 
 __all__ = ['Policy']
 
+
 class Policy(object):
-    def __init__(self, par_policy, parameter_shape, gradient=None,sigma=0.):
+
+    def __init__(self, par_policy, parameter_shape, gradient=None, sigma=0.):
 
         self.parameter_shape = parameter_shape
         self.parameter = np.empty(parameter_shape)
@@ -16,10 +18,10 @@ class Policy(object):
 
     def __call__(self, state):
 
-        if (self.sigma==0):
+        if (self.sigma == 0):
             noise = 0.
         else:
-            noise = np.random.normal(0,self.sigma)
+            noise = np.random.normal(0, self.sigma)
 
         return self.policy(state) + noise
 
@@ -27,7 +29,8 @@ class Policy(object):
         if self.gradient is not None:
             par = self.parameter
             sigma = self.sigma
-            ret = 2*(action-self.policy(state))*self.gradient(state,action,par)/sigma**2
+            diff = action - self.policy(state)
+            ret = 2 * diff * self.gradient(state, action, par) / sigma**2
             return ret
         else:
             print("Gradient not set!")

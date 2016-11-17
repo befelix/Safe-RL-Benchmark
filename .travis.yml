@@ -20,6 +20,5 @@ install:
 
 # Run tests
 script:
-  - find SafeRLBench -name \*.py -exec pep8 --ignore=E402 {} +
+  - find SafeRLBench -name \*.py -exec pep8 --ignore=E402,W503 {} +
   - python -m SafeRLBench.test
-
