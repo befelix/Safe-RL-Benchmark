@@ -1,5 +1,5 @@
 import numpy as np
-from ..base import Space
+from SafeRLBench import Space
 
 
 class RdSpace(Space):
@@ -11,3 +11,6 @@ class RdSpace(Space):
 
     def contains(self, x):
         return isinstance(x, np.ndarray) and x.shape == self.shape
+
+    def element(self):
+        return np.ones(self.shape)

@@ -1,4 +1,4 @@
-import numpy as np
+from __future__ import division, print_function, absolute_import
 
 __all__ = ['EnvironmentBase', 'Space']
 
@@ -7,14 +7,14 @@ class EnvironmentBase(object):
     """
     Environment Base Class
 
-    The functions update, reset and rollout are wrappers for the deferred
+    The methods update, reset and rollout are wrappers for the deferred
     implementations _update, _reset and _rollout.
 
-    Any subclass must implement the following functions:
+    Any subclass must implement the following methods:
     _update(self, action)
     _reset(self)
 
-    Any subclass might override the following functions:
+    Any subclass might override the following methods:
     _rollout(policy)
 
     Any subclass must initialize the following variables:
@@ -23,7 +23,7 @@ class EnvironmentBase(object):
     horizon - unless _rollout(policy) gets overwritten
     """
 
-    # initialize these
+    # Initialize these
     state_space = None
     action_space = None
     horizon = 0
@@ -39,8 +39,9 @@ class EnvironmentBase(object):
 
     # Override in subclasses if necessary
     def _rollout(self, policy):
+        self.reset()
         trace = []
-        for n in range(horizon):
+        for n in range(self.horizon):
             action = policy(self.state)
             trace.append(self.update(action))
         return trace
@@ -92,6 +93,7 @@ class EnvironmentBase(object):
         trace: list of (action, state, reward)-tuples
         """
         trace = self._rollout(policy)
+        return trace
 
 
 class Space(object):
@@ -99,5 +101,11 @@ class Space(object):
     def contains(self, x):
         """
         Check if x is an element of space.
+        """
+        raise NotImplementedError
+
+    def element(self):
+        """
+        Return an arbitrary element in space for unit testing
         """
         raise NotImplementedError

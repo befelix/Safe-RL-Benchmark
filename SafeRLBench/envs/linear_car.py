@@ -1,8 +1,10 @@
+from __future__ import division, print_function, absolute_import
+
 import numpy as np
 from numpy.linalg import norm
 
-from .. import EnvironmentBase
-from ..spaces import RdSpace
+from SafeRLBench import EnvironmentBase
+from SafeRLBench.spaces import RdSpace
 
 
 class LinearCar(EnvironmentBase):
@@ -15,10 +17,12 @@ class LinearCar(EnvironmentBase):
         self.action_space = action_space
         self.horizon = horizon
 
+        # Initialize State
         self.initial_state = state
         self.state = np.copy(state)
-        self.goal = goal
 
+        # Initialize Environment Parameters
+        self.goal = goal
         self.eps = eps
         self.step = step
 
@@ -35,7 +39,7 @@ class LinearCar(EnvironmentBase):
         self.state = np.copy(self.initial_state)
 
     def _reward(self):
-        return -norm(self.state[0] - self.goal_position) - norm(self.state[1])
+        return -norm(self.state - self.goal)
 
     def _achieved(self):
-        return (-self._reward() < self.eps)
+        return (abs(self._reward()) < self.eps)

@@ -1,11 +1,16 @@
+from __future__ import division, print_function, absolute_import
+
 import numpy as np
-from numpy import pi
+from numpy import pi, array
 
 import theano.tensor as T
 from theano.tensor import TensorVariable
 from theano import function, grad
 
 import matplotlib.pyplot as plt
+
+from SafeRLBench import EnvironmentBase
+from SafeRLBench.spaces import BoundedSpace, RdSpace
 
 
 def isContour(contour):
@@ -17,20 +22,21 @@ def isContour(contour):
     return(False)
 
 
-class GeneralMountainCar(object):
-
-    def __init__(self, inital_state=np.array([0, 0]), domain=np.array([-1, 1]),
-                 contour=None, gravitation=0.0025, max_velocity=0.07,
-                 power=0.0015, goal=0.6):
+class GeneralMountainCar(EnvironmentBase):
+    def __init__(self,
+                 state_space=BoundedSpace(array([-1, -0.07]),
+                                          array([1, 0.07])),
+                 action_space=RdSpace((1,)), state=np.array([0, 0]),
+                 contour=None, gravitation=0.0025, power=0.0015,
+                 goal=0.6, horizon=100):
+        # Initialize Environment Base Parameters
+        self.state_space = state_space
+        self.action_space = action_space
+        self.horizon = horizon
 
         # setup environment parameters
-        self.min_position = domain[0]
-        self.max_position = domain[1]
-        self.goal_position = goal
-
-        self.max_velocity = max_velocity
+        self.goal = goal
         self.power = power
-
         self.gravitation = gravitation
 
         # setup contour
@@ -47,15 +53,15 @@ class GeneralMountainCar(object):
         self.dydx = function([self.x], self.dydx_var)
 
         # init state
-        self.state = inital_state
-        self.initial_state = inital_state
+        self.state = np.copy(state)
+        self.initial_state = state
 
         # setup plot fields
         self.figure = None
         self.plot = None
         self.point = None
 
-    def update(self, action):
+    def _update(self, action):
         """
         Computes step considering the action
         ___________
@@ -71,27 +77,38 @@ class GeneralMountainCar(object):
                      - self.dydx(position) * self.gravitation)
         position += velocity
 
-        velocity = max(min(velocity, self.max_velocity), -self.max_velocity)
-        position = max(min(position, self.max_position), self.min_position)
+        bounds = self.state_space
+
+        velocity = max(min(velocity, bounds.upper[1]), bounds.lower[1])
+        position = max(min(position, bounds.upper[0]), bounds.lower[0])
 
         self.state = np.array([position, velocity])
 
-        achieved = (position >= self.goal_position)
+        return action, self.state, self._reward()
 
-        return action, self.state, self._reward(), achieved
-
-    def reset(self):
+    def _reset(self):
         self.state = self.initial_state
 
     def _reward(self):
         return(self.height() - 1)
 
+    def _rollout(self, policy):
+        self.reset()
+        trace = []
+        for n in range(self.horizon):
+            action = policy(self.state)
+            trace.append(self._update(action))
+            if (self.position() >= self.goal):
+                return trace
+        return trace
+
     def height(self):
-        return(self.hx(self.state[0]).item())
+        return(self.hx(self.state[0].item()).item())
 
     def position(self):
         return(self.state[0])
 
+    # Everything below will either be removed or completly changed
     def plot(self):
         """
         Plot contour with current position marked

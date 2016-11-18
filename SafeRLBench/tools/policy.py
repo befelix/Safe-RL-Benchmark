@@ -1,6 +1,6 @@
-import numpy as np
+from __future__ import division, print_function, absolute_import
 
-__all__ = ['Policy']
+import numpy as np
 
 
 class Policy(object):
