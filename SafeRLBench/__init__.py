@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from .policygradient import *
+from .base import EnvironmentBase, Space
 from . import envs
 from . import tools
 

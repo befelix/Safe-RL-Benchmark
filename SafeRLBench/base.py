@@ -1,15 +1,49 @@
 import numpy as np
 
+__all__ = ['EnvironmentBase', 'Space']
+
 
 class EnvironmentBase(object):
     """
     Environment Base Class
+
+    The functions update, reset and rollout are wrappers for the deferred
+    implementations _update, _reset and _rollout.
+
+    Any subclass must implement the following functions:
+    _update(self, action)
+    _reset(self)
+
+    Any subclass might override the following functions:
+    _rollout(policy)
+
+    Any subclass must initialize the following variables:
+    state_space
+    action_space
+    horizon - unless _rollout(policy) gets overwritten
     """
 
-    def __init__(self, state_space, action_space, horizon):
-        self.state_space = state_space
-        self.action_space = action_space
-        self.horizon = horizon
+    # initialize these
+    state_space = None
+    action_space = None
+    horizon = 0
+
+    # Implement in subclasses:
+    # See update(self, action) for more information
+    def _update(self, action):
+        raise NotImplementedError
+
+    # See reset(self) for more information
+    def _reset(self):
+        raise NotImplementedError
+
+    # Override in subclasses if necessary
+    def _rollout(self, policy):
+        trace = []
+        for n in range(horizon):
+            action = policy(self.state)
+            trace.append(self.update(action))
+        return trace
 
     def update(self, action):
         """
@@ -59,17 +93,11 @@ class EnvironmentBase(object):
         """
         trace = self._rollout(policy)
 
-    # Override in subclasses if necessary
-    def _rollout(self, policy):
-        trace = []
-        for n in range(horizon):
-            action = policy(self.state)
-            trace.append(self.update(action))
-        return trace
 
-    # Implement in subclasses:
-    def _update(self, action):
-        raise NotImplementedError
+class Space(object):
 
-    def _reset(self):
+    def contains(self, x):
+        """
+        Check if x is an element of space.
+        """
         raise NotImplementedError

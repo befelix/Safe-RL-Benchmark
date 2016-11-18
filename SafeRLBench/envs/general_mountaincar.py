@@ -7,8 +7,6 @@ from theano import function, grad
 
 import matplotlib.pyplot as plt
 
-__all__ = ['GeneralMountainCar']
-
 
 def isContour(contour):
     if isinstance(contour, tuple):
