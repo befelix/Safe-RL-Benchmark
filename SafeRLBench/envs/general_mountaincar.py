@@ -2,6 +2,7 @@ import numpy as np
 from numpy import pi
 
 import theano.tensor as T
+from theano.tensor import TensorVariable
 from theano import function, grad
 
 import matplotlib.pyplot as plt

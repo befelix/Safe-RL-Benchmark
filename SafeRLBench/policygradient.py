@@ -70,11 +70,14 @@ class PolicyGradient(object):
                 print("Run: " + str(n) + "  \tParameter: \t" + str(parameter)
                       + "\tReward: " + str(cummulative_reward)
                       + "\n\t\tGradient: \t" + str(grad))
-                if (n != 0):
+                if (n == 0):
+                    t = time.time()
+                else:
+                    now = time.time()
                     print("\t\tAverage Time: "
-                          + "\t{:.2f}".format((time.time() - t) / 100)
+                          + "\t{:.2f}".format((now - t) / 100)
                           + "s/step")
-                t = time.time()
+                    t = now
 
             # stop when gradient converges
             if norm(grad) < self.eps:
@@ -313,6 +316,7 @@ class GPOMDPEstimator(PolicyGradientEstimator):
 
         grad /= n + 1
         return grad, trace, achieved
+
 
 '''
 Dictionary for resolving estimator strings

@@ -34,7 +34,7 @@ class Policy(object):
             return ret
         else:
             print("Gradient not set!")
-            return np.zeros(parameter_shape)
+            return np.zeros(self.parameter_shape)
 
     def setParameter(self, parameter):
         self.parameter = parameter
