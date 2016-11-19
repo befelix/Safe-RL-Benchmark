@@ -1,6 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
+from numpy import copy
 from numpy.linalg import norm
 
 from SafeRLBench import EnvironmentBase
@@ -19,7 +20,7 @@ class LinearCar(EnvironmentBase):
 
         # Initialize State
         self.initial_state = state
-        self.state = np.copy(state)
+        self.state = copy(state)
 
         # Initialize Environment Parameters
         self.goal = goal
@@ -33,10 +34,10 @@ class LinearCar(EnvironmentBase):
         self.state[1] += self.step * action
         self.state[0] += self.state[1]
 
-        return (action, self.state, self._reward())
+        return (action, copy(self.state), self._reward())
 
     def _reset(self):
-        self.state = np.copy(self.initial_state)
+        self.state = copy(self.initial_state)
 
     def _reward(self):
         return -norm(self.state - self.goal)

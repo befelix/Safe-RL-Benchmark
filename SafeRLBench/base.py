@@ -1,3 +1,5 @@
+"""Module implements Baseclasses."""
+
 from __future__ import division, print_function, absolute_import
 
 __all__ = ['EnvironmentBase', 'Space']
@@ -5,7 +7,7 @@ __all__ = ['EnvironmentBase', 'Space']
 
 class EnvironmentBase(object):
     """
-    Environment Base Class
+    Environment Base Class.
 
     The methods update, reset and rollout are wrappers for the deferred
     implementations _update, _reset and _rollout.
@@ -48,8 +50,11 @@ class EnvironmentBase(object):
 
     def update(self, action):
         """
-        Wraps environments _update(action) implementation
-        Supports addition of monitoring/benchmarking code
+        Wrap subclass implementation.
+
+        This method calls the _update(action) implementation which
+        has to be implemented in any subclass.
+        Supports addition of monitoring/benchmarking code.
 
         Parameters:
         -----------
@@ -72,16 +77,19 @@ class EnvironmentBase(object):
 
     def reset(self):
         """
-        Wraps environments _reset() implementation
-        Supports notification of reset operations to monitoring/benchmarking
-        facilities.
+        Wrap subclass implementation.
+
+        Calls _reset() implementation of subclass.
+        Supports addition of monitoring/benchmarking code.
         """
         self._reset()
 
     def rollout(self, policy):
         """
-        Wraps environments _rollout(policy) implementation.
-        Supports monitoring the _rollout operation.
+        Wrap subclass implementation.
+
+        Calls _rollout(policy) implementation of subclass.
+        Supports addition of monitoring/benchmarking code.
 
         Parameters:
         -----------
@@ -97,15 +105,16 @@ class EnvironmentBase(object):
 
 
 class Space(object):
+    """
+    Baseclass for Spaceobject.
+
+    All methods have to be implemented in any subclass.
+    """
 
     def contains(self, x):
-        """
-        Check if x is an element of space.
-        """
+        """Check if x is an element of space."""
         raise NotImplementedError
 
     def element(self):
-        """
-        Return an arbitrary element in space for unit testing
-        """
+        """Return an arbitrary element in space for unit testing."""
         raise NotImplementedError

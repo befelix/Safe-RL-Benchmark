@@ -1,4 +1,5 @@
-from __future__ import division, print_function, absolute_import
+"""Tests for envs module."""
+from __future__ import absolute_import
 
 import unittest
 from numpy.testing import *
@@ -8,6 +9,7 @@ import SafeRLBench.envs as envs
 
 
 def test_environment_requirements():
+    """Generate tests for environment implementations."""
     for name, c in inspect.getmembers(envs):
         if inspect.isclass(c):
             yield check_env_update, c
@@ -15,6 +17,7 @@ def test_environment_requirements():
 
 
 def check_env_update(c):
+    """Check if _update is implemented."""
     env = c()
     x = env.action_space.element()
     try:
@@ -24,6 +27,7 @@ def check_env_update(c):
 
 
 def check_env_reset(c):
+    """Check if _reset is implemented."""
     env = c()
     try:
         env._reset()
