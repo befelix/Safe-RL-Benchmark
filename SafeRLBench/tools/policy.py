@@ -1,3 +1,8 @@
+"""
+Likely to be changed.
+
+Thus no documentation yet.
+"""
 from __future__ import division, print_function, absolute_import
 
 import numpy as np

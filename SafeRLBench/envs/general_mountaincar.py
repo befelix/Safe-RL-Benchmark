@@ -115,7 +115,7 @@ class GeneralMountainCar(EnvironmentBase):
         trace = []
         for n in range(self.horizon):
             action = policy(self.state)
-            trace.append(self._update(action))
+            trace.append(self.update(action))
             if (self.position() >= self.goal):
                 return trace
         return trace
