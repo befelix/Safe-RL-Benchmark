@@ -6,7 +6,7 @@ import numpy as np
 from numpy.random import rand
 from numpy.linalg import norm, solve
 
-__all__ = ['PolicyGradient', 'PolicyGradientEstimator']
+__all__ = ('PolicyGradient', 'PolicyGradientEstimator')
 
 
 class PolicyGradient(object):

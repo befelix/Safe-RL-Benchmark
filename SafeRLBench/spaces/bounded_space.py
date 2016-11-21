@@ -26,8 +26,8 @@ class BoundedSpace(Space):
     def contains(self, x):
         """Check if element is contained."""
         return (x.shape == self.lower.shape
-                and (x > self.lower).all()
-                and (x < self.lower).all())
+                and (x >= self.lower).all()
+                and (x <= self.upper).all())
 
     def element(self):
         """Return element."""
