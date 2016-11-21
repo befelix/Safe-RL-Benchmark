@@ -11,7 +11,7 @@ import SafeRLBench.envs as envs
 
 class TestEnvironments(object):
     """
-    Test Class for Environment tests
+    Test Class for Environment tests.
 
     Note that you really dont want to inherit from unittest.TestCase here,
     because it will break reasonable output with verbose testing.
@@ -21,6 +21,7 @@ class TestEnvironments(object):
 
     @classmethod
     def setupClass(cls):
+        """Generate list of classes."""
         cls.classes = []
         for name, c in inspect.getmembers(envs):
             if inspect.isclass(c):
