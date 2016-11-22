@@ -118,3 +118,120 @@ class Space(object):
     def element(self):
         """Return an arbitrary element in space for unit testing."""
         raise NotImplementedError
+
+
+class AlgorithmBase(object):
+    """
+    Baseclass for any algorithm.
+
+    The optimize method wraps the _optimize implementation which default
+    implementation makes use of initialize(policy), step(policy) and
+    isFinished().
+    These funtions are wrappers for the listed implementations below,
+    supporting logging and monitoring of the algorithm.
+
+    Any subclass must overwrite:
+    _initialize(policy)
+    _step(policy)
+    _isFinished()
+
+    Any subclass may overwrite:
+    _optimize(policy)
+
+    It might be infeasable to allow overwriting _optimize, so this will
+    potentially change.
+    In case one does overwrite _optimize, the functions _initialize(),
+    _step(parameter), _isFinished() may just pass unless they are used.
+
+    Requirements:
+    _initialize(policy):
+        Determine and set initial parameter for policy.
+    _step(policy):
+        Update policy parameter.
+        Return current reward.
+    _isFinished():
+        Return True when algorithm is supposed to finish.
+    """
+
+    def __new__(cls, *args, **kwargs):
+        """
+        Create an instance of an algorithm.
+
+        Initialize important tracking variables.
+        """
+        alg = super(AlgorithmBase, cls).__new__(cls)
+
+        alg.parameters = []
+        alg.rewards = []
+
+        alg.best_reward = -float('inf')
+        alg.best_parameter = None
+
+    # Have to be overwritten.
+    def _initialize(self, policy):
+        raise NotImplementedError
+
+    def _step(self, policy):
+        raise NotImplementedError
+
+    def _isFinished(self):
+        raise NotImplementedError
+
+    # May be overwritten
+    def _optimize(self, policy):
+        self.initialize(policy)
+        stop = False
+        while not stop:
+            self.step(policy)
+            stop = self.isFinished()
+
+    def optimize(self, policy):
+        """
+        Optimize policy parameter.
+
+        Wraps subclass implementation in _optimize(policy).
+
+        Parameter:
+        ----------
+        policy: PolicyBase subclass
+        """
+        self._optimize(policy)
+
+    def initialize(self, policy):
+        """
+        Initialize policy parameter.
+
+        Wraps subclass implementation in _initialize(policy)
+
+        Parameter:
+        ----------
+        policy: PolicyBase subclass
+        """
+        self._initialize(policy)
+
+    def step(self, policy):
+        """
+        Update policy parameter.
+
+        Wraps subclass implementation in _step(policy).
+
+        Parameter:
+        ----------
+        policy: PolicyBase subclass
+        """
+        reward = self._step(policy)
+
+        self.rewards.append(reward)
+        self.parameters.append(policy.parameters)
+
+        if reward > self.best_reward:
+            self.best_reward = reward
+            self.best_parameter = policy.parameter
+
+    def isFinished(self):
+        """
+        Return True when algorithm is supposed to finish.
+
+        Wraps subclass implementation in _isFinished().
+        """
+        self.isFinished()
