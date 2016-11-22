@@ -2,6 +2,8 @@
 import numpy as np
 from SafeRLBench import Space
 
+from numpy.random import rand
+
 
 class BoundedSpace(Space):
     """
@@ -31,4 +33,10 @@ class BoundedSpace(Space):
 
     def element(self):
         """Return element."""
-        return self.upper
+        element = rand(self.shape) * (self.upper - self.lower) + self.lower
+        return element
+
+    @property
+    def shape(self):
+        """Return element shape"""
+        return self.lower.shape

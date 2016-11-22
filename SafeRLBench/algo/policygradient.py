@@ -14,9 +14,13 @@ class PolicyGradient(AlgorithmBase):
                  environment, estimator='reinforce',
                  max_it=1000, eps=0.0001, est_eps=0.001,
                  parameter_space=BoundedSpace(0, 1), rate=1):
-
+        """Initialize PolicyGradient."""
         self.environment = environment
         self.parameter_space = parameter_space
+
+        self.max_it = max_it
+        self.eps = eps
+        self.rate = rate
 
         if isinstance(estimator, str):
             estimator = estimators[estimator]
@@ -25,7 +29,25 @@ class PolicyGradient(AlgorithmBase):
         else:
             raise ImportError('Invalid Estimator')
 
-        self.estimator = estimator
+        self.estimator = estimator(environment, max_it, est_eps, rate)
+
+    def _initialize(self, policy):
+        while True:
+            parameter = self.parameter_space.element()
+
+            grad, _ = self.estimator(policy, parameter)
+
+            if (norm(grad) >= self.eps):
+                return parameter
+
+    def _step(self, policy):
+        grad, trace = self.estimator(policy)
+
+        parameter = policy.parameter
+        policy.setParameter(parameter + grad)
+
+    def _isFinished(self):
+        return (norm(self.parameters[-1] - self.parameters[-2]) < self.eps)
 
 
 class PolicyGradientEstimator(object):
