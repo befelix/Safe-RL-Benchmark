@@ -15,7 +15,7 @@ class LinearCar(EnvironmentBase):
     def __init__(self,
                  state_space=RdSpace((2, 1)), action_space=RdSpace((1,)),
                  state=np.array([[0.], [0.]]), goal=np.array([[1.], [0.]]),
-                 step=0.01, eps=0.01, horizon=100):
+                 step=0.01, eps=0, horizon=100):
         """
         Initialize EnvironmentBase parameters and specific parameters.
 

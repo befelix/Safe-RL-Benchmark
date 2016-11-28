@@ -33,10 +33,10 @@ class BoundedSpace(Space):
 
     def element(self):
         """Return element."""
-        element = rand(self.shape) * (self.upper - self.lower) + self.lower
+        element = rand(*self.shape) * (self.upper - self.lower) + self.lower
         return element
 
     @property
     def shape(self):
-        """Return element shape"""
+        """Return element shape."""
         return self.lower.shape

@@ -2,6 +2,8 @@
 
 from __future__ import division, print_function, absolute_import
 
+from SafeRLBench import config
+
 __all__ = ('EnvironmentBase', 'Space')
 
 
@@ -25,10 +27,13 @@ class EnvironmentBase(object):
     horizon - unless _rollout(policy) gets overwritten
     """
 
-    # Initialize these
-    state_space = None
-    action_space = None
-    horizon = 0
+    def __init__(self, state_space, action_space, horizon=0):
+        self.state_space = state_space
+        self.action_space = action_space
+        self.horizon = horizon
+
+    # retrieve global monitor
+    monitor = config.monitor
 
     # Implement in subclasses:
     # See update(self, action) for more information
@@ -72,7 +77,9 @@ class EnvironmentBase(object):
             reward:
                 reward for resulting state
         """
+        self.monitor.before_update(self)
         ret = self._update(action)
+        self.monitor.after_update(self)
         return ret
 
     def reset(self):
@@ -82,7 +89,9 @@ class EnvironmentBase(object):
         Calls _reset() implementation of subclass.
         Supports addition of monitoring/benchmarking code.
         """
+        self.monitor.before_reset(self)
         self._reset()
+        self.monitor.after_reset(self)
 
     def rollout(self, policy):
         """
@@ -100,7 +109,9 @@ class EnvironmentBase(object):
         --------
         trace: list of (action, state, reward)-tuples
         """
+        self.monitor.before_rollout(self)
         trace = self._rollout(policy)
+        self.monitor.after_rollout(self)
         return trace
 
 
