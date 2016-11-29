@@ -34,9 +34,7 @@ class LinearCar(EnvironmentBase):
             Reward at which we want to abort. If zero we do not abort at all.
         """
         # Initialize EnivronmentBase Parameters
-        self.state_space = state_space
-        self.action_space = action_space
-        self.horizon = horizon
+        super(LinearCar, self).__init__(state_space, action_space, horizon)
 
         # Initialize State
         self.initial_state = state

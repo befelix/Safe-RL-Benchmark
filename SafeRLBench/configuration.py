@@ -4,6 +4,7 @@ from SafeRLBench import Monitor
 class SRBConfig(object):
     def __init__(self):
         """Initialize default configuration."""
+        pass
 
     @property
     def monitor(self):
