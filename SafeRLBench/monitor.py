@@ -135,8 +135,8 @@ class Monitor(object):
             self.t = now
 
     def after_step(self, alg):
-        monitor = self.monitor[alg]
-        emonitor = self.monitor[alg.environment]
+        monitor = self.monitors[alg]
+        emonitor = self.monitors[alg.environment]
 
         monitor['step_cnt'] += 1
 
@@ -148,4 +148,4 @@ class Monitor(object):
         parameter = policy.parameter
 
         # store information
-        monitor['parameter'].append(parameter)
+        monitor['parameters'].append(parameter)
