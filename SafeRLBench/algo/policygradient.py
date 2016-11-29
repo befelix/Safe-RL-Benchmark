@@ -4,6 +4,7 @@ from SafeRLBench import AlgorithmBase
 from SafeRLBench.spaces import BoundedSpace
 
 import numpy as np
+from numpy import array
 from numpy.linalg import solve, norm
 
 
@@ -13,7 +14,9 @@ class PolicyGradient(AlgorithmBase):
     def __init__(self,
                  environment, estimator='reinforce',
                  max_it=1000, eps=0.0001, est_eps=0.001,
-                 parameter_space=BoundedSpace(0, 1), rate=1):
+                 parameter_space=BoundedSpace(array([0, 0, 0]),
+                                              array([1, 1, 1])),
+                 rate=1):
         """Initialize PolicyGradient."""
         self.environment = environment
         self.parameter_space = parameter_space
@@ -35,19 +38,22 @@ class PolicyGradient(AlgorithmBase):
         while True:
             parameter = self.parameter_space.element()
 
-            grad, _ = self.estimator(policy, parameter)
+            policy.setParameter(parameter)
+            grad = self.estimator(policy)
 
             if (norm(grad) >= self.eps):
                 return parameter
 
     def _step(self, policy):
-        grad, trace = self.estimator(policy)
+        grad = self.estimator(policy)
 
         parameter = policy.parameter
         policy.setParameter(parameter + grad)
 
+        self.grad = grad
+
     def _isFinished(self):
-        return (norm(self.parameters[-1] - self.parameters[-2]) < self.eps)
+        return (norm(self.grad) < self.eps)
 
 
 class PolicyGradientEstimator(object):
@@ -63,8 +69,8 @@ class PolicyGradientEstimator(object):
         self.eps = eps
         self.max_it = max_it
 
-    def __call__(self, policy, parameter):
-        return self._estimate_gradient(policy, parameter)
+    def __call__(self, policy):
+        return self._estimate_gradient(policy)
 
 
 class ForwardFDEstimator(PolicyGradientEstimator):
@@ -76,11 +82,13 @@ class ForwardFDEstimator(PolicyGradientEstimator):
         super().__init__(environment, max_it, eps, rate)
         self.var = var
 
-    def _estimate_gradient(self, policy, parameter):
+    def _estimate_gradient(self, policy):
         env = self.environment
         var = self.var
+        # store current policy parameter
+        parameter = policy.parameter
+
         # using forward differences
-        policy.setParameter(parameter)
         trace = env.rollout(policy)
         Jref = sum([x[2] for x in trace]) / len(trace)
 
@@ -100,7 +108,10 @@ class ForwardFDEstimator(PolicyGradientEstimator):
 
         grad = solve(dV.T.dot(dV), dV.T.dot(dJ))
 
-        return grad, trace
+        # reset current policy parameter
+        policy.setParameter(parameter)
+
+        return grad
 
 
 class CentralFDEstimator(PolicyGradientEstimator):
@@ -112,11 +123,10 @@ class CentralFDEstimator(PolicyGradientEstimator):
         super().__init__(environment, max_it, eps, rate)
         self.var = var
 
-    def _estimate_gradient(self, policy, parameter):
+    def _estimate_gradient(self, policy):
         env = self.environment
 
-        policy.setParameter(parameter)
-        trace = env.rollout(policy)
+        parameter = policy.parameter
 
         dJ = np.zeros((self.par_dim))
         dV = np.eye(self.par_dim) * self.var / 2
@@ -137,7 +147,9 @@ class CentralFDEstimator(PolicyGradientEstimator):
 
         grad = solve(dV.T.dot(dV), dV.T.dot(dJ))
 
-        return grad, trace
+        policy.setParameter(parameter)
+
+        return grad
 
 
 class ReinforceEstimator(PolicyGradientEstimator):
@@ -149,12 +161,10 @@ class ReinforceEstimator(PolicyGradientEstimator):
         super().__init__(environment, max_it, eps, rate)
         self.lam = lam
 
-    def _estimate_gradient(self, policy, parameter):
+    def _estimate_gradient(self, policy):
         env = self.environment
-        par_shape = parameter.shape
+        par_shape = policy.parameter.shape
         max_it = self.max_it
-
-        policy.setParameter(parameter)
 
         b_div = np.zeros(par_shape)
         b_nom = np.zeros(par_shape)
@@ -192,7 +202,7 @@ class ReinforceEstimator(PolicyGradientEstimator):
                 return grad, trace
 
         print("Gradient did not converge!")
-        return grad, trace
+        return grad
 
 
 class GPOMDPEstimator(PolicyGradientEstimator):
@@ -204,7 +214,7 @@ class GPOMDPEstimator(PolicyGradientEstimator):
         super().__init__(environment, max_it, eps, rate)
         self.lam = lam
 
-    def _estimate_gradient(self, policy, parameter):
+    def _estimate_gradient(self, policy):
         env = self.environment
         H = env.horizon
         shape = policy.parameter_shape
@@ -215,8 +225,6 @@ class GPOMDPEstimator(PolicyGradientEstimator):
         grad = np.zeros(shape)
 
         lam = self.lam
-
-        policy.setParameter(parameter)
 
         for n in range(self.max_it):
             trace = env.rollout(policy)
@@ -252,7 +260,7 @@ class GPOMDPEstimator(PolicyGradientEstimator):
         print("Gradient did not converge!")
 
         grad /= n + 1
-        return grad, trace
+        return grad
 
 
 '''

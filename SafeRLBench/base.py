@@ -33,7 +33,11 @@ class EnvironmentBase(object):
         self.horizon = horizon
 
     # retrieve global monitor
-    monitor = config.monitor
+    @property
+    def monitor(self):
+        if not hasattr(self, '_monitor'):
+            self._monitor = config.monitor
+        return self._monitor
 
     # Implement in subclasses:
     # See update(self, action) for more information
@@ -156,33 +160,29 @@ class AlgorithmBase(object):
 
     Requirements:
     _initialize(policy):
-        Determine and set initial parameter for policy.
+        Return initial parameter for policy.
     _step(policy):
         Update policy parameter.
         Return current reward.
     _isFinished():
         Return True when algorithm is supposed to finish.
     """
+    def __init__(self, max_it):
+        self.max_it = max_it
 
-    def __new__(cls, *args, **kwargs):
-        """
-        Create an instance of an algorithm.
-
-        Initialize important tracking variables.
-        """
-        alg = super(AlgorithmBase, cls).__new__(cls)
-
-        alg.parameters = []
-        alg.rewards = []
-
-        alg.best_reward = -float('inf')
-        alg.best_parameter = None
+    @property
+    def monitor(self):
+        if not hasattr(self, '_monitor'):
+            self._monitor = config.monitor
+        return self._monitor
 
     # Have to be overwritten.
     def _initialize(self, policy):
+        """Return initial parameter."""
         raise NotImplementedError
 
     def _step(self, policy):
+        """Update parameter of policy."""
         raise NotImplementedError
 
     def _isFinished(self):
@@ -191,10 +191,11 @@ class AlgorithmBase(object):
     # May be overwritten
     def _optimize(self, policy):
         self.initialize(policy)
-        stop = False
-        while not stop:
+
+        for n in range(self.max_it):
             self.step(policy)
-            stop = self.isFinished()
+            if self.isFinished():
+                break
 
     def optimize(self, policy):
         """
@@ -206,7 +207,9 @@ class AlgorithmBase(object):
         ----------
         policy: PolicyBase subclass
         """
+        self.monitor.before_optimize(self, policy)
         self._optimize(policy)
+        self.monitor.after_optimize(self)
 
     def initialize(self, policy):
         """
@@ -218,7 +221,8 @@ class AlgorithmBase(object):
         ----------
         policy: PolicyBase subclass
         """
-        self._initialize(policy)
+        parameter = self._initialize(policy)
+        policy.setParameter(parameter)
 
     def step(self, policy):
         """
@@ -230,14 +234,9 @@ class AlgorithmBase(object):
         ----------
         policy: PolicyBase subclass
         """
-        reward = self._step(policy)
-
-        self.rewards.append(reward)
-        self.parameters.append(policy.parameters)
-
-        if reward > self.best_reward:
-            self.best_reward = reward
-            self.best_parameter = policy.parameter
+        self.monitor.before_step(self)
+        self._step(policy)
+        self.monitor.after_step(self)
 
     def isFinished(self):
         """
@@ -245,4 +244,5 @@ class AlgorithmBase(object):
 
         Wraps subclass implementation in _isFinished().
         """
-        self.isFinished()
+        stop = self._isFinished()
+        return stop
