@@ -79,7 +79,8 @@ class ForwardFDEstimator(PolicyGradientEstimator):
 
     def __init__(self, environment, max_it=200,
                  eps=0.001, rate=1, var=0.5):
-        super().__init__(environment, max_it, eps, rate)
+        super(ForwardFDEstimator, self).__init__(environment, max_it, eps,
+                                                 rate)
         self.var = var
 
     def _estimate_gradient(self, policy):
@@ -120,7 +121,8 @@ class CentralFDEstimator(PolicyGradientEstimator):
 
     def __init__(self, environment, max_it=200,
                  eps=0.001, rate=1, var=0.5):
-        super().__init__(environment, max_it, eps, rate)
+        super(CentralFDEstimator, self).__init__(environment, max_it, eps,
+                                                 rate)
         self.var = var
 
     def _estimate_gradient(self, policy):
@@ -158,7 +160,8 @@ class ReinforceEstimator(PolicyGradientEstimator):
 
     def __init__(self, environment, max_it=200,
                  eps=0.001, rate=1, lam=0.5):
-        super().__init__(environment, max_it, eps, rate)
+        super(ReinforceEstimator, self).__init__(environment, max_it, eps,
+                                                 rate)
         self.lam = lam
 
     def _estimate_gradient(self, policy):
@@ -211,7 +214,7 @@ class GPOMDPEstimator(PolicyGradientEstimator):
 
     def __init__(self, environment, max_it=200,
                  eps=0.001, rate=1, lam=0.5):
-        super().__init__(environment, max_it, eps, rate)
+        super(GPOMDPEstimator, self).__init__(environment, max_it, eps, rate)
         self.lam = lam
 
     def _estimate_gradient(self, policy):

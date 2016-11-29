@@ -53,9 +53,9 @@ class GeneralMountainCar(EnvironmentBase):
             Goal along x-coordinate
         """
         # Initialize Environment Base Parameters
-        self.state_space = state_space
-        self.action_space = action_space
-        self.horizon = horizon
+        super(GeneralMountainCar, self).__init__(state_space,
+                                                 action_space,
+                                                 horizon)
 
         # setup environment parameters
         self.goal = goal
