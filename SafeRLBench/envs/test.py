@@ -1,12 +1,14 @@
 """Tests for envs module."""
 from __future__ import absolute_import
 
+from numpy.random import randint
 # import unittest
 # from numpy.testing import *
 import inspect
 from functools import partial
 
 import SafeRLBench.envs as envs
+from SafeRLBench.tools import Policy
 
 
 class TestEnvironments(object):
@@ -42,6 +44,11 @@ class TestEnvironments(object):
             check_reset.description += c.__name__
             yield check_reset, c
 
+            check_rollout = partial(self.check_env_rollout)
+            check_rollout.description = "Check rollout implementation for "
+            check_rollout.description += c.__name__
+            yield check_rollout, c
+
     def check_env_update(self, c):
         """Check if _update is implemented."""
         env = c()
@@ -59,5 +66,27 @@ class TestEnvironments(object):
         except NotImplementedError:
             assert False
 
+    def check_env_rollout(self, c):
+        """Check rollout correctness at random positions."""
+        env = c()
+
+        def par_policy(parameter):
+            def policy(state):
+                return env.state_space.element()
+            return policy
+
+        policy = Policy(par_policy, (1,))
+        trace = env._rollout(policy)
+
+        tests = 500
+        horizon = len(trace) - 1
+        for n in range(tests):
+            idx = randint(1, horizon)
+            env.state = (trace[idx - 1])[1].copy()
+            t = trace[idx]
+            t_verify = env._update(t[0])
+            assert(t_verify[0] == t[0])
+            assert(all(t_verify[1] == t[1]))
+            assert(t_verify[2] == t[2])
 
 # TODO: Add more tests

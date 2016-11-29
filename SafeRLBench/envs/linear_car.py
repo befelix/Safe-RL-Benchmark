@@ -6,14 +6,15 @@ from numpy import copy
 from numpy.linalg import norm
 
 from SafeRLBench import EnvironmentBase
-from SafeRLBench.spaces import RdSpace
+from SafeRLBench.spaces import RdSpace, BoundedSpace
 
 
 class LinearCar(EnvironmentBase):
     """Implementation of LinearCar Environment."""
 
     def __init__(self,
-                 state_space=RdSpace((2, 1)), action_space=RdSpace((1,)),
+                 state_space=RdSpace((2, 1)),
+                 action_space=BoundedSpace(-1, 1, (1,)),
                  state=np.array([[0.], [0.]]), goal=np.array([[1.], [0.]]),
                  step=0.01, eps=0, horizon=100):
         """

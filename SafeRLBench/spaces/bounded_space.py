@@ -15,11 +15,12 @@ class BoundedSpace(Space):
     BoundedSpace(-1, 1)
     """
 
-    def __init__(self, lower, upper):
+    def __init__(self, lower, upper, shape=None):
         """Initialize BoundedSpace."""
         if (np.isscalar(lower) and np.isscalar(upper)):
-            self.lower = np.array([lower])
-            self.upper = np.array([upper])
+            assert(shape is not None)
+            self.lower = np.zeros(shape) + lower
+            self.upper = np.zeros(shape) + upper
         else:
             assert(lower.shape == upper.shape)
             self.lower = lower
