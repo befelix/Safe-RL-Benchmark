@@ -11,20 +11,42 @@ class EnvironmentBase(object):
     """
     Environment Base Class.
 
-    The methods update, reset and rollout are wrappers for the deferred
-    implementations _update, _reset and _rollout.
+    This base class defines and implements an interface to any environment
+    implementation part of the environment module. Subclasses inheriting
+    from EnvironmentBase need to make sure they meet the requirements below.
 
-    Any subclass must implement the following methods:
-    _update(self, action)
-    _reset(self)
+    Any subclass must implement:
+        * _update(action)
+        * _reset()
 
-    Any subclass might override the following methods:
-    _rollout(policy)
+    Any subclass might override:
+        * _rollout(policy)
 
-    Any subclass must initialize the following variables:
+    Initialization:
+        Make sure super().__init__ is called in any case as there may be
+        additions to the interface over time.
+
+    Attributes
+    ----------
     state_space
     action_space
-    horizon - unless _rollout(policy) gets overwritten
+    horizon
+        Maximum number of iterations until rollout will stop.
+    monitor
+
+    Methods
+    -------
+    rollout(policy)
+        Perform a rollout according to the actions selected by policy.
+    update(action)
+        Update the environment state according to the action.
+    reset()
+        Reset the environment to the initial state.
+
+    Notes
+    -----
+    When overwriting _rollout(policy) use the provided interface functions
+    and do not directly call the private implementation.
     """
 
     def __init__(self, state_space, action_space, horizon=0):
@@ -35,6 +57,7 @@ class EnvironmentBase(object):
     # retrieve global monitor
     @property
     def monitor(self):
+        """Lazily retrieve monitor instance as soon as needed."""
         if not hasattr(self, '_monitor'):
             self._monitor = config.monitor
         return self._monitor
@@ -59,11 +82,10 @@ class EnvironmentBase(object):
 
     def update(self, action):
         """
-        Wrap subclass implementation.
+        Update the environment state according to the action.
 
-        This method calls the _update(action) implementation which
-        has to be implemented in any subclass.
-        Supports addition of monitoring/benchmarking code.
+        Wraps the subclass implementation _update(action) providing
+        monitoring capabilities.
 
         Parameters
         ----------
@@ -88,10 +110,10 @@ class EnvironmentBase(object):
 
     def reset(self):
         """
-        Wrap subclass implementation.
+        Reset the environment to initial state.
 
-        Calls _reset() implementation of subclass.
-        Supports addition of monitoring/benchmarking code.
+        Reset wraps the subclass implementation _reset() providing monitoring
+        capabilities.
         """
         self.monitor.before_reset(self)
         self._reset()
@@ -99,10 +121,10 @@ class EnvironmentBase(object):
 
     def rollout(self, policy):
         """
-        Wrap subclass implementation.
+        Perform a rollout according to the actions selected by policy.
 
-        Calls _rollout(policy) implementation of subclass.
-        Supports addition of monitoring/benchmarking code.
+        Wraps the implementation _rollout(policy) providing monitoring
+        capabilities.
 
         Parameters
         ----------
@@ -139,6 +161,8 @@ class AlgorithmBase(object):
     """
     Baseclass for any algorithm.
 
+    This baseclass defines a uniform interface for any algorithm part of
+    the algorithm module SafeRLBench.algo.
     This baseclass features monitoring capabilities for algorithm
     implementations. It is supposed to a uniform interface for any algorithm
     part of the algo module.
@@ -194,11 +218,9 @@ class AlgorithmBase(object):
 
     # Have to be overwritten.
     def _initialize(self, policy):
-        """Return initial parameter."""
         raise NotImplementedError
 
     def _step(self, policy):
-        """Update parameter of policy."""
         raise NotImplementedError
 
     def _isFinished(self):
