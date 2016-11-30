@@ -65,26 +65,26 @@ class EnvironmentBase(object):
         has to be implemented in any subclass.
         Supports addition of monitoring/benchmarking code.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         action: array-like
             Element of action_space
 
-        Return:
+        Returns
         -------
         Tuple: (action, state, reward):
-            action:
+            action : array-like
                 element of action space as it has been applied in update
-            state:
+            state : array-like
                 element of state_space which is the resulting state after
                 applying action
-            reward:
+            reward : float
                 reward for resulting state
         """
         self.monitor.before_update(self)
-        ret = self._update(action)
+        t = self._update(action)
         self.monitor.after_update(self)
-        return ret
+        return t
 
     def reset(self):
         """
@@ -104,14 +104,14 @@ class EnvironmentBase(object):
         Calls _rollout(policy) implementation of subclass.
         Supports addition of monitoring/benchmarking code.
 
-        Parameters:
-        -----------
-        Policy: callable
+        Parameters
+        ----------
+        Policy : callable
             Maps element of state_space to element of action_space
 
-        Returns:
-        --------
-        trace: list of (action, state, reward)-tuples
+        Returns
+        -------
+        trace : list of (action, state, reward)-tuples
         """
         self.monitor.before_rollout(self)
         trace = self._rollout(policy)
@@ -139,31 +139,46 @@ class AlgorithmBase(object):
     """
     Baseclass for any algorithm.
 
-    The optimize method wraps the _optimize implementation which default
-    implementation makes use of initialize(policy), step(policy) and
-    isFinished().
-    These funtions are wrappers for the listed implementations below,
-    supporting logging and monitoring of the algorithm.
+    This baseclass features monitoring capabilities for algorithm
+    implementations. It is supposed to a uniform interface for any algorithm
+    part of the algo module.
 
     Any subclass must overwrite:
-    _initialize(policy)
-    _step(policy)
-    _isFinished()
+        * _initialize(policy)
+        * _step(policy)
+        * _isFinished()
 
     Any subclass may overwrite:
-    _optimize(policy)
+        * _optimize(policy)
 
-    It might be infeasable to allow overwriting _optimize, so this will
-    potentially change.
     In case one does overwrite _optimize, the functions _initialize(),
     _step(parameter), _isFinished() may just pass unless they are used.
 
-    Requirements:
-    _initialize(policy):
+    Attributes
+    ----------
+    max_it : int
+        Maximum number of iterations
+    monitor
+
+    Methods
+    -------
+    optimize(policy)
+        Optimize a policy with respective algorithm.
+    initialize(policy)
+        Initialize policy parameter.
+    step(policy)
+        Update policy parameters.
+    isFinished()
+        Return true when algorithm is finished.
+
+    Notes
+    -----
+    Specification of the private functions.
+
+    _initialize(self, policy):
         Return initial parameter for policy.
     _step(policy):
         Update policy parameter.
-        Return current reward.
     _isFinished():
         Return True when algorithm is supposed to finish.
     """
@@ -172,6 +187,7 @@ class AlgorithmBase(object):
 
     @property
     def monitor(self):
+        """Lazily retrieve monitor to track execution."""
         if not hasattr(self, '_monitor'):
             self._monitor = config.monitor
         return self._monitor
@@ -203,7 +219,7 @@ class AlgorithmBase(object):
 
         Wraps subclass implementation in _optimize(policy).
 
-        Parameter:
+        Parameters
         ----------
         policy: PolicyBase subclass
         """
@@ -217,7 +233,7 @@ class AlgorithmBase(object):
 
         Wraps subclass implementation in _initialize(policy)
 
-        Parameter:
+        Parameters
         ----------
         policy: PolicyBase subclass
         """
@@ -230,7 +246,7 @@ class AlgorithmBase(object):
 
         Wraps subclass implementation in _step(policy).
 
-        Parameter:
+        Parameters
         ----------
         policy: PolicyBase subclass
         """
