@@ -11,8 +11,8 @@ from . import algo
 from . import envs
 from . import tools
 
-# Add everython to all
-__all__ = ['EnvironmentBase', 'Space', 'AlgorithmBase', 'Monitor',
+# Add things to all
+__all__ = ['EnvironmentBase', 'Space', 'AlgorithmBase', 'Monitor', 'SRBConfig',
            'envs', 'tools', 'algo']
 
 

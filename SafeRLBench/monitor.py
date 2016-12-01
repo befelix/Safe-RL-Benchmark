@@ -5,7 +5,22 @@ logger = logging.getLogger(__name__)
 
 
 class Monitor(object):
-    """This class is used to track algorithms and environments."""
+    """
+    This class is used to track algorithms and environments.
+
+    Methods
+    -------
+    before_update
+    after_update
+    before_rollout
+    after_rollout
+    before_reset
+    after_reset
+    before_optimize
+    after_optimize
+    before_step
+    after_step
+    """
 
     def __init__(self, verbose=0):
         self.verbose = verbose

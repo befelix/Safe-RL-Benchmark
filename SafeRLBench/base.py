@@ -32,7 +32,6 @@ class EnvironmentBase(object):
     action_space
     horizon
         Maximum number of iterations until rollout will stop.
-    monitor
 
     Methods
     -------
@@ -42,6 +41,7 @@ class EnvironmentBase(object):
         Update the environment state according to the action.
     reset()
         Reset the environment to the initial state.
+    monitor
 
     Notes
     -----
@@ -146,6 +146,13 @@ class Space(object):
     Baseclass for Spaceobject.
 
     All methods have to be implemented in any subclass.
+
+    Methods
+    -------
+    contains
+        Check if x is an element of space.
+    element
+        Return arbitray element in space.
     """
 
     def contains(self, x):
