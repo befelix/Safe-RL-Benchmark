@@ -25,20 +25,7 @@ class Monitor(object):
     def __init__(self, verbose=0):
         self.verbose = verbose
 
-        # rollout
-        self._rollout_cnt = {}
-
-        # optimize
-        self._optimize_start = {}
-        self.optimize_times = {}
-        self.optimize_policy = {}
-
-        # step
-        self.parameters = {}
-        self.traces = {}
-        self.rewards = {}
-        self.step_cnts = {}
-        self.rollout_cnts = {}
+        self.monitors = {}
 
     def before_update(self, env):
         pass
@@ -47,11 +34,11 @@ class Monitor(object):
         pass
 
     def before_rollout(self, env):
-        if env not in self._rollout_cnt:
-            self._rollout_cnt[env] = 0
+        if env not in self.monitors:
+            self.monitors[env] = _EnvMonitor()
 
     def after_rollout(self, env):
-        self._rollout_cnt[env] += 1
+        self.monitors[env].rollout_cnt += 1
 
     def before_reset(self, env):
         pass
@@ -64,62 +51,63 @@ class Monitor(object):
         if self.verbose > 0:
             logger.info('Starting optimization of %s...', str(alg))
 
-        # register algorithm
-        # init policy
-        self.optimize_policy[alg] = policy
+        # init monitor dict for algorithm
+        monitor = _AlgMonitor()
+        monitor.policy = policy
 
-        # init tracking information
-        self.step_cnts[alg] = 0
-        self.parameters[alg] = []
-        self.traces[alg] = []
-        self.rewards[alg] = []
+        self.monitors[alg] = monitor
+
+        if alg.environment not in self.monitors:
+            self.monitors[alg.environment] = _EnvMonitor()
 
         # init optimization time control
-        self.optimize_times[alg] = []
-        self._optimize_start[alg] = time.time()
+        monitor.optimize_start = time.time()
 
     def after_optimize(self, alg):
         """Catch data after optimization run."""
+        monitor = self.monitors[alg]
         # retrieve time of optimization
         optimize_end = time.time()
-        optimize_time = optimize_end - self._optimize_start[alg]
+        optimize_time = optimize_end - monitor.optimize_start
 
-        if self._optimize_start[alg] == 0:
+        if monitor.optimize_start == 0:
             logger.warning('Time measure for optimize corrupted')
 
-        self._optimize_start[alg] = 0
+        monitor.optimize_start = 0
 
-        self.optimize_times[alg].append(optimize_time)
+        monitor.optimize_time = optimize_time
 
         # independently compute traces after optimization is finished
         if self.verbose > 0:
             logger.info('Computing traces for %s run...', str(alg))
 
-        policy = self.optimize_policy[alg]
+        policy = monitor.policy
 
-        for parameter in self.parameters[alg]:
+        for parameter in monitor.parameters:
 
             policy.setParameter(parameter)
 
             # compute trace
             trace = alg.environment._rollout(policy)
-            self.traces[alg].append(trace)
+            monitor.traces.append(trace)
 
             # compute total reward
             reward = sum([t[2] for t in trace])
-            self.rewards[alg].append(reward)
+            monitor.rewards.append(reward)
 
     def before_step(self, alg):
         # count the number of rollouts for each step
-        self._rollout_cnt[alg.environment] = 0
+        self.monitors[alg.environment].rollout_cnt = 0
 
         if self.verbose > 1:
             logger.info('Computing step %d for %s...', self.step_cnts[alg],
                         str(alg))
 
         # place holding code to make sure we see something at this stage
-        n = self.step_cnts[alg]
-        parameter = self.optimize_policy[alg].parameter
+        monitor = self.monitors[alg]
+        n = monitor.step_cnt
+        parameter = monitor.policy.parameter
+
         if n == 0:
             self.t = time.time()
         elif n % 100 == 0:
@@ -132,15 +120,37 @@ class Monitor(object):
             self.t = now
 
     def after_step(self, alg):
+        monitor = self.monitors[alg]
+        emonitor = self.monitors[alg.environment]
 
-        self.step_cnts[alg] += 1
+        monitor.step_cnt += 1
 
         # store the number of rollouts since before step
-        self.rollout_cnts[alg].append(self.rollout_cnt[alg.environment])
+        monitor.rollout_cnts.append(emonitor.rollout_cnt)
 
         # retrieve information
-        policy = self.optimize_policy[alg]
+        policy = monitor.policy
         parameter = policy.parameter
 
         # store information
-        self.parameters[alg].append(parameter)
+        monitor.parameters.append(parameter)
+
+
+class _EnvMonitor(object):
+    """Class to store environment tracking data."""
+    def __init__(self):
+        self.rollout_cnt = 0
+
+
+class _AlgMonitor(object):
+    """Class used to store algorithm tracking data."""
+    def __init__(self):
+        self.optimize_start = 0
+        self.optimize_time = 0
+
+        self.step_cnt = 0
+        self.rollout_cnts = []
+
+        self.parameters = []
+        self.traces = []
+        self.rewards = []
