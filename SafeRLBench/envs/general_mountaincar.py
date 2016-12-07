@@ -1,6 +1,4 @@
 """General Mountain Car."""
-from __future__ import division, absolute_import
-
 import numpy as np
 from numpy import pi, array, copy
 
