@@ -20,7 +20,7 @@ class Monitor(object):
 
     def before_rollout(self, env):
         if env not in self.monitors:
-            self.monitors[env] = EnvMonitor()
+            self.monitors[env] = _EnvMonitor()
 
     def after_rollout(self, env):
         self.monitors[env].rollout_cnt += 1
@@ -37,13 +37,13 @@ class Monitor(object):
             logger.info('Starting optimization of %s...', str(alg))
 
         # init monitor dict for algorithm
-        monitor = AlgMonitor()
+        monitor = _AlgMonitor()
         monitor.policy = policy
 
         self.monitors[alg] = monitor
 
         if alg.environment not in self.monitors:
-            self.monitors[alg.environment] = EnvMonitor()
+            self.monitors[alg.environment] = _EnvMonitor()
 
         # init optimization time control
         monitor.optimize_start = time.time()
@@ -121,13 +121,13 @@ class Monitor(object):
         monitor.parameters.append(parameter)
 
 
-class EnvMonitor(object):
+class _EnvMonitor(object):
     """Class to store environment tracking data."""
     def __init__(self):
         self.rollout_cnt = 0
 
 
-class AlgMonitor(object):
+class _AlgMonitor(object):
     """Class used to store algorithm tracking data."""
     def __init__(self):
         self.optimize_start = 0
