@@ -16,6 +16,45 @@
 import os
 import sys
 import sphinx_rtd_theme
+import mock
+
+
+class Mock(mock.Mock):
+
+    @classmethod
+    def getattr(cls, name):
+        return Mock()
+
+    def add(self, other):
+        return Mock()
+
+
+# configure mocks
+MOCK_MODULES = [
+    'theano',
+    'theano.tensor',
+    'matplotlib',
+    'matplotlib.pyplot',
+    'numpy',
+    'numpy.random',
+    'numpy.linalg',
+]
+
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
+
+
+# configure some return values
+def returnFalse(*args):
+    return False
+
+
+def returnTrue(*args):
+    return True
+
+
+sys.modules['numpy'].isscalar.side_effect = returnFalse
+sys.modules['numpy'].array.shape.side_effect = returnTrue
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

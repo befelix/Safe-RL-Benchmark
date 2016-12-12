@@ -20,8 +20,8 @@ class LinearCar(EnvironmentBase):
 
         Baseclass Parameters as in base.py.
 
-        Parameters:
-        -----------
+        Attributes
+        ----------
         state: array-like
             Element of state_space. Specifies initial state.
         goal: array-like

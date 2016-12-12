@@ -28,10 +28,12 @@ class EnvironmentBase(object):
 
     Attributes
     ----------
-    state_space
-    action_space
-    horizon
+    state_space :
+    action_space :
+    horizon :
         Maximum number of iterations until rollout will stop.
+    monitor :
+        Lazily retrieve monitor instance as soon as needed.
 
     Methods
     -------
@@ -41,7 +43,6 @@ class EnvironmentBase(object):
         Update the environment state according to the action.
     reset()
         Reset the environment to the initial state.
-    monitor
 
     Notes
     -----
@@ -57,7 +58,12 @@ class EnvironmentBase(object):
     # retrieve global monitor
     @property
     def monitor(self):
-        """Lazily retrieve monitor instance as soon as needed."""
+        """
+        Lazily retrieve monitor instance as soon as needed.
+
+        The monitor is globally defined and allows dynamic tracking of method
+        calls in the environment and algorithm classes.
+        """
         if not hasattr(self, '_monitor'):
             self._monitor = config.monitor
         return self._monitor
@@ -189,7 +195,8 @@ class AlgorithmBase(object):
     ----------
     max_it : int
         Maximum number of iterations
-    monitor
+    monitor :
+        Lazily retrieve monitor to track execution
 
     Methods
     -------

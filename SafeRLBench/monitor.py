@@ -10,16 +10,16 @@ class Monitor(object):
 
     Methods
     -------
-    before_update
-    after_update
-    before_rollout
-    after_rollout
-    before_reset
-    after_reset
-    before_optimize
-    after_optimize
-    before_step
-    after_step
+    before_update()
+    after_update()
+    before_rollout()
+    after_rollout()
+    before_reset()
+    after_reset()
+    before_optimize()
+    after_optimize()
+    before_step()
+    after_step()
     """
 
     def __init__(self, verbose=0):
@@ -47,7 +47,16 @@ class Monitor(object):
         pass
 
     def before_optimize(self, alg, policy):
-        """Setup montitor for optimization run."""
+        """
+        Setup montitor for optimization run.
+
+        Parameters
+        ----------
+        alg :
+            the algorithm instance to be monitored
+        policy :
+            the policy which is passed to the algorithms optimization method
+        """
         if self.verbose > 0:
             logger.info('Starting optimization of %s...', str(alg))
 

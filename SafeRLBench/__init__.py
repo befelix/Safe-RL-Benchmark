@@ -17,5 +17,5 @@ __all__ = ['EnvironmentBase', 'Space', 'AlgorithmBase', 'Monitor', 'SRBConfig',
 
 
 # Import test after __all__ (no documentation)
-from numpy.testing import Tester
-test = Tester().test
+# from numpy.testing import Tester
+# test = Tester().test
