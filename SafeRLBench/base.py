@@ -155,7 +155,7 @@ class Space(object):
 
     Methods
     -------
-    contains
+    contains(x)
         Check if x is an element of space.
     element
         Return arbitray element in space.

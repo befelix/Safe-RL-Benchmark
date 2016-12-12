@@ -7,7 +7,8 @@ class SRBConfig(object):
 
     Attributes
     ----------
-    monitor
+    monitor :
+        Lazily generate monitor as configured.
     """
     def __init__(self):
         """Initialize default configuration."""
