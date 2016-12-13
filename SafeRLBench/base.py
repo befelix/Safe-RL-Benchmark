@@ -146,6 +146,9 @@ class EnvironmentBase(object):
         self.monitor.after_rollout(self)
         return trace
 
+    def __repr__(self):
+        return self.__class__.__name__
+
 
 class Space(object):
     """
@@ -304,3 +307,8 @@ class AlgorithmBase(object):
         """
         stop = self._isFinished()
         return stop
+
+    def __repr__(self):
+        if hasattr(self, '_info'):
+            return self._info()
+        return self.__class__.__name__

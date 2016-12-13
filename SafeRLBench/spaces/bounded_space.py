@@ -39,3 +39,7 @@ class BoundedSpace(Space):
     def shape(self):
         """Return element shape."""
         return self.lower.shape
+
+    def __repr__(self):
+        return 'BoundedSpace(lower=%s, upper=%s)' % (str(self.lower),
+                                                     str(self.upper))

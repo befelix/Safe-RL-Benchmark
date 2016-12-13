@@ -4,8 +4,11 @@ from SafeRLBench import AlgorithmBase
 from SafeRLBench.spaces import BoundedSpace
 
 import numpy as np
-from numpy import array
 from numpy.linalg import solve, norm
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PolicyGradient(AlgorithmBase):
@@ -23,8 +26,7 @@ class PolicyGradient(AlgorithmBase):
     def __init__(self,
                  environment, policy, estimator='reinforce',
                  max_it=1000, eps=0.0001, est_eps=0.001,
-                 parameter_space=BoundedSpace(array([0, 0, 0]),
-                                              array([1, 1, 1])),
+                 parameter_space=BoundedSpace(0, 1, (3,)),
                  rate=1):
         """Initialize PolicyGradient."""
         self.environment = environment
@@ -50,6 +52,8 @@ class PolicyGradient(AlgorithmBase):
 
             self.policy.setParameter(parameter)
             grad = self.estimator(self.policy)
+
+            logger.debug("Gradient type %s", str(type(grad)))
 
             if (norm(grad) >= self.eps):
                 return parameter
@@ -78,6 +82,9 @@ class PolicyGradientEstimator(object):
         self.rate = rate
         self.eps = eps
         self.max_it = max_it
+
+    def __repr__(self):
+        return self.__class__.__name__
 
     def __call__(self, policy):
         return self._estimate_gradient(policy)
@@ -212,9 +219,10 @@ class ReinforceEstimator(PolicyGradientEstimator):
             grad = grads / (n + 1)
 
             if (n > 2 and norm(grad_old - grad) < self.eps):
-                return grad, trace
+                return grad
 
-        print("Gradient did not converge!")
+        logger.warning('ReinforceEstimator did not converge!'
+                       + 'You may want to raise max_it.')
         return grad
 
 
@@ -267,11 +275,11 @@ class GPOMDPEstimator(PolicyGradientEstimator):
 
             if (n > 2 and norm(grad_update / (n + 1)) < self.eps):
                 grad /= (n + 1)
-                return grad, trace
+                return grad
             grad += np.nan_to_num(grad_update)
 
-        print("Gradient did not converge!")
-
+        logger.warning('GPOMDP did not converge! '
+                       + 'You may want to raise max_it.')
         grad /= n + 1
         return grad
 

@@ -1,6 +1,7 @@
 from SafeRLBench import EnvironmentBase, AlgorithmBase
 
 import logging
+import pprint
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,6 @@ class Bench(object):
         if algos is None:
             self.algos = []
         else:
-            algos = dict(algos)
             if check_algos(algos):
                 self.algos = algos
             else:
@@ -51,7 +51,6 @@ class Bench(object):
         if envs is None:
             self.envs = []
         else:
-            envs = dict(envs)
             if check_envs(envs):
                 self.envs = envs
             else:
@@ -82,15 +81,17 @@ class Bench(object):
         self._runTests()
 
     def _runTests(self):
-
         for test in self.tests:
+            logger.debug('Dispatch test: \n%s',
+                         pprint.pformat(test.__dict__))
             test.optimize()
 
     def _instantiateObjects(self):
         # loop over all possible combinations
         for alg in self.algos:
             for env in self.envs:
-                for (alg_conf, env_conf) in self.configs[alg, env]:
+                configs = self.configs[alg, env]
+                for (alg_conf, env_conf) in zip(configs[0], configs[1]):
                     env_obj = env(**env_conf)
                     alg_obj = alg(env_obj, **alg_conf)
 
