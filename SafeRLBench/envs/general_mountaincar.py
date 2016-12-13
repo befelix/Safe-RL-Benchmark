@@ -6,8 +6,6 @@ import theano.tensor as T
 from theano.tensor import TensorVariable
 from theano import function, grad
 
-import matplotlib.pyplot as plt
-
 from SafeRLBench.base import EnvironmentBase
 from SafeRLBench.spaces import BoundedSpace, RdSpace
 
@@ -125,49 +123,3 @@ class GeneralMountainCar(EnvironmentBase):
     def position(self):
         """Compute current position in x."""
         return(self.state[0])
-
-    # Everything below will either be removed or completly changed
-    def plot(self):
-        """
-        Plot contour with current position marked.
-
-        Update plot figure if already exists.
-        """
-        if self.figure is None:
-            plt.ion()
-
-            figure = plt.figure()
-            plot = figure.add_subplot(111)
-
-            # plot contour
-            def draw_contour(t):
-                return self.hx(t).item()
-            x = np.linspace(self.min_position, self.max_position, 50)
-            y = list(map(draw_contour, x))
-
-            plot.plot(x, y)
-
-            # plot car
-            point, = plot.plot([self._position()], [self._height()], 'or')
-
-            # draw
-            figure.canvas.draw()
-
-            # store figure references
-            self.figure = figure
-            self.plot = plot
-            self.point = point
-        else:
-            # update car
-            point = self.point
-
-            point.set_xdata([self._position()])
-            point.set_ydata([self._height()])
-
-            self.figure.canvas.draw()
-
-    def animate(self, action, steps):
-        """To be deleted."""
-        for n in range(steps):
-            self._plot()
-            self._update(action)
