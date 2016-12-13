@@ -1,7 +1,11 @@
 import logging
 import time
 
-from collections import UserDict
+try:
+    from collections import UserDict
+except ImportError:
+    # python 2.7 compatibility :(
+    from UserDict import UserDict
 
 logger = logging.getLogger(__name__)
 
