@@ -9,16 +9,26 @@ from numpy.linalg import solve, norm
 
 
 class PolicyGradient(AlgorithmBase):
-    """Implementing many policy gradient methods."""
+    """
+    Implementing many policy gradient methods.
+
+    Attributes
+    ----------
+    environment :
+        environment we want to run the optimization
+    policy :
+        the policy to be optimized
+    """
 
     def __init__(self,
-                 environment, estimator='reinforce',
+                 environment, policy, estimator='reinforce',
                  max_it=1000, eps=0.0001, est_eps=0.001,
                  parameter_space=BoundedSpace(array([0, 0, 0]),
                                               array([1, 1, 1])),
                  rate=1):
         """Initialize PolicyGradient."""
         self.environment = environment
+        self.policy = policy
         self.parameter_space = parameter_space
 
         self.max_it = max_it
@@ -34,21 +44,21 @@ class PolicyGradient(AlgorithmBase):
 
         self.estimator = estimator(environment, max_it, est_eps, rate)
 
-    def _initialize(self, policy):
+    def _initialize(self):
         while True:
             parameter = self.parameter_space.element()
 
-            policy.setParameter(parameter)
-            grad = self.estimator(policy)
+            self.policy.setParameter(parameter)
+            grad = self.estimator(self.policy)
 
             if (norm(grad) >= self.eps):
                 return parameter
 
-    def _step(self, policy):
-        grad = self.estimator(policy)
+    def _step(self):
+        grad = self.estimator(self.policy)
 
-        parameter = policy.parameter
-        policy.setParameter(parameter + grad)
+        parameter = self.policy.parameter
+        self.policy.setParameter(parameter + grad)
 
         self.grad = grad
 

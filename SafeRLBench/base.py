@@ -193,6 +193,10 @@ class AlgorithmBase(object):
 
     Attributes
     ----------
+    environment :
+        Environment we want to optimize on
+    policy :
+        Policy to be optimized
     max_it : int
         Maximum number of iterations
     monitor :
@@ -220,7 +224,9 @@ class AlgorithmBase(object):
     _isFinished():
         Return True when algorithm is supposed to finish.
     """
-    def __init__(self, max_it):
+    def __init__(self, environment, policy, max_it):
+        self.environment = environment
+        self.policy = policy
         self.max_it = max_it
 
     @property
@@ -231,25 +237,25 @@ class AlgorithmBase(object):
         return self._monitor
 
     # Have to be overwritten.
-    def _initialize(self, policy):
+    def _initialize(self):
         raise NotImplementedError
 
-    def _step(self, policy):
+    def _step(self):
         raise NotImplementedError
 
     def _isFinished(self):
         raise NotImplementedError
 
     # May be overwritten
-    def _optimize(self, policy):
-        self.initialize(policy)
+    def _optimize(self):
+        self.initialize()
 
         for n in range(self.max_it):
-            self.step(policy)
+            self.step()
             if self.isFinished():
                 break
 
-    def optimize(self, policy):
+    def optimize(self):
         """
         Optimize policy parameter.
 
@@ -259,11 +265,11 @@ class AlgorithmBase(object):
         ----------
         policy: PolicyBase subclass
         """
-        self.monitor.before_optimize(self, policy)
-        self._optimize(policy)
+        self.monitor.before_optimize(self)
+        self._optimize()
         self.monitor.after_optimize(self)
 
-    def initialize(self, policy):
+    def initialize(self):
         """
         Initialize policy parameter.
 
@@ -273,10 +279,10 @@ class AlgorithmBase(object):
         ----------
         policy: PolicyBase subclass
         """
-        parameter = self._initialize(policy)
-        policy.setParameter(parameter)
+        parameter = self._initialize()
+        self.policy.setParameter(parameter)
 
-    def step(self, policy):
+    def step(self):
         """
         Update policy parameter.
 
@@ -287,7 +293,7 @@ class AlgorithmBase(object):
         policy: PolicyBase subclass
         """
         self.monitor.before_step(self)
-        self._step(policy)
+        self._step()
         self.monitor.after_step(self)
 
     def isFinished(self):
