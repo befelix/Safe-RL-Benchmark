@@ -31,10 +31,7 @@ class Monitor(UserDict):
     def __init__(self, verbose=0):
         self.verbose = verbose
 
-        try:
-            super(Monitor, self).__init__()
-        except TypeError:
-            UserDict.__init__()
+        self.data = {}
 
     def before_update(self, env):
         pass
