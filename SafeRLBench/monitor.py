@@ -31,7 +31,7 @@ class Monitor(UserDict):
     def __init__(self, verbose=0):
         self.verbose = verbose
 
-        super().__init__()
+        super(Monitor, self).__init__()
 
     def before_update(self, env):
         pass
