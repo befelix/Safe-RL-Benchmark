@@ -8,7 +8,7 @@ from theano import function, grad
 
 import matplotlib.pyplot as plt
 
-from SafeRLBench import EnvironmentBase
+from SafeRLBench.base import EnvironmentBase
 from SafeRLBench.spaces import BoundedSpace, RdSpace
 
 
