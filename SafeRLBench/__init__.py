@@ -9,14 +9,14 @@ from .configuration import SRBConfig
 config = SRBConfig(logging.getLogger(__name__))
 
 from .base import EnvironmentBase, Space, AlgorithmBase
-from .bench import Bench
+from .bench import Bench, BenchConfig
 from . import algo
 from . import envs
 from . import tools
 
 # Add things to all
 __all__ = ['EnvironmentBase', 'Space', 'AlgorithmBase', 'Monitor', 'SRBConfig',
-           'Bench', 'envs', 'tools', 'algo']
+           'Bench', 'BenchConfig', 'envs', 'tools', 'algo']
 
 
 # Import test after __all__ (no documentation)

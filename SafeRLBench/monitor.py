@@ -69,6 +69,7 @@ class Monitor(UserDict):
         # init monitor dict for algorithm
         monitor = _AlgMonitor()
         monitor.policy = alg.policy
+        monitor.t = time.time()
 
         self[alg] = monitor
 
@@ -114,25 +115,9 @@ class Monitor(UserDict):
         # count the number of rollouts for each step
         self[alg.environment].rollout_cnt = 0
 
-        if self.verbose > 1:
-            logger.info('Computing step %d for %s...', self.step_cnts[alg],
+        if self.verbose > 2:
+            logger.info('Computing step %d for %s...', self[alg].step_cnt,
                         str(alg))
-
-        # place holding code to make sure we see something at this stage
-        monitor = self[alg]
-        n = monitor.step_cnt
-        parameter = monitor.policy.parameter
-
-        if n == 0:
-            self.t = time.time()
-        elif n % 100 == 0:
-            print("Run: " + str(n) + "  \tParameter: \t" + str(parameter)
-                  + "\n\t\tGradient: \t" + str(alg.grad))
-            now = time.time()
-            print("\t\tAverage Time: "
-                  + "\t{:.2f}".format((now - self.t) / 100)
-                  + "s/step")
-            self.t = now
 
     def after_step(self, alg):
         monitor = self[alg]
@@ -149,6 +134,46 @@ class Monitor(UserDict):
 
         # store information
         monitor.parameters.append(parameter)
+
+        # log if wanted
+        self._step_log(alg)
+
+    def _step_log(self, alg):
+        # print information if wanted
+        monitor = self[alg]
+        n = monitor.step_cnt
+        log = 0
+
+        # check verbosity level
+        if self.verbose > 0:
+            if monitor.step_cnt % 1000 == 0:
+                log = 1000
+
+        if self.verbose > 1:
+            if monitor.step_cnt % 100 == 0:
+                log = 100
+
+        if self.verbose > 2:
+            log = 1
+
+        if log:
+            # generate time strings
+            now = time.time()
+            t = now - monitor.optimize_start
+            t_s = "{:.2f}".format(t)
+            avg_s = "{:.3f}".format(t / n)
+
+            # retrieve current state
+            par_s = str(alg.policy.parameter)
+            grad_s = str(alg.grad)
+
+            # generate log message
+            msg = 'Status for ' + alg.__class__.__name__ + ' on '
+            msg += alg.environment.__class__.__name__ + ':\n\n'
+            msg += '\tRun: %d\tTime: %s\t Avg: %s\n' % (n, t_s, avg_s)
+            msg += '\tParameter: \t%s\n\tGradient: \t%s\n' % (par_s, grad_s)
+
+            logger.info(msg)
 
 
 class _EnvMonitor(object):

@@ -1,11 +1,16 @@
 from SafeRLBench import EnvironmentBase, AlgorithmBase
 
+try:
+    from collections import UserDict
+except:
+    from UserDict import UserDict
+
 import logging
 import pprint
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['Bench']
+__all__ = ['Bench', 'BenchConfig']
 
 
 def check_algos(algos):
@@ -66,14 +71,14 @@ class Bench(object):
         else:
             self.measures = measures
 
-        self.tests = []
+        self.runs = []
 
     def __call__(self):
         self.benchmark()
 
     def benchmark(self):
 
-        # Initialize all tests
+        # Initialize all runs
         self._instantiateObjects()
 
         # Run tests
@@ -81,23 +86,24 @@ class Bench(object):
         self._runTests()
 
     def _runTests(self):
-        for test in self.tests:
-            logger.debug('Dispatch test: \n%s',
-                         pprint.pformat(test.__dict__))
-            test.optimize()
+        for run in self.runs:
+            logger.debug('DISPATCH RUN:\n\n%s\n',
+                         str(run))
+            run.alg.optimize()
 
     def _instantiateObjects(self):
         # loop over all possible combinations
         for alg in self.algos:
             for env in self.envs:
-                configs = self.configs[alg, env]
-                for (alg_conf, env_conf) in zip(configs[0], configs[1]):
+                for (alg_conf, env_conf) in self.configs[alg, env]:
                     env_obj = env(**env_conf)
                     alg_obj = alg(env_obj, **alg_conf)
 
-                    self.tests.append(alg_obj)
+                    run = BenchRun(alg_obj, env_obj, (alg_conf, env_conf))
 
-        logger.info("Initialized %d tests.", len(self.tests))
+                    self.runs.append(run)
+
+        logger.info("Initialized %d runs.", len(self.runs))
 
     def addAlgorithm(self, alg):
         if issubclass(alg, AlgorithmBase):
@@ -116,3 +122,53 @@ class Bench(object):
 
     def plotMeasure(self):
         pass
+
+
+class BenchConfig(UserDict):
+    def __init__(self):
+        self.data = {}
+
+    def addAlgConfig(self, alg, env, alg_confs, env_conf={}):
+        """
+        Add an algorithm configuration for an environment setup.
+
+        Parameters
+        ----------
+        alg :
+            Algorithm class
+        env :
+            Environment class
+        alg_configs :
+            List of configuration for algorithm
+        env_config :
+            Configuration for environment
+        """
+        if (alg, env) not in self:
+            self[alg, env] = []
+
+        for alg_conf in alg_confs:
+            self[alg, env].append((alg_conf, env_conf))
+
+
+class BenchRun(UserDict):
+    def __init__(self, alg, env, config):
+        self.alg = alg
+        self.env = env
+
+        self.data = {
+            self.alg: config[0],
+            self.env: config[1]
+        }
+
+    def getAlgMonitor(self):
+        return self.alg.monitor[self.alg]
+
+    def getEnvMonitor(self):
+        return self.env.monitor[self.env]
+
+    def __repr__(self):
+        out = []
+        out += ['Algorithm: ', [self.alg.__class__.__name__, self[self.alg]]]
+        out += ['Environment: ', [self.env.__class__.__name__, self[self.env]]]
+        trans_dict = {ord(c): ord(' ') for c in ',\'\[\]'}
+        return pprint.pformat(out, indent=2).translate(trans_dict)
