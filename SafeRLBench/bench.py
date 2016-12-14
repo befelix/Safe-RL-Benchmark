@@ -1,3 +1,4 @@
+"""Benchmarking facilities."""
 from SafeRLBench import EnvironmentBase, AlgorithmBase
 
 try:
@@ -77,7 +78,7 @@ class Bench(object):
         self.benchmark()
 
     def benchmark(self):
-
+        """Initialize and run benchmark as configured."""
         # Initialize all runs
         self._instantiateObjects()
 
@@ -95,6 +96,11 @@ class Bench(object):
         # loop over all possible combinations
         for alg in self.algos:
             for env in self.envs:
+                if not self.configs[alg, env]:
+                    logger.warning('No configuration for (%s, %s)',
+                                   alg.__class__.__name__,
+                                   env.__class__.__name__)
+
                 for (alg_conf, env_conf) in self.configs[alg, env]:
                     env_obj = env(**env_conf)
                     alg_obj = alg(env_obj, **alg_conf)
@@ -150,25 +156,36 @@ class BenchConfig(UserDict):
             self[alg, env].append((alg_conf, env_conf))
 
 
-class BenchRun(UserDict):
+class BenchRun(object):
+    """
+    Wrapper containing instances and configuration for a run.
+
+    Attributes
+    ----------
+    alg :
+        Algorithm instance
+    env :
+        Environment instance
+    config : (Dict, Dict)
+        Tuple of configurations for algorithm and environment
+    """
     def __init__(self, alg, env, config):
         self.alg = alg
         self.env = env
 
-        self.data = {
-            self.alg: config[0],
-            self.env: config[1]
-        }
+        self.config = config
 
     def getAlgMonitor(self):
+        """Retrieve AlgMonitor for algorithm."""
         return self.alg.monitor[self.alg]
 
     def getEnvMonitor(self):
+        """Retrieve EnvMonitor for environment."""
         return self.env.monitor[self.env]
 
     def __repr__(self):
         out = []
-        out += ['Algorithm: ', [self.alg.__class__.__name__, self[self.alg]]]
-        out += ['Environment: ', [self.env.__class__.__name__, self[self.env]]]
+        out += ['Algorithm: ', [self.alg.__class__.__name__, self.config[0]]]
+        out += ['Environment: ', [self.env.__class__.__name__, self.config[1]]]
         trans_dict = {ord(c): ord(' ') for c in ',\'\[\]'}
         return pprint.pformat(out, indent=2).translate(trans_dict)

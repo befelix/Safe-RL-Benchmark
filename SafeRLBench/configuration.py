@@ -1,3 +1,4 @@
+"""Global Configuration Class."""
 from SafeRLBench import Monitor
 
 import logging
@@ -27,21 +28,64 @@ class SRBConfig(object):
             self._monitor = Monitor(self.monitor_verbosity)
         return self._monitor
 
-    def setMonitorVerbosity(self, verbose):
+    def monitorSetVerbosity(self, verbose):
+        """
+        Set monitor verbosity level.
+
+        Parameter
+        ---------
+        verbose : int
+            Non negative verbosity level
+        """
+        if verbose < 0:
+            raise ValueError('Verbosity level can not be negative.')
         if hasattr(self, '_monitor'):
             self._monitor.verbose = verbose
         self.monitor_verbosity = verbose
 
-    def setJobs(self, n_jobs):
+    def jobsSet(self, n_jobs):
+        """
+        Set the amount of jobs used by a worker pool.
+
+        Parameter
+        ---------
+        n_jobs : Int
+            Number of jobs, needs to be larger than 0.
+        """
+        if n_jobs <= 0:
+            raise ValueError('Number of jobs needs to be larger than 0.')
         self.n_jobs = n_jobs
 
-    def setLoggerLevel(self, level=logging.DEBUG):
+    def loggerSetLevel(self, level=logging.DEBUG):
+        """
+        Set the logger level package wide.
+
+        Parameter
+        ---------
+        level :
+            Logger level as defined in logging.
+        """
         self.log.setLevel(level)
 
-    def setLoggerStdOut(self):
+    def loggerAddStreamHandler(self):
+        """Set a handler to print logs to stdout."""
         ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s'
                                       + ' - %(message)s')
         ch.setFormatter(formatter)
         self.log.addHandler(ch)
+
+    def loggerAddFileHandler(self, path):
+        """
+        Set a handler to print to file.
+
+        Parameter
+        ---------
+        path :
+            Path to log file.
+        """
+        fh = logging.FileHandler(path)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s'
+                                      + ' - %(message)s')
+        fh.setFormatter(formatter)
+        self.log.addHandler(fh)
