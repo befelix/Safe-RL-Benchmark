@@ -6,6 +6,9 @@ from SafeRLBench.spaces import BoundedSpace
 import numpy as np
 from numpy.linalg import solve, norm
 
+from abc import ABCMeta, abstractmethod
+from six import add_metaclass
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -70,6 +73,7 @@ class PolicyGradient(AlgorithmBase):
         return (norm(self.grad) < self.eps)
 
 
+@add_metaclass(ABCMeta)
 class PolicyGradientEstimator(object):
 
     name = 'Policy Gradient'
@@ -88,6 +92,10 @@ class PolicyGradientEstimator(object):
 
     def __call__(self, policy):
         return self._estimate_gradient(policy)
+
+    @abstractmethod
+    def _estimate_gradient(policy):
+        pass
 
 
 class ForwardFDEstimator(PolicyGradientEstimator):
