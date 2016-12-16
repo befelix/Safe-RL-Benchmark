@@ -20,11 +20,15 @@ docstyle:
 
 unittests2:
 	@echo "${GREEN}Running unit tests for 2.7:${NC}"
-	@nosetests-2.7 -v --with-doctest --with-coverage --cover-erase --cover-package=${module} ${module}
+	@nosetests-2.7 -v --with-doctest --cover-erase --cover-package=${module} ${module}
 
 unittests3:
 	@echo "${GREEN}Running unit tests for 3.5:${NC}"
 	@nosetests-3.5 -v --with-doctest --with-coverage --cover-erase --cover-package=${module} ${module}
+
+coverage: unittests3
+	@echo "${GREEN}Create coverage report:${NC}"
+	@coverage html
 
 unittests: unittests2 unittests3
 
@@ -35,3 +39,4 @@ history:
 
 clean:
 	find . -type f -name '*.pyc' -exec rm -f {} ';'
+	rm -r htmlcov

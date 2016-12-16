@@ -75,7 +75,7 @@ class Monitor(UserDict):
             Environment instance to be monitored.
         """
         if env not in self.data:
-            self[env] = _EnvMonitor()
+            self[env] = EnvMonitor()
 
     def after_rollout(self, env):
         """
@@ -123,21 +123,26 @@ class Monitor(UserDict):
             logger.info('Starting optimization of %s...', str(alg))
 
         # init monitor dict for algorithm
-        monitor = _AlgMonitor()
+        monitor = AlgMonitor()
         monitor.policy = alg.policy
         monitor.t = time.time()
 
         self[alg] = monitor
 
         if alg.environment not in self.data:
-            self[alg.environment] = _EnvMonitor()
+            self[alg.environment] = EnvMonitor()
 
         # init optimization time control
         monitor.optimize_start = time.time()
 
     def after_optimize(self, alg):
         """Catch data after optimization run."""
-        monitor = self[alg]
+
+        try:
+            monitor = self[alg]
+        except KeyError:
+            raise KeyError('before_optimize has not been called before '
+                           + 'after_optimize.')
         # retrieve time of optimization
         optimize_end = time.time()
         optimize_time = optimize_end - monitor.optimize_start
@@ -248,7 +253,7 @@ class Monitor(UserDict):
             logger.info(msg)
 
 
-class _EnvMonitor(object):
+class EnvMonitor(object):
     """
     Class to store environment tracking data.
 
@@ -263,7 +268,7 @@ class _EnvMonitor(object):
         self.rollout_cnt = 0
 
 
-class _AlgMonitor(object):
+class AlgMonitor(object):
     """
     Class used to store algorithm tracking data.
 
