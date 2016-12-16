@@ -30,5 +30,8 @@ unittests: unittests2 unittests3
 
 test: style docstyle unittests
 
+history:
+	git log --graph --decorate --oneline
+
 clean:
 	find . -type f -name '*.pyc' -exec rm -f {} ';'
