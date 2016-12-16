@@ -2,11 +2,15 @@
 
 from __future__ import division, print_function, absolute_import
 
+from abc import ABCMeta, abstractmethod
+from six import add_metaclass
+
 from SafeRLBench import config
 
 __all__ = ('EnvironmentBase', 'Space')
 
 
+@add_metaclass(ABCMeta)
 class EnvironmentBase(object):
     """
     Environment Base Class.
@@ -70,10 +74,12 @@ class EnvironmentBase(object):
 
     # Implement in subclasses:
     # See update(self, action) for more information
+    @abstractmethod
     def _update(self, action):
         raise NotImplementedError
 
     # See reset(self) for more information
+    @abstractmethod
     def _reset(self):
         raise NotImplementedError
 
@@ -150,6 +156,7 @@ class EnvironmentBase(object):
         return self.__class__.__name__
 
 
+@add_metaclass(ABCMeta)
 class Space(object):
     """
     Baseclass for Spaceobject.
@@ -164,15 +171,18 @@ class Space(object):
         Return arbitray element in space.
     """
 
+    @abstractmethod
     def contains(self, x):
         """Check if x is an element of space."""
         raise NotImplementedError
 
+    @abstractmethod
     def element(self):
         """Return an arbitrary element in space for unit testing."""
         raise NotImplementedError
 
 
+@add_metaclass(ABCMeta)
 class AlgorithmBase(object):
     """
     Baseclass for any algorithm.
@@ -240,12 +250,15 @@ class AlgorithmBase(object):
         return self._monitor
 
     # Have to be overwritten.
+    @abstractmethod
     def _initialize(self):
         raise NotImplementedError
 
+    @abstractmethod
     def _step(self):
         raise NotImplementedError
 
+    @abstractmethod
     def _isFinished(self):
         raise NotImplementedError
 
