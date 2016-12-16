@@ -1,3 +1,5 @@
+"""Monitoring implementations."""
+
 import logging
 import time
 
@@ -29,27 +31,83 @@ class Monitor(UserDict):
     """
 
     def __init__(self, verbose=0):
+        """
+        Initialize Monitor.
+
+        Parameters
+        ----------
+        verbosity :
+            Verbosity level. Default 0.
+        """
         self.verbose = verbose
 
         self.data = {}
 
     def before_update(self, env):
+        """
+        Monitor environment before update.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         pass
 
     def after_update(self, env):
+        """
+        Monitor environment after update.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         pass
 
     def before_rollout(self, env):
+        """
+        Monitor environment before rollout.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         if env not in self.data:
             self[env] = _EnvMonitor()
 
     def after_rollout(self, env):
+        """
+        Monitor environment after rollout.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         self[env].rollout_cnt += 1
 
     def before_reset(self, env):
+        """
+        Monitor environment before reset.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         pass
 
     def after_reset(self, env):
+        """
+        Monitor environment after reset.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         pass
 
     def before_optimize(self, alg):
@@ -60,8 +118,6 @@ class Monitor(UserDict):
         ----------
         alg :
             the algorithm instance to be monitored
-        policy :
-            the policy which is passed to the algorithms optimization method
         """
         if self.verbose > 0:
             logger.info('Starting optimization of %s...', str(alg))
@@ -112,6 +168,14 @@ class Monitor(UserDict):
             monitor.rewards.append(reward)
 
     def before_step(self, alg):
+        """
+        Monitor algorithm before step.
+
+        Parameters
+        ----------
+        alg :
+            Algorithm instance to be monitored.
+        """
         # count the number of rollouts for each step
         self[alg.environment].rollout_cnt = 0
 
@@ -120,6 +184,14 @@ class Monitor(UserDict):
                         str(alg))
 
     def after_step(self, alg):
+        """
+        Monitor algorithm after step.
+
+        Parameters
+        ----------
+        alg :
+            Algorithm instance to be monitored.
+        """
         monitor = self[alg]
         emonitor = self[alg.environment]
 
@@ -177,16 +249,44 @@ class Monitor(UserDict):
 
 
 class _EnvMonitor(object):
-    """Class to store environment tracking data."""
+    """
+    Class to store environment tracking data.
+
+    Attributes
+    ----------
+    rollout_cnt : Int
+        number of rollouts performed on environment.
+    """
 
     def __init__(self):
+        """Initialize attributes."""
         self.rollout_cnt = 0
 
 
 class _AlgMonitor(object):
-    """Class used to store algorithm tracking data."""
+    """
+    Class used to store algorithm tracking data.
+
+    Attributes
+    ----------
+    optimize_start : Float
+        Start time of the optimization.
+    optimize_time : Float
+        Start time of intermediate runs.
+    step_cnt : Int
+        Number of steps performed since initialization.
+    rollout_cnts : List
+        Number of rollouts during one step.
+    parameters : List
+        List of parameters found during optimization.
+    traces : List
+        List of traces for parameters.
+    rewards : List
+        List of rewards for parameters.
+    """
 
     def __init__(self):
+        """Initialize attributes."""
         self.optimize_start = 0
         self.optimize_time = 0
 
