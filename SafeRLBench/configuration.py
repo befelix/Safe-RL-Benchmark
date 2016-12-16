@@ -14,6 +14,7 @@ class SRBConfig(object):
     monitor :
         Lazily generate monitor as configured.
     """
+
     def __init__(self, log):
         """Initialize default configuration."""
         self.log = log

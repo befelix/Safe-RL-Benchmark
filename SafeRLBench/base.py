@@ -8,8 +8,7 @@ __all__ = ('EnvironmentBase', 'Space')
 
 
 class EnvironmentBase(object):
-    """
-    Environment Base Class.
+    """Environment Base Class.
 
     This base class defines and implements an interface to any environment
     implementation part of the environment module. Subclasses inheriting
@@ -227,6 +226,7 @@ class AlgorithmBase(object):
     _isFinished():
         Return True when algorithm is supposed to finish.
     """
+
     def __init__(self, environment, policy, max_it):
         self.environment = environment
         self.policy = policy

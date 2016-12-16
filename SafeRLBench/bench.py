@@ -11,7 +11,7 @@ import pprint
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['Bench', 'BenchConfig']
+__all__ = ('Bench', 'BenchConfig')
 
 
 def check_algos(algos):
@@ -44,6 +44,7 @@ class Bench(object):
     measures :
         Not clear yet
     """
+
     def __init__(self, algos=None, envs=None, configs=None, measures=None):
 
         if algos is None:

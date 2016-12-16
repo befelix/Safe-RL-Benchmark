@@ -178,12 +178,14 @@ class Monitor(UserDict):
 
 class _EnvMonitor(object):
     """Class to store environment tracking data."""
+
     def __init__(self):
         self.rollout_cnt = 0
 
 
 class _AlgMonitor(object):
     """Class used to store algorithm tracking data."""
+
     def __init__(self):
         self.optimize_start = 0
         self.optimize_time = 0

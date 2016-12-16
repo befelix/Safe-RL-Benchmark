@@ -19,7 +19,7 @@ class TestSpaces(object):
     """
     Wrap spaces tests.
 
-    Note that you really dont want to inherit from unittest.TestCase here,
+    Note that you really dont want to inherit from unittest. TestCase here,
     because it will break reasonable output with verbose testing.
     """
 
@@ -27,7 +27,7 @@ class TestSpaces(object):
 
     @classmethod
     def setupClass(cls):
-        """Initializes classes list."""
+        """Initialize classes list."""
         for name, c in inspect.getmembers(spaces):
             if inspect.isclass(c):
                 cls.classes.append(c)
