@@ -1,4 +1,5 @@
 """Benchmarking facilities."""
+
 from SafeRLBench import EnvironmentBase, AlgorithmBase
 
 try:
@@ -46,7 +47,18 @@ class Bench(object):
     """
 
     def __init__(self, algos=None, envs=None, configs=None, measures=None):
+        """
+        Initialize Bench instance.
 
+        Parameters
+        ----------
+        algos :
+            List of algorithms for benchmarking. Default is None.
+        envs :
+            List of environment for benchmarking. Default is None.
+        configs : BenchConfig instance
+            BenchConfig information supplying configurations. Default is None.
+        """
         if algos is None:
             self.algos = []
         else:
@@ -76,6 +88,7 @@ class Bench(object):
         self.runs = []
 
     def __call__(self):
+        """Initialize and run benchmark as configured."""
         self.benchmark()
 
     def benchmark(self):
@@ -132,7 +145,17 @@ class Bench(object):
 
 
 class BenchConfig(UserDict):
+    """
+    Benchmark configuration class.
+
+    Attributes
+    ----------
+    data :
+        dictionary with configurations.
+    """
+
     def __init__(self):
+        """Initialize BenchConfig instance."""
         self.data = {}
 
     def addAlgConfig(self, alg, env, alg_confs, env_conf={}):
@@ -170,7 +193,20 @@ class BenchRun(object):
     config : (Dict, Dict)
         Tuple of configurations for algorithm and environment
     """
+
     def __init__(self, alg, env, config):
+        """
+        Initialize BenchRun instance.
+
+        Parameters
+        ----------
+        alg :
+            Algorithm instance
+        env :
+            Environment instance
+        config : Tuple
+            Tuple of configuration dictionaries.
+        """
         self.alg = alg
         self.env = env
 
