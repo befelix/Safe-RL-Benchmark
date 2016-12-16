@@ -1,4 +1,5 @@
-"""SafeRLBench module testing.
+"""
+SafeRLBench module testing.
 
 These tests do not test specific behavior yet or ensure correctness in any way,
 since the monitor may be suspect to large changes soon.

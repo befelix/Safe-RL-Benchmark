@@ -3,6 +3,8 @@
 import logging
 import time
 
+from weakref import WeakKeyDictionary
+
 try:
     from collections import UserDict
 except ImportError:
@@ -16,18 +18,26 @@ class Monitor(UserDict):
     """
     This class is used to track algorithms and environments.
 
+    Attributes
+    ----------
+
+    data : WeakKeyDictionary
+        Dictionary used by UserDict. Keys need to be weakrefs to avoid cyclic
+        references.
+
     Methods
     -------
-    before_update()
-    after_update()
-    before_rollout()
-    after_rollout()
-    before_reset()
-    after_reset()
+
+    before_update
+    after_update
+    before_rollout
+    after_rollout
+    before_reset
+    after_reset
     before_optimize
     after_optimize
-    before_step()
-    after_step()
+    before_step
+    after_step
     """
 
     def __init__(self, verbose=0):
@@ -41,7 +51,7 @@ class Monitor(UserDict):
         """
         self.verbose = verbose
 
-        self.data = {}
+        self.data = WeakKeyDictionary()
 
     def before_update(self, env):
         """
