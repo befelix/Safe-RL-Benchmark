@@ -29,7 +29,7 @@ class Bench(object):
         Not clear yet
     """
 
-    def __init__(self, algos=None, envs=None, configs=None, measures=None):
+    def __init__(self, config=None, measures=None):
         """
         Initialize Bench instance.
 
@@ -39,10 +39,10 @@ class Bench(object):
         configs : BenchConfig instance
             BenchConfig information supplying configurations. Default is None.
         """
-        if configs is None:
-            self.configs = {}
+        if not isinstance(config, BenchConfig):
+            self.config = BenchConfig()
         else:
-            self.configs = configs
+            self.config = config
 
         if measures is None:
             self.measures = []
@@ -59,7 +59,7 @@ class Bench(object):
         """Initialize and run benchmark as configured."""
         logger.debug('Starting benchmarking.')
 
-        for alg, env, alg_conf, env_conf in self.configs:
+        for alg, env, alg_conf, env_conf in self.config:
             env_obj = env(**env_conf)
             alg_obj = alg(env_obj, **alg_conf)
 
@@ -145,8 +145,7 @@ class BenchConfig(object):
 
     def addTests(self, algs, envs):
         """
-        Add one environment configuration and algorithm configurations to be
-        run on it.
+        Add one environment configuration and algorithm configurations.
 
         Parameters
         ----------

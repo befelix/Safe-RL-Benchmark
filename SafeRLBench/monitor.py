@@ -147,7 +147,6 @@ class Monitor(UserDict):
 
     def after_optimize(self, alg):
         """Catch data after optimization run."""
-
         try:
             monitor = self[alg]
         except KeyError:

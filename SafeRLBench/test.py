@@ -15,16 +15,20 @@ from SafeRLBench import config
 from SafeRLBench.monitor import EnvMonitor, AlgMonitor
 
 # Benchmark testing imports
-from SafeRLBench import BenchConfig
+from SafeRLBench import Bench, BenchConfig
 from SafeRLBench.algo import PolicyGradient
 from SafeRLBench.envs import LinearCar
 
 # General testing imports
-from mock import Mock
+from mock import Mock, MagicMock, patch
 from unittest import TestCase
 
+import logging
 
-def check_attr_impl(obj, attr_list):
+logger = logging.getLogger(__name__)
+
+
+def _check_attr_impl(obj, attr_list):
     for attr in attr_list:
         assert(hasattr(obj, attr))
 
@@ -36,13 +40,13 @@ class TestMonitor(TestCase):
         """Test Monitor initialization..."""
         attr_list = ['verbose', 'data']
         monitor = config.monitor
-        check_attr_impl(monitor, attr_list)
+        _check_attr_impl(monitor, attr_list)
 
     def testEnvMonitorInit(self):
         """Test EnvMonitor initialization."""
         attr_list = ['rollout_cnt']
         envmonitor = EnvMonitor()
-        check_attr_impl(envmonitor, attr_list)
+        _check_attr_impl(envmonitor, attr_list)
 
     def testAlgMonitorInit(self):
         """Test AlgMonitor initialization."""
@@ -56,7 +60,7 @@ class TestMonitor(TestCase):
             'rewards',
         ]
         algmonitor = AlgMonitor()
-        check_attr_impl(algmonitor, attr_list)
+        _check_attr_impl(algmonitor, attr_list)
 
     def testMonitorMethods(self):
         """Test Monitor method calls."""
@@ -102,6 +106,40 @@ class TestBase(object):
     pass
 
 
+class TestBench(TestCase):
+    """Bench tests."""
+
+    def testBenchInit(self):
+        """Test Bench initialization."""
+        bench = Bench()
+
+        self.assertIsInstance(bench.config, BenchConfig)
+        self.assertIsInstance(bench.runs, list)
+
+        bench = Bench(BenchConfig())
+
+        self.assertIsInstance(bench.config, BenchConfig)
+        self.assertIsInstance(bench.runs, list)
+
+    @patch('SafeRLBench.bench.BenchRun')
+    def testBenchBenchmark(self, bench_run_mock):
+        """Test Bench benchmark invokation."""
+        # setup mocks
+        bench_run_obj_mock = Mock()
+        bench_conf_mock = MagicMock(spec=BenchConfig)
+
+        def create_run_obj_mock(a, b, c, d):
+            return bench_run_obj_mock
+
+        bench_run_mock.side_effect = create_run_obj_mock
+        bench_conf_mock.__iter__.return_value = [(Mock(), Mock(), {}, {})]
+
+        bench = Bench(bench_conf_mock)
+        bench()
+
+        bench_run_obj_mock.alg.optimize.assert_called_once_with()
+
+
 class TestBenchConfig(TestCase):
     """BenchConfig tests."""
 
@@ -143,7 +181,6 @@ class TestBenchConfig(TestCase):
 
     def testBenchConfigInit(self):
         """Test Bench Config initialization structure."""
-
         # apply test configuration
         config = BenchConfig(self.alg_config, self.env_config)
 
@@ -153,7 +190,6 @@ class TestBenchConfig(TestCase):
 
     def testBenchConfigAddTests(self):
         """Test BenchConfig addTests."""
-
         # setup test configuration
         config = BenchConfig()
 
@@ -166,7 +202,6 @@ class TestBenchConfig(TestCase):
 
     def testBenchConfigExceptions(self):
         """Test BenchConfig exceptions."""
-
         # setup bad test configurations
         alg_bad_tuple = [PolicyGradient, {}]
         env_bad_tuple = (LinearCar, {})
@@ -192,7 +227,6 @@ class TestBenchConfig(TestCase):
 
     def testBenchConfigIterator(self):
         """Test BenchConfig Iterator."""
-
         config = BenchConfig(self.alg_config, self.env_config)
 
         for alg, env, alg_conf, env_conf in config:
@@ -200,9 +234,5 @@ class TestBenchConfig(TestCase):
             assert env is LinearCar
             self.assertIsInstance(alg_conf, dict)
             self.assertIsInstance(env_conf, dict)
-
-
-class TestConfig(object):
-    pass
 
 # TODO: Add tests
