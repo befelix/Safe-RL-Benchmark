@@ -12,20 +12,6 @@ logger = logging.getLogger(__name__)
 __all__ = ('Bench', 'BenchConfig')
 
 
-def check_algos(algos):
-    for alg in algos:
-        if not issubclass(alg, AlgorithmBase):
-            return False
-    return True
-
-
-def check_envs(envs):
-    for env in envs:
-        if not issubclass(env, EnvironmentBase):
-            return False
-    return True
-
-
 class Bench(object):
     """
     Benchmarking class to benchmark algorithms on various environments.
@@ -49,29 +35,10 @@ class Bench(object):
 
         Parameters
         ----------
-        algos :
-            List of algorithms for benchmarking. Default is None.
-        envs :
-            List of environment for benchmarking. Default is None.
+
         configs : BenchConfig instance
             BenchConfig information supplying configurations. Default is None.
         """
-        if algos is None:
-            self.algos = []
-        else:
-            if check_algos(algos):
-                self.algos = algos
-            else:
-                raise ValueError("Argument algos contains invalid element.")
-
-        if envs is None:
-            self.envs = []
-        else:
-            if check_envs(envs):
-                self.envs = envs
-            else:
-                raise ValueError("Argument envs contains invalid element.")
-
         if configs is None:
             self.configs = {}
         else:
@@ -101,18 +68,6 @@ class Bench(object):
 
             logger.debug('DISPATCH RUN:\n\n%s\n', str(run))
             run.alg.optimize()
-
-    def addAlgorithm(self, alg):
-        if issubclass(alg, AlgorithmBase):
-            self.algos.append(alg)
-        else:
-            logger.warning("No algorithm added. Argument invalid.")
-
-    def addEnvironment(self, env):
-        if issubclass(env, EnvironmentBase):
-            self.envs.append(env)
-        else:
-            logger.warning("No environment added. Argument invalid.")
 
     def addMeasure(self):
         pass
@@ -153,7 +108,7 @@ class BenchConfig(object):
 
     """
 
-    def __init__(self, algs, envs):
+    def __init__(self, algs=None, envs=None):
         """
         Initialize BenchConfig instance.
 
@@ -171,6 +126,11 @@ class BenchConfig(object):
             List of tuples where the first element is an environment and the
             second a configuration.
         """
+        if algs is None or envs is None:
+            self.algs = []
+            self.envs = []
+            return
+
         if (len(algs) != len(envs)):
             raise ValueError('Configuration lists dont have same length')
 
@@ -183,9 +143,9 @@ class BenchConfig(object):
         self.algs = algs
         self.envs = envs
 
-    def addEnvTests(self, algs, envs):
+    def addTests(self, algs, envs):
         """
-        Adds one environment configuration and algorithm configurations to be
+        Add one environment configuration and algorithm configurations to be
         run on it.
 
         Parameters
@@ -204,11 +164,24 @@ class BenchConfig(object):
         self.envs.append(envs)
 
     def _listify(self, obj):
+
         if not isinstance(obj, list):
             obj = [obj]
+
         for i, tup in enumerate(obj):
+
+            if not isinstance(tup, tuple):
+                raise ValueError('Invalid input structure.')
+
+            try:
+                if not issubclass(tup[0], (AlgorithmBase, EnvironmentBase)):
+                    raise TypeError
+            except TypeError:
+                raise ValueError('Invalid Algorithm or Environment')
+
             if not isinstance(tup[1], list):
                 obj[i] = (tup[0], [tup[1]])
+
         return obj
 
     def __iter__(self):

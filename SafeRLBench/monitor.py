@@ -151,8 +151,8 @@ class Monitor(UserDict):
         try:
             monitor = self[alg]
         except KeyError:
-            raise KeyError('before_optimize has not been called before '
-                           + 'after_optimize.')
+            raise RuntimeError('before_optimize has not been called before '
+                               + 'after_optimize.')
         # retrieve time of optimization
         optimize_end = time.time()
         optimize_time = optimize_end - monitor.optimize_start
