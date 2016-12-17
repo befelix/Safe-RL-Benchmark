@@ -11,7 +11,9 @@ cache:
   directories: $HOME/.cache/pip
 
 before_install:
-  - pip install flake8 numpy scipy matplotlib nose theano mock
+  - pip install --upgrade pip setuptools wheel
+  - pip install flake8 nose mock
+  - pip install --only-binary numpy,scipy,matplotlib,theano numpy scipy matplotlib theano
 script:
   - flake8 SafeRLBench --exclude test*.py,__init__.py --show-source
   - flake8 SafeRLBench --filename=__init__.py,test*.py --ignore=F --show-source
