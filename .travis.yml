@@ -13,7 +13,9 @@ cache:
 before_install:
   - pip install --upgrade pip setuptools wheel
   - pip install flake8 nose mock
-  - pip install --only-binary numpy,scipy,matplotlib,theano numpy scipy matplotlib theano
+  - pip install --only-binary numpy,scipy,matplotlib numpy scipy matplotlib
+  - pip install theano
+  
 script:
   - flake8 SafeRLBench --exclude test*.py,__init__.py --show-source
   - flake8 SafeRLBench --filename=__init__.py,test*.py --ignore=F --show-source
