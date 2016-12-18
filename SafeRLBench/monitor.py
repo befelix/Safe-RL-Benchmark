@@ -1,5 +1,9 @@
+"""Monitoring implementations."""
+
 import logging
 import time
+
+from weakref import WeakKeyDictionary
 
 try:
     from collections import UserDict
@@ -14,42 +18,123 @@ class Monitor(UserDict):
     """
     This class is used to track algorithms and environments.
 
+    Attributes
+    ----------
+
+    data : WeakKeyDictionary
+        Dictionary used by UserDict. Keys need to be weakrefs to avoid cyclic
+        references.
+
     Methods
     -------
-    before_update()
-    after_update()
-    before_rollout()
-    after_rollout()
-    before_reset()
-    after_reset()
+
+    before_update
+    after_update
+    before_rollout
+    after_rollout
+    before_reset
+    after_reset
     before_optimize
     after_optimize
-    before_step()
-    after_step()
+    before_step
+    after_step
     """
 
     def __init__(self, verbose=0):
+        """
+        Initialize Monitor.
+
+        Parameters
+        ----------
+        verbosity :
+            Verbosity level. Default 0.
+        """
         self.verbose = verbose
 
-        self.data = {}
+        self.data = WeakKeyDictionary()
+
+    def __getitem__(self, key):
+
+        from SafeRLBench import AlgorithmBase, EnvironmentBase
+
+        if key in self.data:
+            value = self.data[key]
+        elif isinstance(key, AlgorithmBase):
+            value = AlgMonitor()
+            self.data[key] = value
+        elif isinstance(key, EnvironmentBase):
+            value = EnvMonitor()
+            self.data[key] = value
+        else:
+            raise KeyError('Key has to be an algorithm or environment.')
+
+        return value
 
     def before_update(self, env):
+        """
+        Monitor environment before update.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         pass
 
     def after_update(self, env):
+        """
+        Monitor environment after update.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         pass
 
     def before_rollout(self, env):
+        """
+        Monitor environment before rollout.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         if env not in self.data:
-            self[env] = _EnvMonitor()
+            self[env] = EnvMonitor()
 
     def after_rollout(self, env):
+        """
+        Monitor environment after rollout.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         self[env].rollout_cnt += 1
 
     def before_reset(self, env):
+        """
+        Monitor environment before reset.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         pass
 
     def after_reset(self, env):
+        """
+        Monitor environment after reset.
+
+        Parameters
+        ----------
+        env :
+            Environment instance to be monitored.
+        """
         pass
 
     def before_optimize(self, alg):
@@ -60,28 +145,30 @@ class Monitor(UserDict):
         ----------
         alg :
             the algorithm instance to be monitored
-        policy :
-            the policy which is passed to the algorithms optimization method
         """
         if self.verbose > 0:
             logger.info('Starting optimization of %s...', str(alg))
 
         # init monitor dict for algorithm
-        monitor = _AlgMonitor()
+        monitor = AlgMonitor()
         monitor.policy = alg.policy
         monitor.t = time.time()
 
         self[alg] = monitor
 
         if alg.environment not in self.data:
-            self[alg.environment] = _EnvMonitor()
+            self[alg.environment] = EnvMonitor()
 
         # init optimization time control
         monitor.optimize_start = time.time()
 
     def after_optimize(self, alg):
         """Catch data after optimization run."""
-        monitor = self[alg]
+        try:
+            monitor = self[alg]
+        except KeyError:
+            raise RuntimeError('before_optimize has not been called before '
+                               + 'after_optimize.')
         # retrieve time of optimization
         optimize_end = time.time()
         optimize_time = optimize_end - monitor.optimize_start
@@ -112,6 +199,14 @@ class Monitor(UserDict):
             monitor.rewards.append(reward)
 
     def before_step(self, alg):
+        """
+        Monitor algorithm before step.
+
+        Parameters
+        ----------
+        alg :
+            Algorithm instance to be monitored.
+        """
         # count the number of rollouts for each step
         self[alg.environment].rollout_cnt = 0
 
@@ -120,6 +215,14 @@ class Monitor(UserDict):
                         str(alg))
 
     def after_step(self, alg):
+        """
+        Monitor algorithm after step.
+
+        Parameters
+        ----------
+        alg :
+            Algorithm instance to be monitored.
+        """
         monitor = self[alg]
         emonitor = self[alg.environment]
 
@@ -176,15 +279,45 @@ class Monitor(UserDict):
             logger.info(msg)
 
 
-class _EnvMonitor(object):
-    """Class to store environment tracking data."""
+class EnvMonitor(object):
+    """
+    Class to store environment tracking data.
+
+    Attributes
+    ----------
+    rollout_cnt : Int
+        number of rollouts performed on environment.
+    """
+
     def __init__(self):
+        """Initialize attributes."""
         self.rollout_cnt = 0
 
 
-class _AlgMonitor(object):
-    """Class used to store algorithm tracking data."""
+class AlgMonitor(object):
+    """
+    Class used to store algorithm tracking data.
+
+    Attributes
+    ----------
+    optimize_start : Float
+        Start time of the optimization.
+    optimize_time : Float
+        Start time of intermediate runs.
+    step_cnt : Int
+        Number of steps performed since initialization.
+    rollout_cnts : List
+        Number of rollouts during one step.
+    parameters : List
+        List of parameters found during optimization.
+    traces : List
+        List of traces for parameters.
+    rewards : List
+        List of rewards for parameters.
+    """
+
     def __init__(self):
+        """Initialize attributes."""
         self.optimize_start = 0
         self.optimize_time = 0
 

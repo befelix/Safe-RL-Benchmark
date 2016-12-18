@@ -1,4 +1,4 @@
-"""PolicyGradient."""
+"""Policy Gradient implementations."""
 
 from SafeRLBench import AlgorithmBase
 from SafeRLBench.spaces import BoundedSpace
@@ -99,6 +99,7 @@ class PolicyGradientEstimator(object):
 
 
 class ForwardFDEstimator(PolicyGradientEstimator):
+    """Forward Finite Differences Gradient Estimator."""
 
     name = 'Forward Finite Differences'
 
@@ -141,6 +142,7 @@ class ForwardFDEstimator(PolicyGradientEstimator):
 
 
 class CentralFDEstimator(PolicyGradientEstimator):
+    """Central Finite Differences Gradient Estimator."""
 
     name = 'Central Finite Differences'
 
@@ -180,6 +182,7 @@ class CentralFDEstimator(PolicyGradientEstimator):
 
 
 class ReinforceEstimator(PolicyGradientEstimator):
+    """Reinforce Gradient Estimator."""
 
     name = 'Reinforce'
 
@@ -235,6 +238,7 @@ class ReinforceEstimator(PolicyGradientEstimator):
 
 
 class GPOMDPEstimator(PolicyGradientEstimator):
+    """GPOMDP Gradient Estimator."""
 
     name = 'GPOMDP'
 
@@ -292,9 +296,7 @@ class GPOMDPEstimator(PolicyGradientEstimator):
         return grad
 
 
-'''
-Dictionary for resolving estimator strings
-'''
+"""Dictionary for resolving estimator strings."""
 estimators = {
     'forward_fd': ForwardFDEstimator,
     'central_fd': CentralFDEstimator,

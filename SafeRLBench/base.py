@@ -12,8 +12,7 @@ __all__ = ('EnvironmentBase', 'Space')
 
 @add_metaclass(ABCMeta)
 class EnvironmentBase(object):
-    """
-    Environment Base Class.
+    """Environment Base Class.
 
     This base class defines and implements an interface to any environment
     implementation part of the environment module. Subclasses inheriting
@@ -55,6 +54,7 @@ class EnvironmentBase(object):
     """
 
     def __init__(self, state_space, action_space, horizon=0):
+        """Initialize base class."""
         self.state_space = state_space
         self.action_space = action_space
         self.horizon = horizon
@@ -217,11 +217,11 @@ class AlgorithmBase(object):
 
     Methods
     -------
-    optimize(policy)
+    optimize()
         Optimize a policy with respective algorithm.
-    initialize(policy)
+    initialize()
         Initialize policy parameter.
-    step(policy)
+    step()
         Update policy parameters.
     isFinished()
         Return true when algorithm is finished.
@@ -230,13 +230,14 @@ class AlgorithmBase(object):
     -----
     Specification of the private functions.
 
-    _initialize(self, policy):
+    _initialize(self):
         Return initial parameter for policy.
-    _step(policy):
+    _step():
         Update policy parameter.
     _isFinished():
         Return True when algorithm is supposed to finish.
     """
+
     def __init__(self, environment, policy, max_it):
         self.environment = environment
         self.policy = policy

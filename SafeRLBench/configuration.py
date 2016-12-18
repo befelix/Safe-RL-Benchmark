@@ -14,6 +14,7 @@ class SRBConfig(object):
     monitor :
         Lazily generate monitor as configured.
     """
+
     def __init__(self, log):
         """Initialize default configuration."""
         self.log = log
@@ -32,8 +33,8 @@ class SRBConfig(object):
         """
         Set monitor verbosity level.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         verbose : int
             Non negative verbosity level
         """
@@ -47,8 +48,8 @@ class SRBConfig(object):
         """
         Set the amount of jobs used by a worker pool.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         n_jobs : Int
             Number of jobs, needs to be larger than 0.
         """
@@ -60,8 +61,8 @@ class SRBConfig(object):
         """
         Set the logger level package wide.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         level :
             Logger level as defined in logging.
         """
@@ -79,8 +80,8 @@ class SRBConfig(object):
         """
         Set a handler to print to file.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         path :
             Path to log file.
         """
