@@ -16,6 +16,7 @@ from SafeRLBench.monitor import EnvMonitor, AlgMonitor
 
 # Benchmark testing imports
 from SafeRLBench import Bench, BenchConfig
+from SafeRLBench.bench import BenchRun
 from SafeRLBench.algo import PolicyGradient
 from SafeRLBench.envs import LinearCar
 
@@ -33,6 +34,7 @@ def _check_attr_impl(obj, attr_list):
         assert(hasattr(obj, attr))
 
 
+# TODO: Monitor testing needs improvement
 class TestMonitor(TestCase):
     """Monitor module testing..."""
 
@@ -102,6 +104,7 @@ class TestMonitor(TestCase):
         monitor.after_optimize(alg_mock)
 
 
+# TODO: Test the base.
 class TestBase(object):
     pass
 
@@ -166,7 +169,7 @@ class TestBenchConfig(TestCase):
     ]
 
     @staticmethod
-    def check_structure(lst):
+    def _check_structure(lst):
         # loop through entire structure checking types.
         assert(isinstance(lst, list))
         for lst_elem in lst:
@@ -185,8 +188,8 @@ class TestBenchConfig(TestCase):
         config = BenchConfig(self.alg_config, self.env_config)
 
         # verify structure
-        self.check_structure(config.algs)
-        self.check_structure(config.envs)
+        self._check_structure(config.algs)
+        self._check_structure(config.envs)
 
     def testBenchConfigAddTests(self):
         """Test BenchConfig addTests."""
@@ -197,8 +200,8 @@ class TestBenchConfig(TestCase):
         config.addTests(self.alg_config_add, self.env_config_add)
 
         # verify structure
-        self.check_structure(config.algs)
-        self.check_structure(config.envs)
+        self._check_structure(config.algs)
+        self._check_structure(config.envs)
 
     def testBenchConfigExceptions(self):
         """Test BenchConfig exceptions."""
@@ -207,23 +210,24 @@ class TestBenchConfig(TestCase):
         env_bad_tuple = (LinearCar, {})
         bad_tuple = [alg_bad_tuple, env_bad_tuple]
 
-        alg_bad_alg = (Mock(), {})
-        env_bad_alg = (LinearCar, {})
+        alg_bad_alg = [(Mock(), {})]
+        env_bad_alg = [(LinearCar, {})]
         bad_alg = [alg_bad_alg, env_bad_alg]
 
-        alg_bad_env = (PolicyGradient, {})
-        env_bad_env = (Mock, {})
+        alg_bad_env = [(PolicyGradient, {})]
+        env_bad_env = [(Mock, {})]
         bad_env = [alg_bad_env, env_bad_env]
 
         alg_bad_len = [(PolicyGradient, {})]
         env_bad_len = []
         bad_len = [alg_bad_len, env_bad_len]
 
-        # apply test
-        self.assertRaises(ValueError, BenchConfig, *bad_tuple)
-        self.assertRaises(ValueError, BenchConfig, *bad_alg)
-        self.assertRaises(ValueError, BenchConfig, *bad_env)
-        self.assertRaises(ValueError, BenchConfig, *bad_len)
+        tests = [bad_tuple, bad_alg, bad_env, bad_len]
+
+        # apply tests
+        for test in tests:
+            with self.subTest(test=test):
+                self.assertRaises(ValueError, BenchConfig, *test)
 
     def testBenchConfigIterator(self):
         """Test BenchConfig Iterator."""
@@ -235,4 +239,30 @@ class TestBenchConfig(TestCase):
             self.assertIsInstance(alg_conf, dict)
             self.assertIsInstance(env_conf, dict)
 
-# TODO: Add tests
+
+class TestBenchRun(TestCase):
+    """Test BenchRun class."""
+
+    def testBenchRunInit(self):
+        """Test Bench Run initialization."""
+        args = [MagicMock() for i in range(4)]
+        attr = ['alg', 'env', 'alg_conf', 'env_conf']
+
+        run = BenchRun(*args)
+
+        for a, m in zip(attr, args):
+            assert getattr(run, a) is m
+
+    def testBenchGetMonitor(self):
+        """Test Monitor getters."""
+        args = [MagicMock() for i in range(4)]
+        run = BenchRun(*args)
+
+        run.getAlgMonitor()
+        run.getEnvMonitor()
+
+        alg_mock = args[0]
+        env_mock = args[1]
+
+        alg_mock.monitor.__getitem__.assert_called_once_with(alg_mock)
+        env_mock.monitor.__getitem__.assert_called_once_with(env_mock)

@@ -11,6 +11,7 @@ import SafeRLBench.envs as envs
 from SafeRLBench.tools import Policy
 
 
+# TODO: Isolate unittests with mocks.
 class TestEnvironments(object):
     """
     Test Class for Environment tests.

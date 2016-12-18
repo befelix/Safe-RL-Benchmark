@@ -53,6 +53,23 @@ class Monitor(UserDict):
 
         self.data = WeakKeyDictionary()
 
+    def __getitem__(self, key):
+
+        from SafeRLBench import AlgorithmBase, EnvironmentBase
+
+        if key in self.data:
+            value = self.data[key]
+        elif isinstance(key, AlgorithmBase):
+            value = AlgMonitor()
+            self.data[key] = value
+        elif isinstance(key, EnvironmentBase):
+            value = EnvMonitor()
+            self.data[key] = value
+        else:
+            raise KeyError('Key has to be an algorithm or environment.')
+
+        return value
+
     def before_update(self, env):
         """
         Monitor environment before update.
