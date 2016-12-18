@@ -22,7 +22,7 @@ from SafeRLBench.envs import LinearCar
 
 # General testing imports
 from mock import Mock, MagicMock, patch
-from unittest import TestCase
+from unittest2 import TestCase
 
 import logging
 
