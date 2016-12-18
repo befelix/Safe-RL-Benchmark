@@ -69,7 +69,7 @@ class Bench(object):
 
     def _benchmark(self):
         for args in self.config:
-            self._dispatch(self, *args)
+            self._dispatch(*args)
 
     def _benchmark_par(self):
         n_jobs = config.n_jobs
