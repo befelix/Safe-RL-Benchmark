@@ -16,7 +16,7 @@ class Policy(object):
         self.parameter = np.empty(parameter_shape)
 
         self.par_policy = par_policy
-        self.policy = lambda x: 1
+        self.policy = None
 
         self.sigma = sigma
         self.gradient = gradient

@@ -1,6 +1,9 @@
 """Benchmarking facilities."""
 
 from SafeRLBench import EnvironmentBase, AlgorithmBase
+from SafeRLBench import config
+
+from concurrent.futures import ProcessPoolExecutor, wait
 
 from itertools import product
 
@@ -59,15 +62,30 @@ class Bench(object):
         """Initialize and run benchmark as configured."""
         logger.debug('Starting benchmarking.')
 
-        for alg, env, alg_conf, env_conf in self.config:
-            env_obj = env(**env_conf)
-            alg_obj = alg(env_obj, **alg_conf)
+        if config.n_jobs > 1:
+            self._benchmark_par()
+        else:
+            self._benchmark()
 
-            run = BenchRun(alg_obj, env_obj, alg_conf, env_conf)
-            self.runs.append(run)
+    def _benchmark(self):
+        for args in self.config:
+            self._dispatch(self, *args)
 
-            logger.debug('DISPATCH RUN:\n\n%s\n', str(run))
-            run.alg.optimize()
+    def _benchmark_par(self):
+        n_jobs = config.n_jobs
+        with ProcessPoolExecutor(max_workers=n_jobs) as ex:
+            fs = [ex.submit(self._dispatch, *args) for args in self.config]
+            wait(fs)
+
+    def _dispatch(self, alg, env, alg_conf, env_conf):
+        env_obj = env(**env_conf)
+        alg_obj = alg(env_obj, **alg_conf)
+
+        run = BenchRun(alg_obj, env_obj, alg_conf, env_conf)
+        self.runs.append(run)
+
+        logger.debug('DISPATCH RUN:\n\n%s\n', str(run))
+        run.alg.optimize()
 
     def addMeasure(self):
         pass
