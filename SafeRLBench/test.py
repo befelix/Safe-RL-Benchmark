@@ -69,7 +69,7 @@ class TestMonitor(TestCase):
         env_mock = Mock()
         alg_mock = Mock()
 
-        config.monitorSetVerbosity(3)
+        config.monitor_set_verbosity(3)
         monitor = config.monitor
 
         # environment monitor checks
@@ -192,12 +192,12 @@ class TestBenchConfig(TestCase):
         self._check_structure(config.envs)
 
     def testBenchConfigAddTests(self):
-        """Test BenchConfig addTests."""
+        """Test BenchConfig add_tests."""
         # setup test configuration
         config = BenchConfig()
 
         # apply test configuration
-        config.addTests(self.alg_config_add, self.env_config_add)
+        config.add_tests(self.alg_config_add, self.env_config_add)
 
         # verify structure
         self._check_structure(config.algs)

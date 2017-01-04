@@ -62,36 +62,54 @@ class Bench(object):
         """Initialize and run benchmark as configured."""
         logger.debug('Starting benchmarking.')
 
+        self._set_up()
+
         if config.n_jobs > 1:
             self._benchmark_par()
         else:
             self._benchmark()
 
+        self.eval()
+
+    def eval(self):
+        """Evaluate measures on test runs."""
+        for run in self.runs:
+            if not run.completed:
+                logger.warning("Evaluating before run completed.")
+
+        for measure in self.measures:
+            measure.eval(self.runs)
+
     def _benchmark(self):
-        for args in self.config:
-            self._dispatch(*args)
+        for run in self.runs:
+            self._dispatch(run)
 
     def _benchmark_par(self):
+        # Currently broken.
+        # The issue is that when pickling objects they basically get copied
+        # and will not be handled in shared memory. although there is no need
+        # for synchronisation, i need to find out first how i efficiently pass
+        # these objects through shared memory. futures are no solution, sicne
+        # that causes issues with multiple monitor instances.
         n_jobs = config.n_jobs
         with ProcessPoolExecutor(max_workers=n_jobs) as ex:
-            fs = [ex.submit(self._dispatch, *args) for args in self.config]
+            fs = [ex.submit(self._dispatch, run) for run in self.runs]
             wait(fs)
 
-    def _dispatch(self, alg, env, alg_conf, env_conf):
-        env_obj = env(**env_conf)
-        alg_obj = alg(env_obj, **alg_conf)
+    def _set_up(self):
+        for alg, env, alg_conf, env_conf in self.config:
+            env_obj = env(**env_conf)
+            alg_obj = alg(env_obj, **alg_conf)
 
-        run = BenchRun(alg_obj, env_obj, alg_conf, env_conf)
-        self.runs.append(run)
+            self.runs.append(BenchRun(alg_obj, env_obj, alg_conf, env_conf))
 
+    def _dispatch(self, run):
         logger.debug('DISPATCH RUN:\n\n%s\n', str(run))
+
         run.alg.optimize()
+        run.completed = True
 
-    def addMeasure(self):
-        pass
-
-    def plotMeasure(self):
-        pass
+        return run
 
 
 class BenchConfig(object):
@@ -161,7 +179,7 @@ class BenchConfig(object):
         self.algs = algs
         self.envs = envs
 
-    def addTests(self, algs, envs):
+    def add_tests(self, algs, envs):
         """
         Add one environment configuration and algorithm configurations.
 
@@ -247,6 +265,8 @@ class BenchRun(object):
 
         self.alg_conf = alg_conf
         self.env_conf = env_conf
+
+        self.completed = False
 
     def get_alg_monitor(self):
         """Retrieve AlgMonitor for algorithm."""

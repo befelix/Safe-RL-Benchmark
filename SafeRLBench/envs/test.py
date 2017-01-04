@@ -73,10 +73,11 @@ class TestEnvironments(object):
 
         def par_policy(parameter):
             def policy(state):
-                return env.state_space.element()
+                return env.state_space.element()[0]
             return policy
 
         policy = Policy(par_policy, (1,))
+        policy.setParameter(None)
         trace = env._rollout(policy)
 
         tests = 500
@@ -90,4 +91,4 @@ class TestEnvironments(object):
             assert(all(t_verify[1] == t[1]))
             assert(t_verify[2] == t[2])
 
-# TODO: Add more tests
+# TODO: Add better tests
