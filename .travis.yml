@@ -12,7 +12,7 @@ cache:
 
 install:
   - pip install --upgrade pip setuptools wheel
-  - pip install flake8 nose mock unittest2
+  - pip install flake8 nose mock unittest2 futures
   - pip install --only-binary numpy,scipy,matplotlib numpy scipy matplotlib
   - pip install theano
 
