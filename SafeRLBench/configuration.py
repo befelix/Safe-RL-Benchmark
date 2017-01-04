@@ -71,8 +71,8 @@ class SRBConfig(object):
     def loggerAddStreamHandler(self):
         """Set a handler to print logs to stdout."""
         ch = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s'
-                                      + ' - %(message)s')
+        fmt = '%(process)d - %(asctime)s - %(name)s - %(levelname)s'
+        formatter = logging.Formatter(fmt + ' - %(message)s')
         ch.setFormatter(formatter)
         self.log.addHandler(ch)
 
