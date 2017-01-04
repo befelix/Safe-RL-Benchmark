@@ -29,7 +29,7 @@ class SRBConfig(object):
             self._monitor = Monitor(self.monitor_verbosity)
         return self._monitor
 
-    def monitorSetVerbosity(self, verbose):
+    def monitor_set_verbosity(self, verbose):
         """
         Set monitor verbosity level.
 
@@ -44,7 +44,7 @@ class SRBConfig(object):
             self._monitor.verbose = verbose
         self.monitor_verbosity = verbose
 
-    def jobsSet(self, n_jobs):
+    def jobs_set(self, n_jobs):
         """
         Set the amount of jobs used by a worker pool.
 
@@ -57,7 +57,7 @@ class SRBConfig(object):
             raise ValueError('Number of jobs needs to be larger than 0.')
         self.n_jobs = n_jobs
 
-    def loggerSetLevel(self, level=logging.DEBUG):
+    def logger_set_level(self, level=logging.DEBUG):
         """
         Set the logger level package wide.
 
@@ -68,7 +68,7 @@ class SRBConfig(object):
         """
         self.log.setLevel(level)
 
-    def loggerAddStreamHandler(self):
+    def logger_add_stream_handler(self):
         """Set a handler to print logs to stdout."""
         ch = logging.StreamHandler(sys.stdout)
         fmt = '%(process)d - %(asctime)s - %(name)s - %(levelname)s'
@@ -76,7 +76,7 @@ class SRBConfig(object):
         ch.setFormatter(formatter)
         self.log.addHandler(ch)
 
-    def loggerAddFileHandler(self, path):
+    def logger_add_file_handler(self, path):
         """
         Set a handler to print to file.
 
