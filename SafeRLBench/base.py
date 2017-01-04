@@ -2,7 +2,7 @@
 
 from __future__ import division, print_function, absolute_import
 
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 from six import add_metaclass
 
 from SafeRLBench import config
@@ -325,3 +325,32 @@ class AlgorithmBase(object):
         if hasattr(self, '_info'):
             return self._info()
         return self.__class__.__name__
+
+
+@add_metaclass(ABCMeta)
+class Policy(object):
+    """Minimal policy interface."""
+
+    def __call__(self, state):
+        return self.map(state)
+
+    @abstractmethod
+    def map(self, state):
+        """Map element of state space to action space."""
+        pass
+
+    @abstractproperty
+    def parameters(self):
+        """Current parameters."""
+        pass
+
+
+@add_metaclass(ABCMeta)
+class ProbPolicy(Policy):
+
+    @abstractmethod
+    def log_grad_prob(self, state, action):
+        """
+        Return the :math:log(grad p(action | state)):math:
+        """
+        pass
