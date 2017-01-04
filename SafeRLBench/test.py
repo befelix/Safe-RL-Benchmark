@@ -258,8 +258,8 @@ class TestBenchRun(TestCase):
         args = [MagicMock() for i in range(4)]
         run = BenchRun(*args)
 
-        run.getAlgMonitor()
-        run.getEnvMonitor()
+        run.get_alg_monitor()
+        run.get_env_monitor()
 
         alg_mock = args[0]
         env_mock = args[1]

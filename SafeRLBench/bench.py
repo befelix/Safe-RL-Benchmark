@@ -248,11 +248,11 @@ class BenchRun(object):
         self.alg_conf = alg_conf
         self.env_conf = env_conf
 
-    def getAlgMonitor(self):
+    def get_alg_monitor(self):
         """Retrieve AlgMonitor for algorithm."""
         return self.alg.monitor[self.alg]
 
-    def getEnvMonitor(self):
+    def get_env_monitor(self):
         """Retrieve EnvMonitor for environment."""
         return self.env.monitor[self.env]
 
