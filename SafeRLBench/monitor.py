@@ -54,7 +54,8 @@ class Monitor(UserDict):
         self.data = WeakKeyDictionary()
 
     def __getitem__(self, key):
-
+        # this import can not be module wide because we import monitor before
+        # base in the __init__.py file.
         from SafeRLBench import AlgorithmBase, EnvironmentBase
 
         if key in self.data:

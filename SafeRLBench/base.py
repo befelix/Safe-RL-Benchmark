@@ -190,8 +190,7 @@ class AlgorithmBase(object):
     This baseclass defines a uniform interface for any algorithm part of
     the algorithm module SafeRLBench.algo.
     This baseclass features monitoring capabilities for algorithm
-    implementations. It is supposed to a uniform interface for any algorithm
-    part of the algo module.
+    implementations.
 
     Any subclass must overwrite:
         * _initialize(policy)
