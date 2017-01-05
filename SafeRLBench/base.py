@@ -195,13 +195,13 @@ class AlgorithmBase(object):
     Any subclass must overwrite:
         * _initialize(policy)
         * _step(policy)
-        * _isFinished()
+        * _is_finished()
 
     Any subclass may overwrite:
         * _optimize(policy)
 
     In case one does overwrite _optimize, the functions _initialize(),
-    _step(parameter), _isFinished() may just pass unless they are used.
+    _step(parameter), _is_finished() may just pass unless they are used.
 
     Attributes
     ----------
@@ -222,7 +222,7 @@ class AlgorithmBase(object):
         Initialize policy parameter.
     step()
         Update policy parameters.
-    isFinished()
+    is_finished()
         Return true when algorithm is finished.
 
     Notes
@@ -233,7 +233,7 @@ class AlgorithmBase(object):
         Return initial parameter for policy.
     _step():
         Update policy parameter.
-    _isFinished():
+    _is_finished():
         Return True when algorithm is supposed to finish.
     """
 
@@ -259,7 +259,7 @@ class AlgorithmBase(object):
         raise NotImplementedError
 
     @abstractmethod
-    def _isFinished(self):
+    def _is_finished(self):
         raise NotImplementedError
 
     # May be overwritten
@@ -268,7 +268,7 @@ class AlgorithmBase(object):
 
         for n in range(self.max_it):
             self.step()
-            if self.isFinished():
+            if self.is_finished():
                 break
 
     def optimize(self):
@@ -312,13 +312,13 @@ class AlgorithmBase(object):
         self._step()
         self.monitor.after_step(self)
 
-    def isFinished(self):
+    def is_finished(self):
         """
         Return True when algorithm is supposed to finish.
 
-        Wraps subclass implementation in _isFinished().
+        Wraps subclass implementation in _is_finished().
         """
-        stop = self._isFinished()
+        stop = self._is_finished()
         return stop
 
     def __repr__(self):

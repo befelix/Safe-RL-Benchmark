@@ -10,7 +10,7 @@ from SafeRLBench.base import EnvironmentBase
 from SafeRLBench.spaces import BoundedSpace, RdSpace
 
 
-def isContour(contour):
+def is_contour(contour):
     """Check if contour is a valid contour."""
     if isinstance(contour, tuple):
         if (isinstance(contour[0], TensorVariable)
@@ -59,7 +59,7 @@ class GeneralMountainCar(EnvironmentBase):
         self.gravitation = gravitation
 
         # setup contour
-        if isContour(contour):
+        if is_contour(contour):
             self.x = contour[0]
             self.y = contour[1]
         else:
