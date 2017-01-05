@@ -26,7 +26,7 @@ class TestSpaces(object):
     classes = []
 
     @classmethod
-    def setupClass(cls):
+    def setUpClass(cls):
         """Initialize classes list."""
         for name, c in inspect.getmembers(spaces):
             if inspect.isclass(c):

@@ -1,6 +1,4 @@
-"""
-Define Measurements.
-"""
+"""Define Measurements."""
 
 from abc import ABCMeta, abstractmethod
 from six import add_metaclass
@@ -13,26 +11,19 @@ class Measure(object):
     """
     Abstract Base class defining the interface for any measurement.
 
-    Any implementation should implement `eval` and store the result in out.
+    The methods below are abstract and need to be implemented by any child.
 
     Methods
     -------
 
-    eval(runs)
-        Evaluate a list of runs and store result in out
-
-    Attributes
-    ----------
-
-    out : any
-        Output produced by eval
+    __call__(runs)
+        Abstract! Evaluate a list of runs.
+    result()
+        Abstract! Return the result of the evaluation.
     """
 
-    def __init__(self):
-        self.out = None
-
     @abstractmethod
-    def eval(self, runs):
+    def __call__(self, runs):
         """
         Evaluate a list of runs.
 
@@ -44,11 +35,29 @@ class Measure(object):
         """
         pass
 
+    @abstractmethod
+    def result(self):
+        """Return the result of evaluation."""
+        pass
+
 
 class BestPerformance(Measure):
     """Find the best performance achieved within runs."""
 
-    def eval(self, runs):
+    def __call__(self, runs):
+        """
+        Sort content of runs by performance.
+
+        This class creates a tuple with a BenchRun and its respective best
+        performance and then stores in a descending sorted list.
+        The results are accessible through the result method.
+
+        Parameters
+        ----------
+
+        runs : List of BenchRun instances
+            May be any subset of BenchRun instances in a list.
+        """
         print(runs)
         # create a list of tuples with the max reward for each run
         runs_tup = []
@@ -60,4 +69,11 @@ class BestPerformance(Measure):
         # sort list
         sorted(runs_tup, key=itemgetter(1), reverse=False)
 
-        self.out = runs_tup
+        self.result = runs_tup
+
+    @property
+    def result(self):
+        """Property to store result."""
+        if not hasattr(self, '_result'):
+            self._result = None
+        return self._result

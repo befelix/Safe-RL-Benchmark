@@ -75,10 +75,12 @@ class PolicyGradient(AlgorithmBase):
 
 @add_metaclass(ABCMeta)
 class PolicyGradientEstimator(object):
+    """Interface for Gradient Estimators."""
 
     name = 'Policy Gradient'
 
     def __init__(self, environment, max_it=200, eps=0.001, rate=1):
+        """Initialize."""
         self.environment = environment
         self.state_dim = environment.state.shape[0]
         self.par_dim = self.state_dim + 1
@@ -91,6 +93,7 @@ class PolicyGradientEstimator(object):
         return self.__class__.__name__
 
     def __call__(self, policy):
+        """Invoke _estimate_gradient(policy)."""
         return self._estimate_gradient(policy)
 
     @abstractmethod
@@ -103,8 +106,8 @@ class ForwardFDEstimator(PolicyGradientEstimator):
 
     name = 'Forward Finite Differences'
 
-    def __init__(self, environment, max_it=200,
-                 eps=0.001, rate=1, var=0.5):
+    def __init__(self, environment, max_it=200, eps=0.001, rate=1, var=0.5):
+        """Initialize."""
         super(ForwardFDEstimator, self).__init__(environment, max_it, eps,
                                                  rate)
         self.var = var
@@ -146,8 +149,8 @@ class CentralFDEstimator(PolicyGradientEstimator):
 
     name = 'Central Finite Differences'
 
-    def __init__(self, environment, max_it=200,
-                 eps=0.001, rate=1, var=0.5):
+    def __init__(self, environment, max_it=200, eps=0.001, rate=1, var=0.5):
+        """Initialize."""
         super(CentralFDEstimator, self).__init__(environment, max_it, eps,
                                                  rate)
         self.var = var
@@ -186,8 +189,8 @@ class ReinforceEstimator(PolicyGradientEstimator):
 
     name = 'Reinforce'
 
-    def __init__(self, environment, max_it=200,
-                 eps=0.001, rate=1, lam=0.5):
+    def __init__(self, environment, max_it=200, eps=0.001, rate=1, lam=0.5):
+        """Initialize."""
         super(ReinforceEstimator, self).__init__(environment, max_it, eps,
                                                  rate)
         self.lam = lam
@@ -242,8 +245,8 @@ class GPOMDPEstimator(PolicyGradientEstimator):
 
     name = 'GPOMDP'
 
-    def __init__(self, environment, max_it=200,
-                 eps=0.001, rate=1, lam=0.5):
+    def __init__(self, environment, max_it=200, eps=0.001, rate=1, lam=0.5):
+        """Initialize."""
         super(GPOMDPEstimator, self).__init__(environment, max_it, eps, rate)
         self.lam = lam
 

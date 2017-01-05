@@ -106,6 +106,8 @@ class TestMonitor(TestCase):
 
 # TODO: Test the base.
 class TestBase(object):
+    """Test Base classes in base.py."""
+
     pass
 
 

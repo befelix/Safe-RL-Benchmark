@@ -347,10 +347,9 @@ class Policy(object):
 
 @add_metaclass(ABCMeta)
 class ProbPolicy(Policy):
+    """Probabilistic policy interface."""
 
     @abstractmethod
     def log_grad_prob(self, state, action):
-        """
-        Return the :math:log(grad p(action | state)):math:
-        """
+        """Return the :math:log(grad p(action | state)):math:."""
         pass

@@ -23,7 +23,7 @@ class TestEnvironments(object):
     classes = None
 
     @classmethod
-    def setupClass(cls):
+    def setUpClass(cls):
         """Generate list of classes."""
         cls.classes = []
         for name, c in inspect.getmembers(envs):
