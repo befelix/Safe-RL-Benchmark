@@ -67,9 +67,7 @@ class BestPerformance(Measure):
             runs_tup.append((run, max_reward))
 
         # sort list
-        sorted(runs_tup, key=itemgetter(1), reverse=False)
-
-        self.result = runs_tup
+        self._result = sorted(runs_tup, key=itemgetter(1), reverse=True)
 
     @property
     def result(self):

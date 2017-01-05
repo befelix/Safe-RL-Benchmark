@@ -78,7 +78,7 @@ class Bench(object):
                 logger.warning("Evaluating before run completed.")
 
         for measure in self.measures:
-            measure.eval(self.runs)
+            measure(self.runs)
 
     def _benchmark(self):
         for run in self.runs:

@@ -189,7 +189,7 @@ class Monitor(UserDict):
 
         for parameter in monitor.parameters:
 
-            policy.setParameter(parameter)
+            policy.parameter = parameter
 
             # compute trace
             trace = alg.environment._rollout(policy)

@@ -53,7 +53,7 @@ class PolicyGradient(AlgorithmBase):
         while True:
             parameter = self.parameter_space.element()
 
-            self.policy.setParameter(parameter)
+            self.policy.parameters = parameter
             grad = self.estimator(self.policy)
 
             logger.debug("Gradient type %s", str(type(grad)))
@@ -64,8 +64,8 @@ class PolicyGradient(AlgorithmBase):
     def _step(self):
         grad = self.estimator(self.policy)
 
-        parameter = self.policy.parameter
-        self.policy.setParameter(parameter + grad)
+        parameter = self.policy.parameters
+        self.policy.parameters = parameter + grad
 
         self.grad = grad
 
@@ -116,7 +116,7 @@ class ForwardFDEstimator(PolicyGradientEstimator):
         env = self.environment
         var = self.var
         # store current policy parameter
-        parameter = policy.parameter
+        parameter = policy.parameters
 
         # using forward differences
         trace = env.rollout(policy)
@@ -129,7 +129,7 @@ class ForwardFDEstimator(PolicyGradientEstimator):
         for n in range(self.par_dim):
             variation = dv[n]
 
-            policy.setParameter(parameter + variation)
+            policy.parameters = parameter + variation
             trace_n = env.rollout(policy)
 
             jn = sum([x[2] for x in trace]) / len(trace_n)
@@ -139,7 +139,7 @@ class ForwardFDEstimator(PolicyGradientEstimator):
         grad = solve(dv.T.dot(dv), dv.T.dot(dj))
 
         # reset current policy parameter
-        policy.setParameter(parameter)
+        policy.parameters = parameter
 
         return grad
 
@@ -158,7 +158,7 @@ class CentralFDEstimator(PolicyGradientEstimator):
     def _estimate_gradient(self, policy):
         env = self.environment
 
-        parameter = policy.parameter
+        parameter = policy.parameters
 
         dj = np.zeros((self.par_dim))
         dv = np.eye(self.par_dim) * self.var / 2
@@ -166,10 +166,10 @@ class CentralFDEstimator(PolicyGradientEstimator):
         for n in range(self.par_dim):
             variation = dv[n]
 
-            policy.setParameter(parameter + variation)
+            policy.parameters = parameter + variation
             trace_n = env.rollout(policy)
 
-            policy.setParameter(parameter - variation)
+            policy.parameters = parameter - variation
             trace_n_ref = env.rollout(policy)
 
             jn = sum([x[2] for x in trace_n]) / len(trace_n)
@@ -179,7 +179,7 @@ class CentralFDEstimator(PolicyGradientEstimator):
 
         grad = solve(dv.T.dot(dv), dv.T.dot(dj))
 
-        policy.setParameter(parameter)
+        policy.parameters = parameter
 
         return grad
 
@@ -197,7 +197,7 @@ class ReinforceEstimator(PolicyGradientEstimator):
 
     def _estimate_gradient(self, policy):
         env = self.environment
-        par_shape = policy.parameter.shape
+        par_shape = policy.parameters.shape
         max_it = self.max_it
 
         b_div = np.zeros(par_shape)
@@ -253,7 +253,7 @@ class GPOMDPEstimator(PolicyGradientEstimator):
     def _estimate_gradient(self, policy):
         env = self.environment
         h = env.horizon
-        shape = policy.parameter_shape
+        shape = policy.parameters.shape
 
         b_nom = np.zeros((h, shape))
         b_div = np.zeros((h, shape))

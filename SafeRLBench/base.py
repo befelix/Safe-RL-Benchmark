@@ -296,7 +296,7 @@ class AlgorithmBase(object):
         policy: PolicyBase subclass
         """
         parameter = self._initialize()
-        self.policy.setParameter(parameter)
+        self.policy.parameter = parameter
 
     def step(self):
         """
