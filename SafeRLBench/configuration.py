@@ -21,6 +21,12 @@ class SRBConfig(object):
         self.n_jobs = 1
         self.monitor_verbosity = 0
 
+        self._stream_handler = None
+        self._file_handler = None
+        self._fmt = ('%(process)d - %(asctime)s - %(name)s - %(levelname)s'
+                     + ' - %(message)s')
+        self._formatter = logging.Formatter(self._fmt)
+
     @property
     def monitor(self):
         """Lazily generate monitor as configured."""
@@ -57,7 +63,7 @@ class SRBConfig(object):
             raise ValueError('Number of jobs needs to be larger than 0.')
         self.n_jobs = n_jobs
 
-    def logger_set_level(self, level=logging.DEBUG):
+    def logger_set_level(self, level=logging.INFO):
         """
         Set the logger level package wide.
 
@@ -68,12 +74,55 @@ class SRBConfig(object):
         """
         self.log.setLevel(level)
 
+    @property
+    def logger_stream_handler(self):
+        return self._stream_handler
+
+    @logger_stream_handler.setter
+    def stream_handler(self, ch):
+        if self._stream_handler is not None:
+            self.log.removeHandler(self._stream_handler)
+
+        self._stream_handler = ch
+        if ch is not None:
+            self.log.addHandler(ch)
+
+    @property
+    def logger_file_handler(self):
+        return self._file_handler
+
+    @logger_file_handler.setter
+    def logger_file_handler(self, fh):
+        if self._file_handler is not None:
+            self.log.removeHandler(self._file_handler)
+
+        self._file_handler = fh
+        if fh is not None:
+            self.log.addHandler(fh)
+
+    @property
+    def logger_format(self):
+        return self._fmt
+
+    @logger_format.setter
+    def logger_format(self, fmt):
+        self._formatter = logging.Formatter(fmt)
+
+        if self.logger_stream_handler is not None:
+            self.logger_stream_handler.setFormatter(self._formatter)
+
+        if self.logger_file_handler is not None:
+            self.logger_file_handler.setFormatter(self._formatter)
+
     def logger_add_stream_handler(self):
         """Set a handler to print logs to stdout."""
+        if self.stream_handler is not None:
+            self.log.removeHandler(self.stream_handler)
+
         ch = logging.StreamHandler(sys.stdout)
-        fmt = '%(process)d - %(asctime)s - %(name)s - %(levelname)s'
-        formatter = logging.Formatter(fmt + ' - %(message)s')
-        ch.setFormatter(formatter)
+        ch.setFormatter(self._formatter)
+
+        self.stream_handler = ch
         self.log.addHandler(ch)
 
     def logger_add_file_handler(self, path):
@@ -85,8 +134,11 @@ class SRBConfig(object):
         path :
             Path to log file.
         """
+        if self.file_handler is not None:
+            self.log.removeHandler(self.file_handler)
+
         fh = logging.FileHandler(path)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s'
-                                      + ' - %(message)s')
-        fh.setFormatter(formatter)
+        fh.setFormatter(self._formatter)
+
+        self.file_handler = fh
         self.log.addHandler(fh)

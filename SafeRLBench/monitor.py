@@ -138,6 +138,12 @@ class Monitor(UserDict):
         """
         pass
 
+    def alg_reset(self, alg):
+        """Reset the algorithm."""
+        # Right now we just wipe the records, likely suspect to change soon.
+        self[alg] = AlgMonitor()
+        self.before_optimize(alg)
+
     def before_optimize(self, alg):
         """
         Setup montitor for optimization run.
@@ -180,6 +186,9 @@ class Monitor(UserDict):
         monitor.optimize_start = 0
 
         monitor.optimize_time = optimize_time
+
+        logger.debug('Finished optimization after %d steps with grad %s.',
+                     monitor.step_cnt, str(alg.grad))
 
         # independently compute traces after optimization is finished
         if self.verbose > 0:

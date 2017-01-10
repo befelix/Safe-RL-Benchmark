@@ -58,7 +58,6 @@ class BestPerformance(Measure):
         runs : List of BenchRun instances
             May be any subset of BenchRun instances in a list.
         """
-        print(runs)
         # create a list of tuples with the max reward for each run
         runs_tup = []
         for run in runs:
