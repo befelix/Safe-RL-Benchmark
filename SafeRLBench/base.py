@@ -321,6 +321,10 @@ class AlgorithmBase(object):
         stop = self._is_finished()
         return stop
 
+    def reset(self):
+        """Reset the monitor."""
+        self.monitor.alg_reset(self)
+
     def __repr__(self):
         if hasattr(self, '_info'):
             return self._info()
@@ -350,6 +354,6 @@ class ProbPolicy(Policy):
     """Probabilistic policy interface."""
 
     @abstractmethod
-    def log_grad_prob(self, state, action):
+    def grad_log_prob(self, state, action):
         """Return the :math:log(grad p(action | state)):math:."""
         pass

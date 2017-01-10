@@ -1,3 +1,3 @@
-from .linear_policy import LinearPolicy
+from .linear_policy import LinearPolicy, NoisyLinearPolicy
 
-__all__ = ['LinearPolicy']
+__all__ = ['LinearPolicy', 'NoisyLinearPolicy']

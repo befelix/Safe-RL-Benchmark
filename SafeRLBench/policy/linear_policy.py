@@ -68,6 +68,9 @@ class LinearPolicy(Policy):
         """
         return self._parameters.dot(state).item() + self._bias
 
+    # private copy of map
+    __map = map
+
     @property
     def parameters(self):
         """
@@ -148,21 +151,9 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
         """
         assert(d_state > 0 and d_action > 0)
 
-        self.d_state = d_state
-        self.d_action = d_action
-        self.par_dim = d_state * d_action
-
         self.sigma = sigma
 
-        self.initialized = False
-
-        if par is not None:
-            self.parameters = par
-        else:
-            # make sure some fields exist.
-            self._parameters = None
-            self._bias = False
-            self._par = None
+        super(NoisyLinearPolicy, self).__init__(d_state, d_action, par)
 
     def map(self, state):
         """
@@ -178,8 +169,9 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
         Element of action space.
         """
         noise = np.random.normal(0, self.sigma)
-        return self._parameters.dot(state).item() + self._bias + noise
+        return super(NoisyLinearPolicy, self).map(state) + noise
 
-    def log_grad_prob(self, state, action):
-        """WIP."""
-        pass  # need to think about this one...
+    def grad_log_prob(self, state, action):
+        """Compute the gradient of the logarithm of the probability dist."""
+        noise = action - super(NoisyLinearPolicy, self).map(state)
+        return - 2 * noise * self.parameters / self.sigma**2
