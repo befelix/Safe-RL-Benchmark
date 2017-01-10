@@ -13,7 +13,6 @@ from .measure import Measure, BestPerformance
 from .bench import Bench, BenchConfig
 from . import algo
 from . import envs
-from . import tools
 from . import policy
 
 # Add things to all
@@ -29,7 +28,6 @@ __all__ = ['EnvironmentBase',
            'Bench',
            'BenchConfig',
            'envs',
-           'tools',
            'algo',
            'policy']
 

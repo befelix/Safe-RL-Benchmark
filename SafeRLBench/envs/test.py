@@ -1,14 +1,14 @@
 """Tests for envs module."""
 from __future__ import absolute_import
 
-from numpy.random import randint
 # import unittest
 # from numpy.testing import *
 import inspect
 from functools import partial
 
 import SafeRLBench.envs as envs
-from SafeRLBench.tools import Policy
+
+from mock import Mock
 
 
 # TODO: Isolate unittests with mocks.
@@ -71,19 +71,14 @@ class TestEnvironments(object):
         """Check rollout correctness at random positions."""
         env = c()
 
-        def par_policy(parameter):
-            def policy(state):
-                return env.state_space.element()[0]
-            return policy
+        def policy(state):
+            return env.state_space.element()[0]
 
-        policy = Policy(par_policy, (1,))
-        policy.setParameter(None)
-        trace = env._rollout(policy)
+        policy_mock = Mock(side_effect=policy)
+        trace = env._rollout(policy_mock)
 
-        tests = 500
         horizon = len(trace) - 1
-        for n in range(tests):
-            idx = randint(1, horizon)
+        for idx in range(1, horizon):
             env.state = (trace[idx - 1])[1].copy()
             t = trace[idx]
             t_verify = env._update(t[0])
