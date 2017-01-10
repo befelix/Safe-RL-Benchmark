@@ -4,21 +4,21 @@ SafeRLBench
 Description
 -----------
 
-Here the base class documentations can be found.
+...
 
 Submodules
 ----------
 
 .. toctree::
-  :glob:
-  :maxdepth: 1
+   :glob:
+   :maxdepth: 1
 
-  SRB.submodules/*
+   SafeRLBench/*
 
 Classes
 -------
 
 .. toctree::
-  :glob:
+   :glob:
 
-  SRB.classes/*
+   SafeRLBench.classes/*

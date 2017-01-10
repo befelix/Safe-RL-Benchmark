@@ -2,4 +2,4 @@ SRBConfig
 ---------
 
 .. autoclass:: SafeRLBench.SRBConfig
-    :members:
+   :members:

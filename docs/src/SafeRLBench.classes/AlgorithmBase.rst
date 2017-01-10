@@ -2,4 +2,4 @@ AlgorithmBase
 -------------
 
 .. autoclass:: SafeRLBench.AlgorithmBase
-    :members:
+   :members:
