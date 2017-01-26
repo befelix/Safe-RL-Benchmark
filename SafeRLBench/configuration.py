@@ -1,6 +1,4 @@
 """Global Configuration Class."""
-from SafeRLBench import Monitor
-
 import logging
 import sys
 
@@ -27,13 +25,7 @@ class SRBConfig(object):
                      + ' - %(message)s')
         self._formatter = logging.Formatter(self._fmt)
 
-    @property
-    def monitor(self):
-        """Lazily generate monitor as configured."""
-        if not hasattr(self, '_monitor'):
-            global config
-            self._monitor = Monitor(self.monitor_verbosity)
-        return self._monitor
+        self._id_cnt = 0
 
     def monitor_set_verbosity(self, verbose):
         """
@@ -46,8 +38,6 @@ class SRBConfig(object):
         """
         if verbose < 0:
             raise ValueError('Verbosity level can not be negative.')
-        if hasattr(self, '_monitor'):
-            self._monitor.verbose = verbose
         self.monitor_verbosity = verbose
 
     def jobs_set(self, n_jobs):
@@ -142,3 +132,9 @@ class SRBConfig(object):
 
         self.file_handler = fh
         self.log.addHandler(fh)
+
+    def id_get_unique_id(self):
+        """Return a new id for an instance."""
+        new_id = self._id_cnt
+        self._id_cnt += 1
+        return new_id

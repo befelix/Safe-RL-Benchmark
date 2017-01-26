@@ -32,11 +32,10 @@ class PolicyGradient(AlgorithmBase):
                  parameter_space=BoundedSpace(0, 1, (3,)),
                  rate=1, var=0.5):
         """Initialize PolicyGradient."""
-        self.environment = environment
-        self.policy = policy
+        super(PolicyGradient, self).__init__(environment, policy, max_it)
+
         self.parameter_space = parameter_space
 
-        self.max_it = max_it
         self.eps = eps
         self.rate = rate
 

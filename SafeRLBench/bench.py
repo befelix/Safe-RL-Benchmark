@@ -3,7 +3,7 @@
 from SafeRLBench import EnvironmentBase, AlgorithmBase
 from SafeRLBench import config
 
-from concurrent.futures import ProcessPoolExecutor, wait
+from concurrent.futures import ProcessPoolExecutor
 
 from itertools import product
 
@@ -85,16 +85,12 @@ class Bench(object):
             self._dispatch(run)
 
     def _benchmark_par(self):
-        # Currently broken.
-        # The issue is that when pickling objects they basically get copied
-        # and will not be handled in shared memory. although there is no need
-        # for synchronisation, i need to find out first how i efficiently pass
-        # these objects through shared memory. futures are no solution, sicne
-        # that causes issues with multiple monitor instances.
+        logger.debug("Disp obj at: " + str([id(run) for run in self.runs]))
         n_jobs = config.n_jobs
         with ProcessPoolExecutor(max_workers=n_jobs) as ex:
             fs = [ex.submit(self._dispatch, run) for run in self.runs]
-            wait(fs)
+            self.runs = [f.result() for f in fs]
+            logger.debug("Retr obj at: " + str([id(run) for run in self.runs]))
 
     def _set_up(self):
         for alg, env, alg_conf, env_conf in self.config:
@@ -103,7 +99,8 @@ class Bench(object):
 
             self.runs.append(BenchRun(alg_obj, env_obj, alg_conf, env_conf))
 
-    def _dispatch(self, run):
+    @staticmethod
+    def _dispatch(run):
         logger.debug('DISPATCH RUN:\n\n%s\n', str(run))
 
         run.alg.optimize()
@@ -270,11 +267,11 @@ class BenchRun(object):
 
     def get_alg_monitor(self):
         """Retrieve AlgMonitor for algorithm."""
-        return self.alg.monitor[self.alg]
+        return self.alg.monitor
 
     def get_env_monitor(self):
         """Retrieve EnvMonitor for environment."""
-        return self.env.monitor[self.env]
+        return self.env.monitor
 
     def __repr__(self):
         out = []

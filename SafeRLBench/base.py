@@ -5,13 +5,13 @@ from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod, abstractproperty
 from six import add_metaclass
 
-from SafeRLBench import config
+from SafeRLBench import AlgoMonitor, EnvMonitor
 
 __all__ = ('EnvironmentBase', 'Space')
 
 
 @add_metaclass(ABCMeta)
-class EnvironmentBase(object):
+class EnvironmentBase(EnvMonitor):
     """Environment Base Class.
 
     This base class defines and implements an interface to any environment
@@ -55,22 +55,10 @@ class EnvironmentBase(object):
 
     def __init__(self, state_space, action_space, horizon=0):
         """Initialize base class."""
+        super(EnvironmentBase, self).__init__()
         self.state_space = state_space
         self.action_space = action_space
         self.horizon = horizon
-
-    # retrieve global monitor
-    @property
-    def monitor(self):
-        """
-        Lazily retrieve monitor instance as soon as needed.
-
-        The monitor is globally defined and allows dynamic tracking of method
-        calls in the environment and algorithm classes.
-        """
-        if not hasattr(self, '_monitor'):
-            self._monitor = config.monitor
-        return self._monitor
 
     # Implement in subclasses:
     # See update(self, action) for more information
@@ -115,9 +103,9 @@ class EnvironmentBase(object):
             reward : float
                 reward for resulting state
         """
-        self.monitor.before_update(self)
+        self._before_update()
         t = self._update(action)
-        self.monitor.after_update(self)
+        self._after_update()
         return t
 
     def reset(self):
@@ -127,9 +115,9 @@ class EnvironmentBase(object):
         Reset wraps the subclass implementation _reset() providing monitoring
         capabilities.
         """
-        self.monitor.before_reset(self)
+        self._before_reset()
         self._reset()
-        self.monitor.after_reset(self)
+        self._after_reset()
 
     def rollout(self, policy):
         """
@@ -147,9 +135,9 @@ class EnvironmentBase(object):
         -------
         trace : list of (action, state, reward)-tuples
         """
-        self.monitor.before_rollout(self)
+        self._before_rollout()
         trace = self._rollout(policy)
-        self.monitor.after_rollout(self)
+        self._after_rollout()
         return trace
 
     def __repr__(self):
@@ -183,7 +171,7 @@ class Space(object):
 
 
 @add_metaclass(ABCMeta)
-class AlgorithmBase(object):
+class AlgorithmBase(AlgoMonitor):
     """
     Baseclass for any algorithm.
 
@@ -238,16 +226,11 @@ class AlgorithmBase(object):
     """
 
     def __init__(self, environment, policy, max_it):
+        super(AlgorithmBase, self).__init__()
+
         self.environment = environment
         self.policy = policy
         self.max_it = max_it
-
-    @property
-    def monitor(self):
-        """Lazily retrieve monitor to track execution."""
-        if not hasattr(self, '_monitor'):
-            self._monitor = config.monitor
-        return self._monitor
 
     # Have to be overwritten.
     @abstractmethod
@@ -281,9 +264,9 @@ class AlgorithmBase(object):
         ----------
         policy: PolicyBase subclass
         """
-        self.monitor.before_optimize(self)
+        self._before_optimize()
         self._optimize()
-        self.monitor.after_optimize(self)
+        self._after_optimize()
 
     def initialize(self):
         """
@@ -308,9 +291,9 @@ class AlgorithmBase(object):
         ----------
         policy: PolicyBase subclass
         """
-        self.monitor.before_step(self)
+        self._before_step()
         self._step()
-        self.monitor.after_step(self)
+        self._after_step()
 
     def is_finished(self):
         """
@@ -323,7 +306,7 @@ class AlgorithmBase(object):
 
     def reset(self):
         """Reset the monitor."""
-        self.monitor.alg_reset(self)
+        self._alg_reset()
 
     def __repr__(self):
         if hasattr(self, '_info'):

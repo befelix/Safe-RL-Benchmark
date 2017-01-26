@@ -2,12 +2,12 @@ from __future__ import absolute_import
 
 import logging
 
-from .monitor import Monitor
 from .configuration import SRBConfig
 
 # Initialize configuration
 config = SRBConfig(logging.getLogger(__name__))
 
+from .monitor import AlgoMonitor, EnvMonitor
 from .base import EnvironmentBase, Space, AlgorithmBase, Policy, ProbPolicy
 from .measure import Measure, BestPerformance
 from .bench import Bench, BenchConfig
@@ -21,7 +21,8 @@ __all__ = ['EnvironmentBase',
            'AlgorithmBase',
            'Policy',
            'ProbPolicy',
-           'Monitor',
+           'AlgoMonitor',
+           'EnvMonitor',
            'SRBConfig',
            'Measure',
            'BestPerformance',
