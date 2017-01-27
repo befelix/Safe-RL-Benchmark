@@ -9,10 +9,19 @@ from itertools import product
 
 import logging
 import pprint
+try:
+    from string import maketrans
+except ImportError:
+    def maketrans(a, b):
+        return str.maketrans(a, b)
 
 logger = logging.getLogger(__name__)
 
 __all__ = ('Bench', 'BenchConfig')
+
+
+def _dispatch_wrap(run):
+    return Bench._dispatch(run)
 
 
 class Bench(object):
@@ -87,7 +96,7 @@ class Bench(object):
     def _benchmark_par(self):
         n_jobs = config.n_jobs
         with ProcessPoolExecutor(max_workers=n_jobs) as ex:
-            fs = [ex.submit(self._dispatch, run) for run in self.runs]
+            fs = [ex.submit(_dispatch_wrap, run) for run in self.runs]
             self.runs = [f.result() for f in fs]
 
     def _set_up(self):
@@ -275,5 +284,6 @@ class BenchRun(object):
         out = []
         out += ['Algorithm: ', [self.alg.__class__.__name__, self.alg_conf]]
         out += ['Environment: ', [self.env.__class__.__name__, self.env_conf]]
-        trans_dict = {ord(c): ord(' ') for c in ',\'\[\]'}
-        return pprint.pformat(out, indent=2).translate(trans_dict)
+        # trans_dict = {ord(c): ord(' ') for c in ',\'\[\]'}
+        return pprint.pformat(out, indent=2).translate(maketrans('    ',
+                                                                 ',\'[]'))
