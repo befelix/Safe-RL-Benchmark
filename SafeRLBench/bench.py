@@ -85,12 +85,10 @@ class Bench(object):
             self._dispatch(run)
 
     def _benchmark_par(self):
-        logger.debug("Disp obj at: " + str([id(run) for run in self.runs]))
         n_jobs = config.n_jobs
         with ProcessPoolExecutor(max_workers=n_jobs) as ex:
             fs = [ex.submit(self._dispatch, run) for run in self.runs]
             self.runs = [f.result() for f in fs]
-            logger.debug("Retr obj at: " + str([id(run) for run in self.runs]))
 
     def _set_up(self):
         for alg, env, alg_conf, env_conf in self.config:

@@ -66,10 +66,24 @@ class SRBConfig(object):
 
     @property
     def logger_stream_handler(self):
+        """
+        Property storing the current stream handler.
+
+        If overwritten with a new stream handler, the logger will be updated
+        with the new stream handler.
+
+        Examples
+        --------
+        ´´´
+        ch = logging.StreamHandler(sys.stdout)
+        config.logger_stream_handler = ch
+        ´´´
+        """
         return self._stream_handler
 
     @logger_stream_handler.setter
-    def stream_handler(self, ch):
+    def logger_stream_handler(self, ch):
+        """Setter method for logger_stream_handler propert."""
         if self._stream_handler is not None:
             self.log.removeHandler(self._stream_handler)
 
@@ -79,10 +93,17 @@ class SRBConfig(object):
 
     @property
     def logger_file_handler(self):
+        """
+        Property storing the current file handler.
+
+        If overwritten with a new file handler, the logger will be updated with
+        the new file handler.
+        """
         return self._file_handler
 
     @logger_file_handler.setter
     def logger_file_handler(self, fh):
+        """Setter method for logger_file_handler property."""
         if self._file_handler is not None:
             self.log.removeHandler(self._file_handler)
 
@@ -92,10 +113,18 @@ class SRBConfig(object):
 
     @property
     def logger_format(self):
+        """
+        Property for default logger format.
+
+        If overwritten stream and file handler will be updated accordingly.
+        However if manually updating stream and file handler logger_format will
+        be ignored.
+        """
         return self._fmt
 
     @logger_format.setter
     def logger_format(self, fmt):
+        """Setter method for logger_format property."""
         self._formatter = logging.Formatter(fmt)
 
         if self.logger_stream_handler is not None:
@@ -132,9 +161,3 @@ class SRBConfig(object):
 
         self.file_handler = fh
         self.log.addHandler(fh)
-
-    def id_get_unique_id(self):
-        """Return a new id for an instance."""
-        new_id = self._id_cnt
-        self._id_cnt += 1
-        return new_id

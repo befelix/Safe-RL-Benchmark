@@ -10,12 +10,16 @@ logger = logging.getLogger(__name__)
 
 class EnvMonitor(object):
     """
-    Class to store environment tracking data.
+    Environment Monitor, providing tracking for environments.
 
-    Attributes
-    ----------
-    rollout_cnt : Int
-        number of rollouts performed on environment.
+    Methods
+    -------
+    _before_update
+    _after_update
+    _before_rollout
+    _after_rollout
+    _before_reset
+    _after_reset
     """
 
     def __init__(self):
@@ -90,6 +94,16 @@ class EnvMonitor(object):
 
 
 class AlgoMonitor(object):
+    """
+    Algorithm Monitor, providing tracking capabilities for algorithms.
+
+    Methods
+    -------
+    _before_optimize
+    _after_optimize
+    _before_step
+    _after_step
+    """
 
     def __init__(self):
         """Initialize attributes."""
@@ -225,7 +239,17 @@ class AlgoMonitor(object):
 
 
 class EnvData(object):
+    """
+    Class to store environment tracking data.
+
+    Attributes
+    ----------
+    rollout_cnt : Int
+        number of rollouts performed on environment.
+    """
+
     def __init__(self):
+        """Initialize attributes."""
         self.rollout_cnt = 0
 
 
