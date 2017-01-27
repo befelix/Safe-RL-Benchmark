@@ -74,10 +74,8 @@ class SRBConfig(object):
 
         Examples
         --------
-        ´´´
         ch = logging.StreamHandler(sys.stdout)
         config.logger_stream_handler = ch
-        ´´´
         """
         return self._stream_handler
 
