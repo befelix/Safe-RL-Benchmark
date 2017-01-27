@@ -12,7 +12,8 @@ cache:
 
 install:
   - pip install --upgrade pip setuptools wheel
-  - pip install flake8 nose mock unittest2 futures
+  - pip install flake8
+  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then pip install unittest2 futures multiprocessing; fi
   - pip install --only-binary numpy,scipy,matplotlib numpy scipy matplotlib
   - pip install theano
 
