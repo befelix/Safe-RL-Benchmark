@@ -1,6 +1,7 @@
 """Linear Policy Class."""
 
 from SafeRLBench import Policy, ProbPolicy
+from SafeRLBench.spaces import BoundedSpace
 
 import numpy as np
 
@@ -19,9 +20,11 @@ class LinearPolicy(Policy):
         Array containing initial parameters.
     initialized : boolean
         Boolean indicating if parameters have been initialized.
+    biased : boolean
+        Flag indicating if the policy is supposed to be biased or not.
     """
 
-    def __init__(self, d_state, d_action, par=None):
+    def __init__(self, d_state, d_action, par=None, biased=True):
         """
         Initialize.
 
@@ -36,12 +39,15 @@ class LinearPolicy(Policy):
             the array needs to be flat with shape (d_state * d_action + 1,).
             Otherwise it may either have shape (d_action, d_state) or
             (d_state * d_action,)
+        biased : boolean
+            Flag indicating if the policy is supposed to be biased or not.
         """
         assert(d_state > 0 and d_action > 0)
         self.d_state = d_state
         self.d_action = d_action
 
         self.par_dim = d_state * d_action
+        self._par_space = None
 
         self.initialized = False
 
@@ -50,7 +56,8 @@ class LinearPolicy(Policy):
         else:
             # make sure some fields exist.
             self._parameters = None
-            self._bias = False
+            self.biased = biased
+            self._bias = 0
             self._par = None
 
     def map(self, state):
@@ -93,10 +100,10 @@ class LinearPolicy(Policy):
         if not self.initialized:
             if (shape == (self.d_action, self.d_state)
                     or shape == (self.par_dim,)):
-                self._biased = False
+                self.biased = False
                 self._bias = 0
             elif shape == (self.par_dim + 1,):
-                self._biased = True
+                self.biased = True
             else:
                 raise ValueError("Parameters with shape %s invalid.",
                                  str(shape))
@@ -106,11 +113,38 @@ class LinearPolicy(Policy):
         # store parameter in original representation.
         self._par = par
 
-        if not self._biased:
+        if not self.biased:
             self._parameters = par
         else:
             self._bias = par[-1]
             self._parameters = par[0:-1].reshape((self.d_action, self.d_state))
+
+    @property
+    def parameter_space(self):
+        if self._par_space is None:
+            if self.biased:
+                shape = (self.par_dim + 1,)
+            else:
+                shape = (self.par_dim,)
+            self._par_space = BoundedSpace(0, 1, shape)
+
+        return self._par_space
+
+    @parameter_space.setter
+    def parameter_space(self, par_space):
+        self._par_space = par_space
+
+
+class DiscreteLinearPolicy(LinearPolicy):
+    """LinearPolicy on a descrete action space of {-1, 0, 1}^d"""
+
+    def map(self, state):
+        cont_action = super(DiscreteLinearPolicy, self).map(state)
+        action = np.zeros(cont_action.shape, dtype=int)
+        action[cont_action > 0] += 1
+        if self.d_action == 1:
+            action = int(action.item())
+        return action
 
 
 class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
@@ -129,9 +163,11 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
         Array containing initial parameters.
     initialized : boolean
         Boolean indicating if parameters have been initialized.
+    biased : boolean
+        Flag indicating if the policy is supposed to be biased or not.
     """
 
-    def __init__(self, d_state, d_action, sigma, par=None):
+    def __init__(self, d_state, d_action, sigma, par=None, biased=False):
         """
         Initialize Noisy Linear Policy.
 
@@ -148,12 +184,14 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
             the array needs to be flat with shape (d_state * d_action + 1,).
             Otherwise it may either have shape (d_action, d_state) or
             (d_state * d_action,)
+        biased : boolean
+            Flag indicating if the policy is supposed to be biased or not.
         """
         assert(d_state > 0 and d_action > 0)
 
         self.sigma = sigma
 
-        super(NoisyLinearPolicy, self).__init__(d_state, d_action, par)
+        super(NoisyLinearPolicy, self).__init__(d_state, d_action, par, biased)
 
     def map(self, state):
         """

@@ -162,12 +162,17 @@ class Space(object):
     @abstractmethod
     def contains(self, x):
         """Check if x is an element of space."""
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def element(self):
         """Return an arbitrary element in space for unit testing."""
-        raise NotImplementedError
+        pass
+
+    @abstractproperty
+    def dimension(self):
+        """Return the dimension of the space."""
+        pass
 
 
 @add_metaclass(ABCMeta)
@@ -235,15 +240,15 @@ class AlgorithmBase(AlgoMonitor):
     # Have to be overwritten.
     @abstractmethod
     def _initialize(self):
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def _step(self):
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def _is_finished(self):
-        raise NotImplementedError
+        pass
 
     # May be overwritten
     def _optimize(self):
@@ -330,6 +335,10 @@ class Policy(object):
     def parameters(self):
         """Current parameters."""
         pass
+
+    @abstractmethod
+    def parameter_space(self):
+        """Return parameter space."""
 
 
 @add_metaclass(ABCMeta)

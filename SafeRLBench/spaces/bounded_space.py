@@ -24,6 +24,8 @@ class BoundedSpace(Space):
             self.lower = lower
             self.upper = upper
 
+        self._dim = None
+
     def contains(self, x):
         """Check if element is contained."""
         return (x.shape == self.lower.shape
@@ -39,6 +41,15 @@ class BoundedSpace(Space):
     def shape(self):
         """Return element shape."""
         return self.lower.shape
+
+    @property
+    def dimension(self):
+        if self._dim is None:
+            d = 1
+            for i in range(len(self.shape)):
+                d *= self.shape[i]
+            self._dim = d
+        return self._dim
 
     def __repr__(self):
         return 'BoundedSpace(lower=%s, upper=%s)' % (str(self.lower),

@@ -43,7 +43,7 @@ class TestIntegration(TestCase):
         config.logger_set_level(logging.DEBUG)
         config.monitor_set_verbosity(3)
 
-        policy = LinearPolicy(2, 1)
+        policy = LinearPolicy(2, 1, biased=True)
         algs = [(PolicyGradient, {'policy': policy,
                                   'max_it': 10,
                                   'estimator': 'central_fd'})]

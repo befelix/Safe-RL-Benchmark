@@ -9,6 +9,7 @@ class RdSpace(Space):
     def __init__(self, shape):
         """Initialize with shape."""
         self.shape = shape
+        self._dim = None
 
     def contains(self, x):
         """Check if element is contained."""
@@ -17,3 +18,12 @@ class RdSpace(Space):
     def element(self):
         """Return arbitrary element."""
         return np.ones(self.shape)
+
+    @property
+    def dimension(self):
+        if self._dim is None:
+            d = 1
+            for i in range(len(self.shape)):
+                d *= self.shape[i]
+            self._dim = d
+        return self._dim

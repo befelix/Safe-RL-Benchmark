@@ -34,7 +34,7 @@ class PolicyGradient(AlgorithmBase):
         """Initialize PolicyGradient."""
         super(PolicyGradient, self).__init__(environment, policy, max_it)
 
-        self.parameter_space = parameter_space
+        self.parameter_space = policy.parameter_space
 
         self.eps = eps
         self.rate = rate
@@ -46,22 +46,28 @@ class PolicyGradient(AlgorithmBase):
         else:
             raise ImportError('Invalid Estimator')
 
-        self.estimator = estimator(environment, max_it, est_eps, rate, var)
+        self.estimator = estimator(environment, self.parameter_space, max_it,
+                                   est_eps, rate, var)
 
     def _initialize(self):
-        while True:
-            parameter = self.parameter_space.element()
-
+        parameter = self.parameter_space.element()
+        for n in range(10000):
             self.policy.parameters = parameter
             grad = self.estimator(self.policy)
 
             if (norm(grad) >= 1000 * self.eps):
                 return parameter
 
+            parameter = self.parameter_space.element()
+
+        logger.error('Unable to find non-zero gradient.')
+        return parameter
+
     def _step(self):
         grad = self.estimator(self.policy)
 
         parameter = self.policy.parameters
+
         self.policy.parameters = parameter + grad
 
         self.grad = grad
@@ -76,11 +82,12 @@ class PolicyGradientEstimator(object):
 
     name = 'Policy Gradient'
 
-    def __init__(self, environment, max_it=200, eps=0.001, rate=1):
+    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
+                 rate=1):
         """Initialize."""
         self.environment = environment
         self.state_dim = environment.state.shape[0]
-        self.par_dim = self.state_dim + 1
+        self.par_dim = parameter_space.dimension
 
         self.rate = rate
         self.eps = eps
@@ -103,10 +110,11 @@ class ForwardFDEstimator(PolicyGradientEstimator):
 
     name = 'Forward Finite Differences'
 
-    def __init__(self, environment, max_it=200, eps=0.001, rate=1, var=1):
+    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
+                 rate=1, var=1):
         """Initialize."""
-        super(ForwardFDEstimator, self).__init__(environment, max_it, eps,
-                                                 rate)
+        super(ForwardFDEstimator, self).__init__(environment, parameter_space,
+                                                 max_it, eps, rate)
         self.var = var
 
     def _estimate_gradient(self, policy):
@@ -114,16 +122,17 @@ class ForwardFDEstimator(PolicyGradientEstimator):
         var = self.var
         # store current policy parameter
         parameter = policy.parameters
+        par_dim = policy.parameter_space.dimension
 
         # using forward differences
         trace = env.rollout(policy)
         j_ref = sum([x[2] for x in trace]) / len(trace)
 
-        dj = np.zeros((2 * self.par_dim))
-        dv = np.append(np.eye(self.par_dim), -np.eye(self.par_dim), axis=0)
+        dj = np.zeros((2 * par_dim))
+        dv = np.append(np.eye(par_dim), -np.eye(par_dim), axis=0)
         dv *= var
 
-        for n in range(self.par_dim):
+        for n in range(par_dim):
             variation = dv[n]
 
             policy.parameters = parameter + variation
@@ -146,21 +155,23 @@ class CentralFDEstimator(PolicyGradientEstimator):
 
     name = 'Central Finite Differences'
 
-    def __init__(self, environment, max_it=200, eps=0.001, rate=1, var=1):
+    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
+                 rate=1, var=1):
         """Initialize."""
-        super(CentralFDEstimator, self).__init__(environment, max_it, eps,
-                                                 rate)
+        super(CentralFDEstimator, self).__init__(environment, parameter_space,
+                                                 max_it, eps, rate)
         self.var = var
 
     def _estimate_gradient(self, policy):
         env = self.environment
 
         parameter = policy.parameters
+        par_dim = policy.parameter_space.dimension
 
-        dj = np.zeros((self.par_dim))
-        dv = np.eye(self.par_dim) * self.var / 2
+        dj = np.zeros((par_dim,))
+        dv = np.eye(par_dim) * self.var / 2
 
-        for n in range(self.par_dim):
+        for n in range(par_dim):
             variation = dv[n]
 
             policy.parameters = parameter + variation
@@ -175,7 +186,6 @@ class CentralFDEstimator(PolicyGradientEstimator):
             dj[n] = jn - jn_ref
 
         grad = solve(dv.T.dot(dv), dv.T.dot(dj))
-
         policy.parameters = parameter
 
         return grad
@@ -186,10 +196,11 @@ class ReinforceEstimator(PolicyGradientEstimator):
 
     name = 'Reinforce'
 
-    def __init__(self, environment, max_it=200, eps=0.001, rate=1, lam=0.5):
+    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
+                 rate=1, lam=0.5):
         """Initialize."""
-        super(ReinforceEstimator, self).__init__(environment, max_it, eps,
-                                                 rate)
+        super(ReinforceEstimator, self).__init__(environment, parameter_space,
+                                                 max_it, eps, rate)
         self.lam = lam
 
     def _estimate_gradient(self, policy):
@@ -242,9 +253,11 @@ class GPOMDPEstimator(PolicyGradientEstimator):
 
     name = 'GPOMDP'
 
-    def __init__(self, environment, max_it=200, eps=0.001, rate=1, lam=0.5):
+    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
+                 rate=1, lam=0.5):
         """Initialize."""
-        super(GPOMDPEstimator, self).__init__(environment, max_it, eps, rate)
+        super(GPOMDPEstimator, self).__init__(environment, parameter_space,
+                                              max_it, eps, rate)
         self.lam = lam
 
     def _estimate_gradient(self, policy):

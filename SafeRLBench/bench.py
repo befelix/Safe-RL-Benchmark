@@ -100,6 +100,7 @@ class Bench(object):
             self.runs = [f.result() for f in fs]
 
     def _set_up(self):
+        # TODO: Fix bug when rerunning this method.
         for alg, env, alg_conf, env_conf in self.config:
             env_obj = env(**env_conf)
             alg_obj = alg(env_obj, **alg_conf)
@@ -285,5 +286,5 @@ class BenchRun(object):
         out += ['Algorithm: ', [self.alg.__class__.__name__, self.alg_conf]]
         out += ['Environment: ', [self.env.__class__.__name__, self.env_conf]]
         # trans_dict = {ord(c): ord(' ') for c in ',\'\[\]'}
-        return pprint.pformat(out, indent=2).translate(maketrans('    ',
-                                                                 ',\'[]'))
+        return pprint.pformat(out, indent=2).translate(maketrans(',\'[]',
+                                                                 '    '))

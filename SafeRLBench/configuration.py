@@ -133,13 +133,13 @@ class SRBConfig(object):
 
     def logger_add_stream_handler(self):
         """Set a handler to print logs to stdout."""
-        if self.stream_handler is not None:
+        if self._stream_handler is not None:
             self.log.removeHandler(self.stream_handler)
 
         ch = logging.StreamHandler(sys.stdout)
         ch.setFormatter(self._formatter)
 
-        self.stream_handler = ch
+        self._stream_handler = ch
         self.log.addHandler(ch)
 
     def logger_add_file_handler(self, path):
@@ -151,11 +151,11 @@ class SRBConfig(object):
         path :
             Path to log file.
         """
-        if self.file_handler is not None:
+        if self._file_handler is not None:
             self.log.removeHandler(self.file_handler)
 
         fh = logging.FileHandler(path)
         fh.setFormatter(self._formatter)
 
-        self.file_handler = fh
+        self._file_handler = fh
         self.log.addHandler(fh)
