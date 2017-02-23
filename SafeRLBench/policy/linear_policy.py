@@ -73,7 +73,11 @@ class LinearPolicy(Policy):
         ------
         Element of action space.
         """
-        return self._parameters.dot(state).item() + self._bias
+        if self.d_action == 1:
+            ret = self._parameters.dot(state).item() + self._bias
+        else:
+            ret = self._parameters.dot(state) + self._bias
+        return ret
 
     # private copy of map
     __map = map
@@ -140,10 +144,14 @@ class DiscreteLinearPolicy(LinearPolicy):
 
     def map(self, state):
         cont_action = super(DiscreteLinearPolicy, self).map(state)
-        action = np.zeros(cont_action.shape, dtype=int)
-        action[cont_action > 0] += 1
         if self.d_action == 1:
-            action = int(action.item())
+            if (cont_action > 0):
+                action = 1
+            else:
+                action = 0
+        else:
+            action = np.zeros(cont_action.shape, dtype=int)
+            action[cont_action > 0] += 1
         return action
 
 
