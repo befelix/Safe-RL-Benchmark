@@ -50,7 +50,13 @@ class PolicyGradient(AlgorithmBase):
                                    est_eps, rate, var)
 
     def _initialize(self):
+        # check if policy is already initialized by the user
+        if self.policy.initialized:
+            return self.policy.parameters
+
+        # outerwise draw an element at random from the parameter space
         parameter = self.parameter_space.element()
+
         for n in range(10000):
             self.policy.parameters = parameter
             grad = self.estimator(self.policy)
@@ -110,8 +116,8 @@ class ForwardFDEstimator(PolicyGradientEstimator):
 
     name = 'Forward Finite Differences'
 
-    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
-                 rate=1, var=1):
+    def __init__(self, environment, parameter_space=BoundedSpace(0, 1, (3,)),
+                 max_it=200, eps=0.001, rate=1, var=1):
         """Initialize."""
         super(ForwardFDEstimator, self).__init__(environment, parameter_space,
                                                  max_it, eps, rate)
@@ -155,8 +161,8 @@ class CentralFDEstimator(PolicyGradientEstimator):
 
     name = 'Central Finite Differences'
 
-    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
-                 rate=1, var=1):
+    def __init__(self, environment, parameter_space=BoundedSpace(0, 1, (3,)),
+                 max_it=200, eps=0.001, rate=1, var=1):
         """Initialize."""
         super(CentralFDEstimator, self).__init__(environment, parameter_space,
                                                  max_it, eps, rate)
@@ -196,8 +202,8 @@ class ReinforceEstimator(PolicyGradientEstimator):
 
     name = 'Reinforce'
 
-    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
-                 rate=1, lam=0.5):
+    def __init__(self, environment, parameter_space=BoundedSpace(0, 1, (3,)),
+                 max_it=200, eps=0.001, rate=1, lam=0.5):
         """Initialize."""
         super(ReinforceEstimator, self).__init__(environment, parameter_space,
                                                  max_it, eps, rate)
@@ -253,8 +259,8 @@ class GPOMDPEstimator(PolicyGradientEstimator):
 
     name = 'GPOMDP'
 
-    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
-                 rate=1, lam=0.5):
+    def __init__(self, environment, parameter_space=BoundedSpace(0, 1, (3,)),
+                 max_it=200, eps=0.001, rate=1, lam=0.5):
         """Initialize."""
         super(GPOMDPEstimator, self).__init__(environment, parameter_space,
                                               max_it, eps, rate)
