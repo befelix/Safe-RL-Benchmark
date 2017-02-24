@@ -47,6 +47,7 @@ class LinearPolicy(Policy):
         self.d_action = d_action
 
         self.par_dim = d_state * d_action
+
         self._par_space = None
 
         self.initialized = False
@@ -99,9 +100,9 @@ class LinearPolicy(Policy):
     @parameters.setter
     def parameters(self, par):
         par = par.copy()
-        shape = par.shape
 
         if not self.initialized:
+            shape = par.shape
             if (shape == (self.d_action, self.d_state)
                     or shape == (self.par_dim,)):
                 self.biased = False
@@ -122,6 +123,8 @@ class LinearPolicy(Policy):
         else:
             self._bias = par[-1]
             self._parameters = par[0:-1].reshape((self.d_action, self.d_state))
+            if self.d_action == 1:
+                self._parameters.reshape((self.d_state,))
 
     @property
     def parameter_space(self):
@@ -140,18 +143,19 @@ class LinearPolicy(Policy):
 
 
 class DiscreteLinearPolicy(LinearPolicy):
-    """LinearPolicy on a descrete action space of {-1, 0, 1}^d"""
+    """LinearPolicy on a discrete action space of {-1, 0, 1}^d"""
 
     def map(self, state):
         cont_action = super(DiscreteLinearPolicy, self).map(state)
         if self.d_action == 1:
-            if (cont_action > 0):
-                action = 1
-            else:
+            if (cont_action < 0):
                 action = 0
+            else:
+                action = 1
         else:
             action = np.zeros(cont_action.shape, dtype=int)
             action[cont_action > 0] += 1
+
         return action
 
 

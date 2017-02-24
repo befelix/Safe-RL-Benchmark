@@ -3,7 +3,7 @@ from SafeRLBench import EnvironmentBase
 
 class GymWrap(EnvironmentBase):
 
-    def __init__(self, env, horizon, render=False):
+    def __init__(self, env, horizon=100, render=False):
         super(GymWrap, self).__init__(env.action_space, env.observation_space,
                                       horizon)
         self.environment = env
@@ -29,6 +29,8 @@ class GymWrap(EnvironmentBase):
             if self.render:
                 self.environment.render()
             trace.append(self.update(policy(state)))
+            state = self.state
+
             if self.done:
                 break
         return trace
