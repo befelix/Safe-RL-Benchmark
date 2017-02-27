@@ -128,6 +128,15 @@ class LinearPolicy(Policy):
 
     @property
     def parameter_space(self):
+        """Property storing the parameter space.
+
+        By default the parameter space will be assigned to be a BoundedSpace
+        between [0,1]^d. However it might be necessary to change this. A user
+        may thus assign a new parameter space.
+
+        WARNING: Currently there is no sanity check for manually assigned
+        parameter spaces.
+        """
         if self._par_space is None:
             if self.biased:
                 shape = (self.par_dim + 1,)
@@ -143,9 +152,16 @@ class LinearPolicy(Policy):
 
 
 class DiscreteLinearPolicy(LinearPolicy):
-    """LinearPolicy on a discrete action space of {-1, 0, 1}^d"""
+    """LinearPolicy on a discrete action space of {-1, 0, 1}^d."""
 
     def map(self, state):
+        """Map to discrete action space.
+
+        Parameters
+        ----------
+        state : element of state space
+            state to be mapped.
+        """
         cont_action = super(DiscreteLinearPolicy, self).map(state)
         if self.d_action == 1:
             if (cont_action < 0):

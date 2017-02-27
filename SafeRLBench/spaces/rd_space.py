@@ -21,6 +21,7 @@ class RdSpace(Space):
 
     @property
     def dimension(self):
+        """Return dimension of the space."""
         if self._dim is None:
             d = 1
             for i in range(len(self.shape)):
