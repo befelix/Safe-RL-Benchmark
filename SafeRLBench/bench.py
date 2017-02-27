@@ -101,6 +101,7 @@ class Bench(object):
 
     def _set_up(self):
         # TODO: Fix bug when rerunning this method.
+        self.runs = []
         for alg, env, alg_conf, env_conf in self.config:
             env_obj = env(**env_conf)
             alg_obj = alg(env_obj, **alg_conf)

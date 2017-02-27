@@ -203,6 +203,8 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
 
         self.sigma = sigma
 
+        self.random_state = np.random.RandomState()
+
         super(NoisyLinearPolicy, self).__init__(d_state, d_action, par, biased)
 
     def map(self, state):
@@ -218,7 +220,7 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
         ------
         Element of action space.
         """
-        noise = np.random.normal(0, self.sigma)
+        noise = self.random_state.normal(0, self.sigma)
         return super(NoisyLinearPolicy, self).map(state) + noise
 
     def grad_log_prob(self, state, action):

@@ -47,7 +47,7 @@ class PolicyGradient(AlgorithmBase):
             raise ImportError('Invalid Estimator')
 
         self.estimator = estimator(environment, self.parameter_space, max_it,
-                                   est_eps, rate, var)
+                                   est_eps, var)
 
     def _initialize(self):
         logger.debug("Initializing Policy.")
@@ -76,7 +76,7 @@ class PolicyGradient(AlgorithmBase):
 
         parameter = self.policy.parameters
 
-        self.policy.parameters = parameter + grad
+        self.policy.parameters = parameter + self.rate * grad
 
         self.grad = grad
 
@@ -90,14 +90,12 @@ class PolicyGradientEstimator(object):
 
     name = 'Policy Gradient'
 
-    def __init__(self, environment, parameter_space, max_it=200, eps=0.001,
-                 rate=1):
+    def __init__(self, environment, parameter_space, max_it=200, eps=0.001):
         """Initialize."""
         self.environment = environment
         self.state_dim = environment.state.shape[0]
         self.par_dim = parameter_space.dimension
 
-        self.rate = rate
         self.eps = eps
         self.max_it = max_it
 
@@ -119,10 +117,10 @@ class ForwardFDEstimator(PolicyGradientEstimator):
     name = 'Forward Finite Differences'
 
     def __init__(self, environment, parameter_space=BoundedSpace(0, 1, (3,)),
-                 max_it=200, eps=0.001, rate=1, var=1):
+                 max_it=200, eps=0.001, var=1):
         """Initialize."""
         super(ForwardFDEstimator, self).__init__(environment, parameter_space,
-                                                 max_it, eps, rate)
+                                                 max_it, eps)
         self.var = var
 
     def _estimate_gradient(self, policy):
@@ -164,10 +162,10 @@ class CentralFDEstimator(PolicyGradientEstimator):
     name = 'Central Finite Differences'
 
     def __init__(self, environment, parameter_space=BoundedSpace(0, 1, (3,)),
-                 max_it=200, eps=0.001, rate=1, var=1):
+                 max_it=200, eps=0.001, var=1):
         """Initialize."""
         super(CentralFDEstimator, self).__init__(environment, parameter_space,
-                                                 max_it, eps, rate)
+                                                 max_it, eps)
         self.var = var
 
     def _estimate_gradient(self, policy):
@@ -205,10 +203,10 @@ class ReinforceEstimator(PolicyGradientEstimator):
     name = 'Reinforce'
 
     def __init__(self, environment, parameter_space=BoundedSpace(0, 1, (3,)),
-                 max_it=200, eps=0.001, rate=1, lam=0.5):
+                 max_it=200, eps=0.001, lam=0.5):
         """Initialize."""
         super(ReinforceEstimator, self).__init__(environment, parameter_space,
-                                                 max_it, eps, rate)
+                                                 max_it, eps)
         self.lam = lam
 
     def _estimate_gradient(self, policy):
@@ -262,10 +260,10 @@ class GPOMDPEstimator(PolicyGradientEstimator):
     name = 'GPOMDP'
 
     def __init__(self, environment, parameter_space=BoundedSpace(0, 1, (3,)),
-                 max_it=200, eps=0.001, rate=1, lam=0.5):
+                 max_it=200, eps=0.001, lam=0.5):
         """Initialize."""
         super(GPOMDPEstimator, self).__init__(environment, parameter_space,
-                                              max_it, eps, rate)
+                                              max_it, eps)
         self.lam = lam
 
     def _estimate_gradient(self, policy):
