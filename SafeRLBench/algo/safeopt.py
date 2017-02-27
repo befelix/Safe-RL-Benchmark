@@ -13,6 +13,11 @@ try:
 except:
     logger.warning("SafeOpt is not installed.")
 
+try:
+    import GPy
+except:
+    logger.warning("GPy is not installed.")
+
 
 class SafeOpt(AlgorithmBase):
     """
@@ -60,19 +65,41 @@ class SafeOpt(AlgorithmBase):
 
     def __init__(self,
                  environment, policy, max_it, avg_reward, window,
-                 gp, parameter_set, fmin,
+                 kernel, likelihood, parameter_set, fmin,
                  lipschitz=None, beta=3.0, num_contexts=0, threshold=0,
                  scaling='auto'):
         """Initialize Attributes."""
         super(SafeOpt, self).__init__(environment, policy, max_it)
-        self.gp_opt = safeopt(gp, parameter_set, fmin, lipschitz, beta,
-                              num_contexts, threshold, scaling)
+
+        self.gp_opt = None
+        self.gp_opt_par = (parameter_set, fmin, lipschitz, beta, num_contexts,
+                           threshold, scaling)
+        self.gp_par = (kernel, likelihood)
+
         self.avg_reward = avg_reward
         self.window = window
         self.rewards = []
 
     def _initialize(self):
-        pass
+        logger.debug("Initializing Policy.")
+        # check if policy is already initialized by the user
+        if self.policy.initialized:
+            logger.debug("Use pre-set policy parameters.")
+            parameters = self.policy.parameters
+        else:
+            logger.debug("Draw parameters at random.")
+            parameters = self.policy.parameter_space.element()
+            self.policy.parameters = parameters
+
+        # Compute a rollout
+        trace = self.environment.rollout(self.policy)
+        reward = sum([t[2] for t in trace])
+
+        # Initialize gaussian process with args:
+        gp = GPy.core.GP(parameters, reward, *self.gp_par)
+        self.gp_opt = safeopt.SafeOpt(gp, *self.gp_opt_par)
+
+        return parameters
 
     def _step(self):
         parameters = self.gp_opt.optimize()

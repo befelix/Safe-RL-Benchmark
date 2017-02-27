@@ -100,7 +100,6 @@ class Bench(object):
             self.runs = [f.result() for f in fs]
 
     def _set_up(self):
-        # TODO: Fix bug when rerunning this method.
         self.runs = []
         for alg, env, alg_conf, env_conf in self.config:
             env_obj = env(**env_conf)
@@ -124,7 +123,7 @@ class BenchConfig(object):
 
     This class is supposed to provide a convenient interface to setup
     configurations for benchmarking runs.
-    When we are defining the configurations for benchmarking we face the major
+    When defining the configurations for benchmarking we face the major
     inconvenience that an algorithm's configuration may depend on the
     environment configurations. In the case where we want to benchmark multiple
     algorithms on multiple environments this requires many redunant definitions
@@ -286,6 +285,6 @@ class BenchRun(object):
         out = []
         out += ['Algorithm: ', [self.alg.__class__.__name__, self.alg_conf]]
         out += ['Environment: ', [self.env.__class__.__name__, self.env_conf]]
-        # trans_dict = {ord(c): ord(' ') for c in ',\'\[\]'}
+
         return pprint.pformat(out, indent=2).translate(maketrans(',\'[]',
                                                                  '    '))

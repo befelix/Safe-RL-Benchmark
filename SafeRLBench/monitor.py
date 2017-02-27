@@ -227,13 +227,12 @@ class AlgoMonitor(object):
 
             # retrieve current state
             par_s = str(self.policy.parameter)
-            grad_s = str(self.grad)
 
             # generate log message
             msg = 'Status for ' + self.__class__.__name__ + ' on '
             msg += self.environment.__class__.__name__ + ':\n\n'
             msg += '\tRun: %d\tTime: %s\t Avg: %s\n' % (n, t_s, avg_s)
-            msg += '\tParameter: \t%s\n\tGradient: \t%s\n' % (par_s, grad_s)
+            msg += '\tParameter: \t%s\n' % (par_s)
 
             logger.info(msg)
 

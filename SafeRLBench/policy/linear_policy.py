@@ -24,7 +24,8 @@ class LinearPolicy(Policy):
         Flag indicating if the policy is supposed to be biased or not.
     """
 
-    def __init__(self, d_state, d_action, par=None, biased=True):
+    def __init__(self, d_state, d_action,
+                 par=None, par_space=None, biased=True):
         """
         Initialize.
 
@@ -60,6 +61,9 @@ class LinearPolicy(Policy):
             self.biased = biased
             self._bias = 0
             self._par = None
+
+        if par_space is not None:
+            self.parameter_space = par_space
 
     def map(self, state):
         """
@@ -195,7 +199,8 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
         Flag indicating if the policy is supposed to be biased or not.
     """
 
-    def __init__(self, d_state, d_action, sigma, par=None, biased=False):
+    def __init__(self, d_state, d_action, sigma,
+                 par=None, par_space=None, biased=False):
         """
         Initialize Noisy Linear Policy.
 
@@ -221,7 +226,8 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
 
         self.random_state = np.random.RandomState()
 
-        super(NoisyLinearPolicy, self).__init__(d_state, d_action, par, biased)
+        super(NoisyLinearPolicy, self).__init__(d_state, d_action, par,
+                                                par_space, biased)
 
     def map(self, state):
         """

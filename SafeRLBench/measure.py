@@ -1,6 +1,6 @@
 """Define Measurements."""
 
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 from six import add_metaclass
 
 from operator import itemgetter
@@ -35,7 +35,7 @@ class Measure(object):
         """
         pass
 
-    @abstractmethod
+    @abstractproperty
     def result(self):
         """Return the result of evaluation."""
         pass
