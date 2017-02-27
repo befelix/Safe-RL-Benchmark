@@ -50,8 +50,10 @@ class PolicyGradient(AlgorithmBase):
                                    est_eps, rate, var)
 
     def _initialize(self):
+        logger.debug("Initializing Policy.")
         # check if policy is already initialized by the user
         if self.policy.initialized:
+            logger.debug("Use pre-set policy parameters.")
             return self.policy.parameters
 
         # outerwise draw an element at random from the parameter space
