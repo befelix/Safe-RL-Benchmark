@@ -35,8 +35,8 @@ class EnvironmentBase(EnvMonitor):
     action_space :
     horizon :
         Maximum number of iterations until rollout will stop.
-    monitor :
-        Lazily retrieve monitor instance as soon as needed.
+    monitor : EnvData instance
+        Contains the monitoring data.
 
     Methods
     -------
@@ -204,8 +204,8 @@ class AlgorithmBase(AlgoMonitor):
         Policy to be optimized
     max_it : int
         Maximum number of iterations
-    monitor :
-        Lazily retrieve monitor to track execution
+    monitor : AlgoData instance
+        Contains monitoring data.
 
     Methods
     -------

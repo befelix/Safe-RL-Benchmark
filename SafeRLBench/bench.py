@@ -123,15 +123,6 @@ class BenchConfig(object):
 
     This class is supposed to provide a convenient interface to setup
     configurations for benchmarking runs.
-    When defining the configurations for benchmarking we face the major
-    inconvenience that an algorithm's configuration may depend on the
-    environment configurations. In the case where we want to benchmark multiple
-    algorithms on multiple environments this requires many redunant definitions
-    if done manually.
-
-    We thus assume there are two major cases:
-    * One environment configuration for multiple algorithm configurations.
-    * One algorithm configuration for multiple environment configurations.
 
     Attributes
     ----------
@@ -141,12 +132,53 @@ class BenchConfig(object):
         single element instead of a list.
 
     envs :
-        List of tuples where the first element is an environment and the
-        second a configuration.
+        List of list of tuples where the first element is an environment and
+        the second a configuration. Any inner list may also be a single element
+        instead of a list.
+
+    Notes
+    -----
+    When defining configurations for benchmarking the algorithm's configuration
+    may depend on the respective environments configuration. Thus using a
+    simple cartesian product of configurations may not be reasonable in many
+    cases.
+
+    To provide an easy to use interface, we thus assume two mayor cases:
+    * One environment configuration for multiple algorithm configurations.
+    * One algorithm configuration for multiple environment configurations.
+
+    The outer lists of the environment and algorithm configurations need to
+    have equal size, because they represent reasonable configuration pairs,
+    i.e. they will be zipped.
+    From the pairs of inner lists we then generate a grid (cartesian product)
+    of the configuration tuples, representing the two cases described above.
+
+    See the examples sections for examples regarding the two cases.
 
     Examples
     --------
+    Let's say we want to benchmark multiple algorithms on one reference
+    environment.
 
+    First define the environment configuration, e.g. LinearCar:
+
+    >>> from SafeRLBench.envs import LinearCar
+    >>> env = [[(LinearCar, {'horizon': 100})]]
+
+    Now we want to define a couple of different configurations for the
+    PolicyGradient algorithm using list comprehension.
+
+    >>> from SafeRLBench.algo import PolicyGradient
+    >>> from SafeRLBench.policy import LinearPolicy
+    >>> from copy import copy
+    >>>
+    >>> algs = [[
+    >>>     (PolicyGradient, [{
+    >>>                         'policy': LinearPolicy(2, 1),
+    >>>                         'estimator': 'central_fd',
+    >>>                         'var': var
+    >>>                       } for var in [1, 2, 3, 4, 5]])
+    >>> ]]
     """
 
     def __init__(self, algs=None, envs=None):
@@ -164,8 +196,8 @@ class BenchConfig(object):
             single element instead of a list.
 
         envs :
-            List of tuples where the first element is an environment and the
-            second a configuration.
+            List of listof tuples where the first element is an environment and
+            the second a configuration.
         """
         if algs is None or envs is None:
             self.algs = []

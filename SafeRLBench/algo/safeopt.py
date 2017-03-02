@@ -2,7 +2,7 @@
 
 from SafeRLBench import AlgorithmBase
 
-from numpy import mean
+from numpy import mean, array
 
 import logging
 
@@ -96,7 +96,7 @@ class SafeOpt(AlgorithmBase):
         reward = sum([t[2] for t in trace])
 
         # Initialize gaussian process with args:
-        gp = GPy.core.GP(parameters, reward, *self.gp_par)
+        gp = GPy.core.GP(array([parameters]), array([[reward]]), *self.gp_par)
         self.gp_opt = safeopt.SafeOpt(gp, *self.gp_opt_par)
 
         return parameters
