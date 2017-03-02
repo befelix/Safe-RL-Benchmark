@@ -3,3 +3,23 @@
 # Safe-RL-Benchmark
 
 only basic testing yet
+
+# TODO
+
+Policy:
+  TensorFlow NN
+Environment:
+  Quadrocopter
+  Discrete MDP
+  Function
+Algorithm:
+  Q-Learning Algorithms
+  A3C
+
+TESTS!!!
+
+Documentation:
+  Tutorial
+  Examples
+
+Bachelor Thesis Writeup
