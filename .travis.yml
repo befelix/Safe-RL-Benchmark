@@ -5,6 +5,8 @@ sudo: false
 python:
   - 2.7
   - 3.5
+env:
+  TF_CPP_MIN_LOG_LEVEL=1
 notifications:
   email: false
 cache:

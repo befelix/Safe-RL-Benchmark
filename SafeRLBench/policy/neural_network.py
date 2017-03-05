@@ -13,6 +13,7 @@ except:
 
 
 def init_weights(shape):
+    """Default weights initialization."""
     weights = tf.random_normal(shape, mean=0, stddev=0.1, name='weights')
     return tf.Variable(weights)
 
@@ -42,7 +43,7 @@ class NeuralNetwork(Policy):
 
     def __init__(self, layers, weights=None, init_weights=init_weights,
                  activation=tf.sigmoid, dtype='float'):
-
+        """Initialize Neural Network wrapper."""
         if (len(layers) < 2):
             raise ValueError('At least two layers needed.')
 
@@ -91,6 +92,7 @@ class NeuralNetwork(Policy):
         return h[-1]
 
     def map(self, state):
+        """Compute output in session."""
         return self.sess.run(self.y_pred, {self.X: [state]})
 
     @property
@@ -120,4 +122,5 @@ class NeuralNetwork(Policy):
 
     @property
     def parameter_space(self):
+        """Return parameter space."""
         pass
