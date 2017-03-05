@@ -13,7 +13,7 @@ except:
 
 
 def init_weights(shape):
-    weights = tf.random_normal(shape, mean=0, stddev=0.1)
+    weights = tf.random_normal(shape, mean=0, stddev=0.1, name='weights')
     return tf.Variable(weights)
 
 
@@ -64,21 +64,24 @@ class NeuralNetwork(Policy):
 
         # Weights
         if weights is None:
-            self.W = []
+            w = []
             for i in range(len(layers) - 1):
-                self.W.append(self.init_weights((layers[i], layers[i + 1])))
+                with tf.variable_scope('weights'):
+                    w.append(self.init_weights((layers[i], layers[i + 1])))
         else:
-            self.W = weights
+            w = weights
+
+        self.W = w
 
         # generate nn tensor
-        self.y_pred = self.generate_network()
+        self.y_pred = self._generate_network()
 
         # initialize tf session
         self.sess = tf.Session()
         init = tf.global_variables_initializer()
         self.sess.run(init)
 
-    def generate_network(self):
+    def _generate_network(self):
         h = [self.X]
         for i in range(len(self.layers) - 1):
             act = self.activation[i]
@@ -92,11 +95,28 @@ class NeuralNetwork(Policy):
 
     @property
     def parameters(self):
-        pass
+        """Return weights of the neural network.
+
+        This returns a list of tf.Variables. Please note that these can not
+        simply be updated by assignment. See the parameters.setter docstring
+        for more information.
+        The list of tf.Variables can be directly accessed through the
+        attribute `W`.
+        """
+        return self.sess.run(self.W)
 
     @parameters.setter
-    def parameters(self, par):
-        pass
+    def parameters(self, update):
+        """Setter function for parameters.
+
+        Since the parameters are a list of tf.Variables, instead of directly
+        assigning to them you will need to pass an update tensor which updates
+        the values. To create such a tensor access the `W` attribute which
+        contains the weight variables and use it to instantiate an update
+        tensor.
+        This method will then run the update tensor in the session.
+        """
+        self.sess.run(update)
 
     @property
     def parameter_space(self):
