@@ -170,12 +170,12 @@ class BenchConfig(object):
     >>> from copy import copy
     >>>
     >>> algs = [[
-    >>>     (PolicyGradient, [{
-    >>>                         'policy': LinearPolicy(2, 1),
-    >>>                         'estimator': 'central_fd',
-    >>>                         'var': var
-    >>>                       } for var in [1, 2, 3, 4, 5]])
-    >>> ]]
+    ...     (PolicyGradient, [{
+    ...                         'policy': LinearPolicy(2, 1),
+    ...                         'estimator': 'central_fd',
+    ...                         'var': var
+    ...                       } for var in [1, 2, 3, 4, 5]])
+    ... ]]
     """
 
     def __init__(self, algs=None, envs=None):

@@ -18,13 +18,13 @@ class GymWrap(EnvironmentBase):
 
     def __init__(self, env, horizon=100, render=False):
         """Initialize attributes."""
-        super(GymWrap, self).__init__(env.action_space, env.observation_space,
+        super(GymWrap, self).__init__(env.observation_space, env.action_space,
                                       horizon)
         self.environment = env
         self.render = render
         self.done = False
 
-        self.state = env.reset()
+        self._state = env.reset()
 
     def _update(self, action):
         observation, reward, done, info = self.environment.step(action)
@@ -48,3 +48,14 @@ class GymWrap(EnvironmentBase):
             if self.done:
                 break
         return trace
+
+    @property
+    def state(self):
+        """Observable system state."""
+        return self._state
+
+    @state.setter
+    def state(self, s):
+        assert self.state_space.contains(s)
+        self.environment.state = s
+        self._state = s

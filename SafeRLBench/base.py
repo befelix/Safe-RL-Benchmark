@@ -161,7 +161,7 @@ class Space(object):
         pass
 
     @abstractmethod
-    def element(self):
+    def sample(self):
         """Return an arbitrary element in space for unit testing."""
         pass
 

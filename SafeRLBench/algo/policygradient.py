@@ -57,7 +57,7 @@ class PolicyGradient(AlgorithmBase):
             return self.policy.parameters
 
         # outerwise draw an element at random from the parameter space
-        parameter = self.parameter_space.element()
+        parameter = self.parameter_space.sample()
 
         for n in range(10000):
             self.policy.parameters = parameter
@@ -66,7 +66,7 @@ class PolicyGradient(AlgorithmBase):
             if (norm(grad) >= 1000 * self.eps):
                 return parameter
 
-            parameter = self.parameter_space.element()
+            parameter = self.parameter_space.sample()
 
         logger.error('Unable to find non-zero gradient.')
         return parameter
