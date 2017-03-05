@@ -8,8 +8,11 @@ logger = logging.getLogger(__name__)
 
 try:
     import tensorflow as tf
+    sigmoid = tf.sigmoid
 except:
     logger.warning("TensorFlow is not installed.")
+    from mock import Mock
+    sigmoid = Mock()
 
 
 def init_weights(shape):
@@ -42,7 +45,7 @@ class NeuralNetwork(Policy):
     """
 
     def __init__(self, layers, weights=None, init_weights=init_weights,
-                 activation=tf.sigmoid, dtype='float'):
+                 activation=sigmoid, dtype='float'):
         """Initialize Neural Network wrapper."""
         if (len(layers) < 2):
             raise ValueError('At least two layers needed.')
