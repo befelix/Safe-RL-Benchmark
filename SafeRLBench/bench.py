@@ -25,8 +25,7 @@ def _dispatch_wrap(run):
 
 
 class Bench(object):
-    """
-    Benchmarking class to benchmark algorithms on various environments.
+    """Benchmarking class to benchmark algorithms on various environments.
 
     Attributes
     ----------
@@ -42,8 +41,7 @@ class Bench(object):
     """
 
     def __init__(self, config=None, measures=None):
-        """
-        Initialize Bench instance.
+        """Initialize Bench instance.
 
         Parameters
         ----------
@@ -118,8 +116,7 @@ class Bench(object):
 
 
 class BenchConfig(object):
-    """
-    Benchmark configuration class.
+    """Benchmark configuration class.
 
     This class is supposed to provide a convenient interface to setup
     configurations for benchmarking runs.
@@ -182,8 +179,7 @@ class BenchConfig(object):
     """
 
     def __init__(self, algs=None, envs=None):
-        """
-        Initialize BenchConfig instance.
+        """Initialize BenchConfig instance.
 
         This initializer may be used if you want to test multiple algorithm
         configurations on a list of environments.
@@ -217,8 +213,7 @@ class BenchConfig(object):
         self.envs = envs
 
     def add_tests(self, algs, envs):
-        """
-        Add one environment configuration and algorithm configurations.
+        """Add one environment configuration and algorithm configurations.
 
         Parameters
         ----------
@@ -264,8 +259,7 @@ class BenchConfig(object):
 
 
 class BenchRun(object):
-    """
-    Wrapper containing instances and configuration for a run.
+    """Wrapper containing instances and configuration for a run.
 
     Attributes
     ----------
@@ -283,8 +277,7 @@ class BenchRun(object):
     """
 
     def __init__(self, alg, env, alg_conf, env_conf):
-        """
-        Initialize BenchRun instance.
+        """Initialize BenchRun instance.
 
         Parameters
         ----------

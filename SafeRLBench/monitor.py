@@ -110,8 +110,7 @@ class AlgoMonitor(object):
         self.monitor = AlgoData()
 
     def _before_optimize(self):
-        """
-        Setup montitor for optimization run.
+        """Setup montitor for optimization run.
 
         Parameters
         ----------
@@ -160,8 +159,7 @@ class AlgoMonitor(object):
             self.monitor.rewards.append(reward)
 
     def _before_step(self):
-        """
-        Monitor algorithm before step.
+        """Monitor algorithm before step.
 
         Parameters
         ----------
@@ -176,8 +174,7 @@ class AlgoMonitor(object):
                         str(self))
 
     def _after_step(self):
-        """
-        Monitor algorithm after step.
+        """Monitor algorithm after step.
 
         Parameters
         ----------
@@ -238,8 +235,7 @@ class AlgoMonitor(object):
 
 
 class EnvData(object):
-    """
-    Class to store environment tracking data.
+    """Class to store environment tracking data.
 
     Attributes
     ----------
@@ -253,8 +249,7 @@ class EnvData(object):
 
 
 class AlgoData(object):
-    """
-    Class used to store algorithm tracking data.
+    """Class used to store algorithm tracking data.
 
     Attributes
     ----------
