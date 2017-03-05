@@ -50,7 +50,7 @@ class TestSpaces(object):
         """Check if contains and element is implemented."""
         space = c(*class_arguments[c])
         try:
-            x = space.element()
+            x = space.sample()
             b = space.contains(x)
         except NotImplementedError:
             assert(False)

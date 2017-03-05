@@ -32,7 +32,7 @@ class BoundedSpace(Space):
                 and (x >= self.lower).all()
                 and (x <= self.upper).all())
 
-    def element(self):
+    def sample(self):
         """Return element."""
         element = rand(*self.shape) * (self.upper - self.lower) + self.lower
         return element

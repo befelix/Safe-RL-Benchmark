@@ -81,8 +81,7 @@ class EnvironmentBase(EnvMonitor):
         return trace
 
     def update(self, action):
-        """
-        Update the environment state according to the action.
+        """Update the environment state according to the action.
 
         Wraps the subclass implementation _update(action) providing
         monitoring capabilities.
@@ -109,8 +108,7 @@ class EnvironmentBase(EnvMonitor):
         return t
 
     def reset(self):
-        """
-        Reset the environment to initial state.
+        """Reset the environment to initial state.
 
         Reset wraps the subclass implementation _reset() providing monitoring
         capabilities.
@@ -120,8 +118,7 @@ class EnvironmentBase(EnvMonitor):
         self._after_reset()
 
     def rollout(self, policy):
-        """
-        Perform a rollout according to the actions selected by policy.
+        """Perform a rollout according to the actions selected by policy.
 
         Wraps the implementation _rollout(policy) providing monitoring
         capabilities.
@@ -146,8 +143,7 @@ class EnvironmentBase(EnvMonitor):
 
 @add_metaclass(ABCMeta)
 class Space(object):
-    """
-    Baseclass for Spaceobject.
+    """Baseclass for Spaceobject.
 
     All methods have to be implemented in any subclass.
 
@@ -165,7 +161,7 @@ class Space(object):
         pass
 
     @abstractmethod
-    def element(self):
+    def sample(self):
         """Return an arbitrary element in space for unit testing."""
         pass
 
@@ -177,8 +173,7 @@ class Space(object):
 
 @add_metaclass(ABCMeta)
 class AlgorithmBase(AlgoMonitor):
-    """
-    Baseclass for any algorithm.
+    """Baseclass for any algorithm.
 
     This baseclass defines a uniform interface for any algorithm part of
     the algorithm module SafeRLBench.algo.
@@ -260,8 +255,7 @@ class AlgorithmBase(AlgoMonitor):
                 break
 
     def optimize(self):
-        """
-        Optimize policy parameter.
+        """Optimize policy parameter.
 
         Wraps subclass implementation in _optimize(policy).
 
@@ -274,8 +268,7 @@ class AlgorithmBase(AlgoMonitor):
         self._after_optimize()
 
     def initialize(self):
-        """
-        Initialize policy parameter.
+        """Initialize policy parameter.
 
         Wraps subclass implementation in _initialize(policy)
 
@@ -287,8 +280,7 @@ class AlgorithmBase(AlgoMonitor):
         self.policy.parameter = parameter
 
     def step(self):
-        """
-        Update policy parameter.
+        """Update policy parameter.
 
         Wraps subclass implementation in _step(policy).
 
@@ -301,8 +293,7 @@ class AlgorithmBase(AlgoMonitor):
         self._after_step()
 
     def is_finished(self):
-        """
-        Return True when algorithm is supposed to finish.
+        """Return True when algorithm is supposed to finish.
 
         Wraps subclass implementation in _is_finished().
         """

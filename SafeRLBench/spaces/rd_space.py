@@ -15,7 +15,7 @@ class RdSpace(Space):
         """Check if element is contained."""
         return isinstance(x, np.ndarray) and x.shape == self.shape
 
-    def element(self):
+    def sample(self):
         """Return arbitrary element."""
         return np.ones(self.shape)
 

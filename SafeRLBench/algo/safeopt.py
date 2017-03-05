@@ -88,7 +88,7 @@ class SafeOpt(AlgorithmBase):
             parameters = self.policy.parameters
         else:
             logger.debug("Draw parameters at random.")
-            parameters = self.policy.parameter_space.element()
+            parameters = self.policy.parameter_space.sample()
             self.policy.parameters = parameters
 
         # Compute a rollout

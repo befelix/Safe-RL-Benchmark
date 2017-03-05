@@ -7,7 +7,7 @@ from theano.tensor import TensorVariable
 from theano import function, grad
 
 from SafeRLBench.base import EnvironmentBase
-from SafeRLBench.spaces import BoundedSpace, RdSpace
+from SafeRLBench.spaces import BoundedSpace
 
 
 def is_contour(contour):
@@ -26,7 +26,8 @@ class GeneralMountainCar(EnvironmentBase):
     def __init__(self,
                  state_space=BoundedSpace(array([-1, -0.07]),
                                           array([1, 0.07])),
-                 action_space=RdSpace((1,)), state=np.array([0, 0]),
+                 action_space=BoundedSpace(-1, 1, shape=(1,)),
+                 state=np.array([0, 0]),
                  contour=None, gravitation=0.0025, power=0.0015,
                  goal=0.6, horizon=100):
         """
@@ -82,7 +83,10 @@ class GeneralMountainCar(EnvironmentBase):
 
     def _update(self, action):
         """Compute step considering the action."""
-        action = max(min(action, 1.0), -1.0)
+        action_in = max(min(action, 1.0), -1.0)
+
+        if action_in.size == 1:
+            action = action_in[0]
 
         position = self.state[0]
         velocity = self.state[1]
@@ -98,7 +102,7 @@ class GeneralMountainCar(EnvironmentBase):
 
         self.state = np.array([position, velocity])
 
-        return action, copy(self.state), self._reward()
+        return action_in, copy(self.state), self._reward()
 
     def _reset(self):
         self.state = copy(self.initial_state)

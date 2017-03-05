@@ -4,8 +4,7 @@ import sys
 
 
 class SRBConfig(object):
-    """
-    SafeRLBench configuration class.
+    """SafeRLBench configuration class.
 
     Attributes
     ----------
@@ -28,8 +27,7 @@ class SRBConfig(object):
         self._id_cnt = 0
 
     def monitor_set_verbosity(self, verbose):
-        """
-        Set monitor verbosity level.
+        """Set monitor verbosity level.
 
         Parameters
         ----------
@@ -41,8 +39,7 @@ class SRBConfig(object):
         self.monitor_verbosity = verbose
 
     def jobs_set(self, n_jobs):
-        """
-        Set the amount of jobs used by a worker pool.
+        """Set the amount of jobs used by a worker pool.
 
         Parameters
         ----------
@@ -54,8 +51,7 @@ class SRBConfig(object):
         self.n_jobs = n_jobs
 
     def logger_set_level(self, level=logging.INFO):
-        """
-        Set the logger level package wide.
+        """Set the logger level package wide.
 
         Parameters
         ----------
@@ -66,8 +62,7 @@ class SRBConfig(object):
 
     @property
     def logger_stream_handler(self):
-        """
-        Property storing the current stream handler.
+        """Property storing the current stream handler.
 
         If overwritten with a new stream handler, the logger will be updated
         with the new stream handler.
@@ -91,8 +86,7 @@ class SRBConfig(object):
 
     @property
     def logger_file_handler(self):
-        """
-        Property storing the current file handler.
+        """Property storing the current file handler.
 
         If overwritten with a new file handler, the logger will be updated with
         the new file handler.
@@ -111,8 +105,7 @@ class SRBConfig(object):
 
     @property
     def logger_format(self):
-        """
-        Property for default logger format.
+        """Property for default logger format.
 
         If overwritten stream and file handler will be updated accordingly.
         However if manually updating stream and file handler logger_format will
@@ -143,8 +136,7 @@ class SRBConfig(object):
         self.log.addHandler(ch)
 
     def logger_add_file_handler(self, path):
-        """
-        Set a handler to print to file.
+        """Set a handler to print to file.
 
         Parameters
         ----------

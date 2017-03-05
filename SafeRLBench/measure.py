@@ -8,8 +8,7 @@ from operator import itemgetter
 
 @add_metaclass(ABCMeta)
 class Measure(object):
-    """
-    Abstract Base class defining the interface for any measurement.
+    """Abstract Base class defining the interface for any measurement.
 
     The methods below are abstract and need to be implemented by any child.
 
@@ -24,8 +23,7 @@ class Measure(object):
 
     @abstractmethod
     def __call__(self, runs):
-        """
-        Evaluate a list of runs.
+        """Evaluate a list of runs.
 
         Parameters
         ----------

@@ -11,6 +11,9 @@ from functools import partial
 
 import SafeRLBench.envs as envs
 
+import gym
+gym.undo_logger_setup()
+
 from mock import Mock
 
 
@@ -23,7 +26,9 @@ class TestEnvironments(object):
     because it will break reasonable output with verbose testing.
     """
 
-    classes = None
+    args = {
+        'GymWrap': [gym.make('MountainCar-v0')],
+    }
 
     @classmethod
     def setUpClass(cls):
@@ -55,8 +60,9 @@ class TestEnvironments(object):
 
     def check_env_update(self, c):
         """Check if _update is implemented."""
-        env = c()
-        x = env.action_space.element()
+        args = self.args.get(c.__name__, [])
+        env = c(*args)
+        x = env.action_space.sample()
         try:
             env._update(x)
         except NotImplementedError:
@@ -64,7 +70,8 @@ class TestEnvironments(object):
 
     def check_env_reset(self, c):
         """Check if _reset is implemented."""
-        env = c()
+        args = self.args.get(c.__name__, [])
+        env = c(*args)
         try:
             env._reset()
         except NotImplementedError:
@@ -72,10 +79,11 @@ class TestEnvironments(object):
 
     def check_env_rollout(self, c):
         """Check rollout correctness at random positions."""
-        env = c()
+        args = self.args.get(c.__name__, [])
+        env = c(*args)
 
         def policy(state):
-            return env.state_space.element()[0]
+            return env.action_space.sample()
 
         policy_mock = Mock(side_effect=policy)
         trace = env._rollout(policy_mock)
@@ -86,6 +94,8 @@ class TestEnvironments(object):
             t = trace[idx]
             t_verify = env._update(t[0])
             assert(t_verify[0] == t[0])
+            print(str(t_verify))
+            print(str(t))
             assert(all(t_verify[1] == t[1]))
             assert(t_verify[2] == t[2])
 
