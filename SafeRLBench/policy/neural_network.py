@@ -2,17 +2,18 @@
 
 from SafeRLBench import Policy
 
-import logging
-
-logger = logging.getLogger(__name__)
-
 try:
     import tensorflow as tf
     sigmoid = tf.sigmoid
 except:
-    logger.warning("TensorFlow is not installed.")
+    from SafeRLBench.error import import_failed
+    import_failed('TensorFlow')
     from mock import Mock
     sigmoid = Mock()
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def init_weights(shape):
@@ -42,9 +43,12 @@ class NeuralNetwork(Policy):
         every layer.
     dtype : string
         Data type of input and output.
+    y_pred : tensorflow op
+        This is the actual neural network computing the next step.
     sess : tensorflow session
         The session the variables are initialized in. It is used to evaluate
         and update the network.
+        Make sure session is set to an active session while running.
     """
 
     def __init__(self, layers, weights=None, init_weights=init_weights,
@@ -69,24 +73,22 @@ class NeuralNetwork(Policy):
         self.X = tf.placeholder(dtype, shape=[None, layers[0]], name='X')
         self.y = tf.placeholder(dtype, shape=[None, layers[-1]], name='y')
 
-        # Weights
-        if weights is None:
-            w = []
-            for i in range(len(layers) - 1):
-                with tf.variable_scope('weights'):
+        with tf.variable_scope('policy_estimator'):
+            # Weights
+            if weights is None:
+                w = []
+                for i in range(len(layers) - 1):
                     w.append(self.init_weights((layers[i], layers[i + 1])))
-        else:
-            w = weights
+            else:
+                w = weights
 
-        self.W = w
+            self.W = w
 
-        # generate nn tensor
-        self.y_pred = self._generate_network()
+            # generate nn tensor
+            self.y_pred = self._generate_network()
 
         # initialize tf session
-        self.sess = tf.Session()
-        init = tf.global_variables_initializer()
-        self.sess.run(init)
+        self.sess = None
 
     def _generate_network(self):
         h = [self.X]
@@ -124,7 +126,7 @@ class NeuralNetwork(Policy):
         tensor.
         This method will then run the update tensor in the session.
         """
-        self.sess.run(update)
+        self.sess.run(*update)
 
     @property
     def parameter_space(self):
