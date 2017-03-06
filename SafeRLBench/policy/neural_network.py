@@ -57,6 +57,8 @@ class NeuralNetwork(Policy):
         if (len(layers) < 2):
             raise ValueError('At least two layers needed.')
 
+        self.args = [layers, weights, init_weights, activation, dtype]
+
         self.layers = layers
         self.init_weights = init_weights
 
