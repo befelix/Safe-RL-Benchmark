@@ -94,8 +94,6 @@ class TestEnvironments(object):
             t = trace[idx]
             t_verify = env._update(t[0])
             assert(t_verify[0] == t[0])
-            print(str(t_verify))
-            print(str(t))
             assert(all(t_verify[1] == t[1]))
             assert(t_verify[2] == t[2])
 
