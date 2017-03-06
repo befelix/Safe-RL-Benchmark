@@ -138,6 +138,7 @@ class EnvironmentBase(EnvMonitor):
         return trace
 
     def __repr__(self):
+        """Return class name."""
         return self.__class__.__name__
 
 

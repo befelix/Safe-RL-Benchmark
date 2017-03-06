@@ -34,14 +34,17 @@ class NeuralNetwork(Policy):
         If none the init_weights function will be used to initialize the
         weights.
     init_weights : callable
-        takes a shape as an argument and returns a tf.Variable according to
+        Takes a shape as an argument and returns a tf.Variable according to
         this shape.
     activation : list of activation functions
-        an activation function which will be used to construct the respective
+        An activation function which will be used to construct the respective
         layer. If only one activation function is passed, it will be used for
         every layer.
     dtype : string
-        data type of input and output.
+        Data type of input and output.
+    sess : tensorflow session
+        The session the variables are initialized in. It is used to evaluate
+        and update the network.
     """
 
     def __init__(self, layers, weights=None, init_weights=init_weights,
