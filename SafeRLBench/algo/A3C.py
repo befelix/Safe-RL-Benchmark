@@ -1,4 +1,12 @@
-"""Asynchronous Actor-Critic Agents."""
+"""Asynchronous Actor-Critic Agents.
+
+Implementations refer to Denny Britz implementations at
+https://github.com/dennybritz/reinforcement-learning/tree/master/PolicyGradient/a3c
+"""
+
+import copy
+
+import numpy as np
 
 from SafeRLBench import AlgorithmBase
 
@@ -53,10 +61,78 @@ class A3C(AlgorithmBase):
 class _Worker(object):
     """Worker thread."""
 
-    def __init__(self, policy, p_net, v_net):
+    def __init__(self, env, policy, p_net, v_net, name):
+        self.name = name
+        self.env = copy.copy(env)
         self.global_policy = policy
         self.global_p_net = p_net
         self.global_v_net = v_net
+
+        # generate local networks
+        with tf.variable_scope(name):
+            self.local_policy = policy.copy()
+            self.local_p_net = _PolicyNet(self.local_policy,
+                                          self.global_p_net.rate)
+            self.local_v_net = _ValueNet(self.local_policy,
+                                         self.global_v_net.rate)
+
+        # create copy op
+        trainable_variables = tf.GraphKeys.TRAINABLE_VARIABLES
+        self.copy_params_op = self.make_copy_params_op(
+            tf.contrib.slim.get_variables(scope="global",
+                                          collection=trainable_variables),
+            tf.contrib.slim.get_variables(scope=self.name,
+                                          collection=trainable_variables))
+
+        # create train ops
+        self.p_net_train = self.make_train_op(self.local_p_net,
+                                              self.global_p_net)
+        self.v_net_train = self.make_train_op(self.local_v_net,
+                                              self.global_v_net)
+
+        self.state = self.env.state
+
+    def run(self, sess, t_max):
+        with sess.as_default():
+            # maybe use eval, then this would not be required.
+            self.local_policy.sess = sess
+
+            sess.run(self.copy_params_op)
+
+            # perform a rollout
+            trace = self.env.rollout(self.policy)
+
+            # compute advantage
+
+    @staticmethod
+    def make_copy_params_op(v1_list, v2_list):
+        """Create operation to copy parameters.
+
+        Creates an operation that copies parameters from variable in v1_list to
+        variables in v2_list.
+        The ordering of the variables in the lists must be identical.
+        """
+        v1_list = list(sorted(v1_list, key=lambda v: v.name))
+        v2_list = list(sorted(v2_list, key=lambda v: v.name))
+
+        update_ops = []
+        for v1, v2 in zip(v1_list, v2_list):
+            op = v2.assign(v1)
+            update_ops.append(op)
+
+        return update_ops
+
+    @staticmethod
+    def make_train_op(loc, glob):
+        """Create operation that applies local gradients to global network."""
+        loc_grads, _ = zip(*loc.grads_and_vars)
+        loc_grads, _ = tf.clip_by_global_norm(loc_grads, 5.0)
+        _, glob_vars = zip(*glob.grads_and_vars)
+        loc_grads_glob_vars = list(zip(loc_grads, glob_vars))
+        get_global_step = tf.contrib.framework.get_global_step()
+
+        return glob.optimizer.apply_gradients(loc_grads_glob_vars,
+                                              global_step=get_global_step)
 
 
 class _ValueNet(object):

@@ -101,9 +101,16 @@ class NeuralNetwork(Policy):
             h.append(act(tf.matmul(h_i, w_i)))
         return h[-1]
 
+    def copy(self):
+        """Generate a copy of the network for workers."""
+        return NeuralNetwork(*self.args)
+
     def map(self, state):
-        """Compute output in session."""
-        return self.sess.run(self.y_pred, {self.X: [state]})
+        """Compute output in session.
+
+        Make sure a default session is set when calling.
+        """
+        return self.y_pred.eval({self.X: [state]})
 
     @property
     def parameters(self):
