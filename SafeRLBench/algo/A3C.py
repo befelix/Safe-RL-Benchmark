@@ -61,12 +61,14 @@ class A3C(AlgorithmBase):
 class _Worker(object):
     """Worker thread."""
 
-    def __init__(self, env, policy, p_net, v_net, name):
+    def __init__(self, env, policy, p_net, v_net, discount, name):
         self.name = name
         self.env = copy.copy(env)
         self.global_policy = policy
         self.global_p_net = p_net
         self.global_v_net = v_net
+
+        self.discount = discount
 
         # generate local networks
         with tf.variable_scope(name):
@@ -102,7 +104,41 @@ class _Worker(object):
             # perform a rollout
             trace = self.env.rollout(self.policy)
 
-            # compute advantage
+            advantages = []
+            values = []
+            states = []
+            actions = []
+
+            value = 0.
+
+            for (action, state, reward) in trace:
+                value = reward + self.discount * value
+
+                # evaluate value net on state
+                value_pred = sess.run(self.local_v_net.V_est,
+                                      {self.local_v_net.X: [state]})
+                advantage = reward - value_pred
+
+                advantages.append(advantage)
+                values.append(value)
+                states.append(state)
+                actions.append(action)
+
+            # compute local gradients and train global network
+            feed_dict = {
+                self.local_p_net.X: np.array(states),
+                self.local_p_net.y: advantages,
+                self.local_p_net.a: actions,
+                self.local_v_net.X: np.array(states),
+                self.local_v_net.V: values
+            }
+
+            p_net_loss, v_net_loss, _, _ = sess.run([
+                self.local_p_net.loss,
+                self.local_v_net.loss,
+                self.p_net_train,
+                self.v_net_train
+            ], feed_dict)
 
     @staticmethod
     def make_copy_params_op(v1_list, v2_list):
@@ -170,15 +206,32 @@ class _PolicyNet(object):
 
             self.X = policy.X
             self.y = policy.y
+            self.a = tf.placeholder(dtype=policy.action_space.dtype,
+                                    shape=policy.action_space.shape,
+                                    name='actions')
 
             self.W = policy.W
 
             self.y_pred = policy.y_pred
 
-            if train:
-                self.losses = tf.squared_difference(self.y_pred, self.y)
-                self.loss = tf.reduce_sum(self.losses, name='loss')
+            self.probs = tf.nn.softmax(self.y_pred) + 1e-8
 
+            # We add entropy to the loss to encourage exploration
+            self.entropy = -tf.reduce_sum(self.probs * tf.log(self.probs),
+                                          1, name="entropy")
+            self.entropy_mean = tf.reduce_mean(self.entropy,
+                                               name="entropy_mean")
+
+            # Get the predictions for the chosen actions only
+            gather_indices = (tf.range(tf.shape(self.states)[0])
+                              * tf.shape(self.probs)[1] + self.a)
+            self.picked_action_probs = tf.gather(tf.reshape(self.probs, [-1]),
+                                                 gather_indices)
+
+            self.losses = - (tf.log(self.picked_action_probs) * self.y
+                             + 0.01 * self.entropy)
+            self.loss = tf.reduce_sum(self.losses, name='loss')
+            if train:
                 self.opt = tf.train.GradientDescentOptimizer(rate)
                 self.grads_and_vars = self.opt.compute_gradients(self.loss)
                 self.grads_and_vars = [[[g, v] for g, v in self.grads_and_vars
