@@ -8,6 +8,8 @@ import copy
 
 import numpy as np
 
+import threading
+
 from SafeRLBench import AlgorithmBase
 
 import SafeRLBench.error as error
@@ -15,6 +17,7 @@ from SafeRLBench.error import NotSupportedException
 
 try:
     import tensorflow as tf
+    from tensorflow.contrib.distributions import Normal
 except:
     tf = None
 
@@ -30,37 +33,87 @@ class A3C(AlgorithmBase):
     ----------
     """
 
-    def __init__(self, environment, policy, max_it, num_workers=2, rate=0.1):
+    def __init__(self, environment, policy, max_it=1000, num_workers=2,
+                 rate=0.1, discount=0.1):
         """Initialize A3C."""
         if tf is None:
             raise NotSupportedException(error.NO_TF_SUPPORT)
 
-        if not hasattr(policy, 'sess'):
-            raise ValueError('Policy needs `sess` attribute.')
+        if policy.is_set_up and policy.scope != 'global':
+            raise(ValueError('Do not set do_setup to True, unless you know'
+                             + ' why!'))
 
         super(A3C, self).__init__(environment, policy, max_it)
 
         self.num_workers = num_workers
+        self.rate = rate
+        self.discount = discount
+
+        self.done = False
 
         # init networks
         with tf.variable_scope('global'):
-            self.p_net = _PolicyNet(policy, rate)
-            self.v_net = _ValueNet(policy, rate)
+            if not policy.is_set_up:
+                policy.setup()
+            self.policy = policy
+            self.p_net = _PolicyNet(self.policy, rate)
+            self.v_net = _ValueNet(self.policy, rate)
 
-        # init advantage op
-        # init loss op
+        self.workers = []
+        self.threads = []
+
+        self.global_counter = 0
+
+        self.sess = None
 
     def _initialize(self):
-        pass
+        self.global_counter = 0
+        self.workers = []
+        self.threads = []
+
+        self.done = False
+
+        for i in range(self.num_workers):
+            worker = _Worker(self.environment,
+                             self.policy,
+                             self.p_net,
+                             self.v_net,
+                             self.discount,
+                             'worker_' + str(i))
+            self.workers.append(worker)
+
+        init_op = tf.global_variables_initializer()
+        self.sess = tf.Session()
+        self.sess.run(init_op)
+        graph = self.sess.graph
+        writer = tf.summary.FileWriter(logdir='/Users/TheUser/Desktop',
+                                       graph=graph)
+        writer.flush()
 
     def _step(self):
-        pass
+        self.global_counter += 1
+        self.grad = [g for g, v in self.p_net.grads_and_vars]
+        logger.debug("Hey we are at step %d", self.global_counter)
 
     def _is_finished(self):
-        pass
+        if self.global_counter >= self.max_it:
+            self.done = True
+        return self.done
 
     def _optimize(self):
-        pass
+        self.initialize()
+        for worker in self.workers:
+            t = threading.Thread(target=self._start(worker, self.sess))
+            self.threads.append(t)
+            t.start()
+
+        for t in self.threads:
+            t.join()
+
+    def _start(self, worker, sess):
+        while not self.is_finished():
+            p_net_loss, v_net_loss = worker.run(sess)
+            self.step()
 
 
 class _Worker(object):
@@ -76,8 +129,9 @@ class _Worker(object):
         self.discount = discount
 
         # generate local networks
+        self.local_policy = policy.copy(name, do_setup=False)
         with tf.variable_scope(name):
-            self.local_policy = policy.copy()
+            self.local_policy.setup()
             self.local_p_net = _PolicyNet(self.local_policy,
                                           self.global_p_net.rate)
             self.local_v_net = _ValueNet(self.local_policy,
@@ -99,15 +153,12 @@ class _Worker(object):
 
         self.state = self.env.state
 
-    def run(self, sess, t_max):
+    def run(self, sess):
         with sess.as_default():
-            # maybe use eval, then this would not be required.
-            self.local_policy.sess = sess
-
             sess.run(self.copy_params_op)
 
             # perform a rollout
-            trace = self.env.rollout(self.policy)
+            trace = self.env.rollout(self.local_policy)
 
             advantages = []
             values = []
@@ -122,17 +173,17 @@ class _Worker(object):
                 # evaluate value net on state
                 value_pred = sess.run(self.local_v_net.V_est,
                                       {self.local_v_net.X: [state]})
-                advantage = reward - value_pred
+                advantage = reward - value_pred.flatten()
 
                 advantages.append(advantage)
                 values.append(value)
                 states.append(state)
-                actions.append(action)
+                actions.append([action])
 
             # compute local gradients and train global network
             feed_dict = {
                 self.local_p_net.X: np.array(states),
-                self.local_p_net.y: advantages,
+                self.local_p_net.target: advantages,
                 self.local_p_net.a: actions,
                 self.local_v_net.X: np.array(states),
                 self.local_v_net.V: values
@@ -144,6 +195,8 @@ class _Worker(object):
                 self.p_net_train,
                 self.v_net_train
             ], feed_dict)
+
+        return p_net_loss, v_net_loss
 
     @staticmethod
     def make_copy_params_op(v1_list, v2_list):
@@ -172,14 +225,16 @@ class _Worker(object):
         loc_grads_glob_vars = list(zip(loc_grads, glob_vars))
         get_global_step = tf.contrib.framework.get_global_step()
 
-        return glob.optimizer.apply_gradients(loc_grads_glob_vars,
-                                              global_step=get_global_step)
+        return glob.opt.apply_gradients(loc_grads_glob_vars,
+                                        global_step=get_global_step)
 
 
 class _ValueNet(object):
     """Wrapper for the Value function."""
 
     def __init__(self, policy, rate, train=True):
+        self.rate = rate
+
         with tf.variable_scope('value_estimator'):
             self.X = tf.placeholder(policy.dtype,
                                     shape=policy.X.shape,
@@ -192,14 +247,14 @@ class _ValueNet(object):
 
             self.V_est = tf.matmul(self.X, self.W)
 
-            if train:
-                self.losses = tf.squared_difference(self.V_est, self.V)
-                self.loss = tf.reduce_sum(self.losses, name='loss')
+            self.losses = tf.squared_difference(self.V_est, self.V)
+            self.loss = tf.reduce_sum(self.losses, name='loss')
 
-                self.opt = tf.train.GradientDescentOptimizer(rate)
+            if train:
+                self.opt = tf.train.RMSPropOptimizer(rate, 0.99, 0.0, 1e-6)
                 self.grads_and_vars = self.opt.compute_gradients(self.loss)
-                self.grads_and_vars = [[[g, v] for g, v in self.grads_and_vars
-                                       if g is not None]]
+                self.grads_and_vars = [(g, v) for g, v in self.grads_and_vars
+                                       if g is not None]
                 self.update = self.opt.apply_gradients(self.grads_and_vars)
 
 
@@ -207,38 +262,35 @@ class _PolicyNet(object):
     """Wrapper for the Policy function."""
 
     def __init__(self, policy, rate, train=True):
+        self.rate = rate
+
         with tf.variable_scope('policy_estimator'):
 
             self.X = policy.X
-            self.y = policy.y
-            self.a = tf.placeholder(dtype=policy.action_space.dtype,
-                                    shape=policy.action_space.shape,
-                                    name='actions')
+            self.a = policy.a
+            self.target = tf.placeholder(dtype='float', shape=[None, 1],
+                                         name='target')
 
-            self.W = policy.W
+            self.a_pred = policy.a_pred
+            self.var = policy.var
 
-            self.y_pred = policy.y_pred
+            dist = Normal(self.a_pred, self.var)
+            self.log_probs = dist.log_pdf(self.a)
+            """
+            diff = tf.subtract(self.a, self.a_pred)
+            fac = tf.div(tf.constant(1 / np.sqrt(2 * np.pi), 'float'),
+                         self.var)
+            self.probs = tf.multiply(tf.exp(tf.square(tf.div(diff, self.var))),
+                                     fac)
+            self.log_probs = tf.log(self.probs)
+            """
 
-            self.probs = tf.nn.softmax(self.y_pred) + 1e-8
-
-            # We add entropy to the loss to encourage exploration
-            self.entropy = -tf.reduce_sum(self.probs * tf.log(self.probs),
-                                          1, name="entropy")
-            self.entropy_mean = tf.reduce_mean(self.entropy,
-                                               name="entropy_mean")
-
-            # Get the predictions for the chosen actions only
-            gather_indices = (tf.range(tf.shape(self.states)[0])
-                              * tf.shape(self.probs)[1] + self.a)
-            self.picked_action_probs = tf.gather(tf.reshape(self.probs, [-1]),
-                                                 gather_indices)
-
-            self.losses = - (tf.log(self.picked_action_probs) * self.y
-                             + 0.01 * self.entropy)
+            self.losses = - (self.log_probs * self.target)
             self.loss = tf.reduce_sum(self.losses, name='loss')
+
             if train:
-                self.opt = tf.train.GradientDescentOptimizer(rate)
+                self.opt = tf.train.RMSPropOptimizer(rate, 0.99, 0.0, 1e-6)
                 self.grads_and_vars = self.opt.compute_gradients(self.loss)
-                self.grads_and_vars = [[[g, v] for g, v in self.grads_and_vars
-                                       if g is not None]]
+                self.grads_and_vars = [(g, v) for g, v in self.grads_and_vars
+                                       if g is not None]
                 self.update = self.opt.apply_gradients(self.grads_and_vars)

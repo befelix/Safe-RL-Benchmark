@@ -233,6 +233,8 @@ class AlgorithmBase(AlgoMonitor):
         self.policy = policy
         self.max_it = max_it
 
+        self.grad = None
+
     # Have to be overwritten.
     @abstractmethod
     def _initialize(self):

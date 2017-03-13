@@ -83,15 +83,18 @@ class GeneralMountainCar(EnvironmentBase):
 
     def _update(self, action):
         """Compute step considering the action."""
-        action_in = max(min(action, 1.0), -1.0)
+        action = array(action).flatten()
+        action = max(min(action, 1.0), -1.0)
 
-        if action_in.size == 1:
-            action = action_in[0]
+        if hasattr(action, 'size') and action.size == 1:
+            action_in = action[0]
+        else:
+            action_in = action
 
         position = self.state[0]
         velocity = self.state[1]
 
-        velocity += (action * self.power
+        velocity += (action_in * self.power
                      - self.dydx(position) * self.gravitation)
         position += velocity
 
@@ -102,7 +105,7 @@ class GeneralMountainCar(EnvironmentBase):
 
         self.state = np.array([position, velocity])
 
-        return action_in, copy(self.state), self._reward()
+        return action, copy(self.state), self._reward()
 
     def _reset(self):
         self.state = copy(self.initial_state)
