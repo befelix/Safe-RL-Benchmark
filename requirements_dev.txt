@@ -1,0 +1,15 @@
+theano >= 0.8.2
+gym >= 0.8.0
+tensorflow >= 1.0.0
+GPy >= 1.6.1
+
+# Style testing
+flake8 >= 3.3.0
+pep8 >= 1.7.0
+pep8-naming >= 0.4.1
+pydocstyle >= 1.1.1
+
+# Unittesting
+coverage >= 4.3.4
+unittest2 >= 1.1.0
+mock >= 2.0.0

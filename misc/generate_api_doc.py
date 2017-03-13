@@ -3,8 +3,9 @@ import io
 import os
 import importlib
 
-doc_path = 'docs/src/'
-lib_path = 'SafeRLBench'
+base_path = '../'
+doc_path = base_path + 'docs/src/'
+lib_path = base_path + 'SafeRLBench'
 
 
 def generate_class_doc_file(path, name, mod_name):

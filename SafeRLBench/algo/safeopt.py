@@ -2,21 +2,24 @@
 
 from SafeRLBench import AlgorithmBase
 
+import SafeRLBench.error as error
+from SafeRLBench.error import NotSupportedException
+
 from numpy import mean, array
-
-import logging
-
-logger = logging.getLogger(__name__)
 
 try:
     import safeopt
 except:
-    logger.warning("SafeOpt is not installed.")
+    safeopt = None
 
 try:
     import GPy
 except:
-    logger.warning("GPy is not installed.")
+    GPy = None
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class SafeOpt(AlgorithmBase):
@@ -69,6 +72,12 @@ class SafeOpt(AlgorithmBase):
                  lipschitz=None, beta=3.0, num_contexts=0, threshold=0,
                  scaling='auto'):
         """Initialize Attributes."""
+        if SafeOpt is None:
+            raise NotSupportedException(error.NO_SO_SUPPORT)
+
+        if GPy is None:
+            raise NotSupportedException(error.NO_GPy_SUPPORT)
+
         super(SafeOpt, self).__init__(environment, policy, max_it)
 
         self.gp_opt = None
