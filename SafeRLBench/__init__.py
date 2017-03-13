@@ -14,6 +14,7 @@ from .bench import Bench, BenchConfig
 from . import algo
 from . import envs
 from . import policy
+from . import error
 
 # Add things to all
 __all__ = ['EnvironmentBase',
@@ -30,7 +31,8 @@ __all__ = ['EnvironmentBase',
            'BenchConfig',
            'envs',
            'algo',
-           'policy']
+           'policy',
+           'error']
 
 
 # Import test after __all__ (no documentation)

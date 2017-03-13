@@ -1,25 +1,22 @@
-# After changing this file, check it on:
-#   http://lint.travis-ci.org/
 language: python
-sudo: false
-python:
-  - 2.7
-  - 3.5
+
+sudo: required
+
+services:
+  - docker
+
 env:
-  TF_CPP_MIN_LOG_LEVEL=1
-notifications:
-  email: false
-cache:
-  directories: $HOME/.cache/pip
+  - PYTHON=python2
+  - PYTHON=python3
 
+# Setup docker container
 install:
-  - pip install --upgrade pip setuptools wheel
-  - pip install flake8 unittest2
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then pip install futures multiprocessing; fi
-  - pip install --only-binary numpy,scipy,matplotlib numpy scipy matplotlib
-  - pip install theano gym tensorflow
+  - docker build -f misc/Dockerfile.${PYTHON} -t test-image .
+  - docker ps -a
 
+# Run tests
 script:
-  - flake8 SafeRLBench --exclude test*.py,__init__.py --show-source
-  - flake8 SafeRLBench --filename=__init__.py,test*.py --ignore=F --show-source
-  - nosetests --with-doctest SafeRLBench
+  - docker run test-image flake8 SafeRLBench --exclude "test*.py,__init__.py" --ignore=E402,W503 --show-source
+  - docker run test-image flake8 SafeRLBench --filename="__init__.py,test*.py" --ignore=F,E402,W503 --show-source
+  - docker run test-image pydocstyle SafeRLBench --match='(?!__init__).*\.py'
+  - docker run test-image nosetests --with-doctest --verbosity=2 SafeRLBench

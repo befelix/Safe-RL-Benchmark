@@ -34,6 +34,20 @@ unittests: unittests2 unittests3
 
 test: style docstyle unittests
 
+setup_docker2:
+	docker build -f misc/Dockerfile.python2 -t srlb-py27-image .
+
+setup_docker3:
+	docker build -f misc/Dockerfile.python3 -t srlb-py35-image .
+
+docker2:
+	@echo "${GREEN}Running unit tests for 2.7:${NC}"
+	docker run -v $(shell pwd):/code/ srlb-py27-image nosetests --with-doctest --verbosity=2 SafeRLBench
+
+docker3:
+	@echo "${GREEN}Running unit tests for 3.5:${NC}"
+	docker run -v $(shell pwd):/code/ srlb-py35-image nosetests --with-doctest --verbosity=2 SafeRLBench
+
 history:
 	git log --graph --decorate --oneline
 

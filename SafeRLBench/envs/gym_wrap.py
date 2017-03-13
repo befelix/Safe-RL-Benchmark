@@ -28,12 +28,12 @@ class GymWrap(EnvironmentBase):
 
     def _update(self, action):
         observation, reward, done, info = self.environment.step(action)
-        self.state = observation
+        self._state = observation
         self.done = done
         return action, observation, reward
 
     def _reset(self):
-        self.environment.reset()
+        self._state = self.environment.reset()
         self.done = False
 
     def _rollout(self, policy):
