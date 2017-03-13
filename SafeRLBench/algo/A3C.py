@@ -10,11 +10,13 @@ import numpy as np
 
 from SafeRLBench import AlgorithmBase
 
+import SafeRLBench.error as error
+from SafeRLBench.error import NotSupportedException
+
 try:
     import tensorflow as tf
 except:
-    from SafeRLBench.error import import_failed
-    import_failed('TensorFlow')
+    tf = None
 
 import logging
 
@@ -30,6 +32,9 @@ class A3C(AlgorithmBase):
 
     def __init__(self, environment, policy, max_it, num_workers=2, rate=0.1):
         """Initialize A3C."""
+        if tf is None:
+            raise NotSupportedException(error.NO_TF_SUPPORT)
+
         if not hasattr(policy, 'sess'):
             raise ValueError('Policy needs `sess` attribute.')
 

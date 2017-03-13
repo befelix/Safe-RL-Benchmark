@@ -2,14 +2,13 @@
 
 from SafeRLBench import Policy
 
+import SafeRLBench.error as error
+from SafeRLBench.error import NotSupportedException
+
 try:
     import tensorflow as tf
-    sigmoid = tf.sigmoid
 except:
-    from SafeRLBench.error import import_failed
-    import_failed('TensorFlow')
-    from mock import Mock
-    sigmoid = Mock()
+    tf = None
 
 import logging
 
@@ -52,8 +51,11 @@ class NeuralNetwork(Policy):
     """
 
     def __init__(self, layers, weights=None, init_weights=init_weights,
-                 activation=sigmoid, dtype='float'):
+                 activation=None, dtype='float'):
         """Initialize Neural Network wrapper."""
+        if tf is None:
+            raise NotSupportedException(error.NO_TF_SUPPORT)
+
         if (len(layers) < 2):
             raise ValueError('At least two layers needed.')
 
@@ -63,7 +65,9 @@ class NeuralNetwork(Policy):
         self.init_weights = init_weights
 
         # Activation function
-        if (isinstance(activation, list)
+        if activation is None:
+            activation = (len(layers) - 1) * [tf.sigmoid]
+        elif (isinstance(activation, list)
                 and (len(activation) != len(layers) - 1)):
             raise ValueError('Activation list has wrong size.')
         else:
