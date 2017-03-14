@@ -3,7 +3,7 @@
 from SafeRLBench import Policy
 
 import SafeRLBench.error as error
-from SafeRLBench.error import NotSupportedException
+from SafeRLBench.error import NotSupportedException, MultipleCallsException
 
 from numpy.random import normal
 
@@ -28,6 +28,10 @@ class NeuralNetwork(Policy):
 
     Attributes
     ----------
+    args : list
+        Contains the args used to initialize the policy.
+    kwargs : dict
+        Contains the kwargs used to initialize the policy.
     layers : list of integers
         A list describing the layer sizes. The first element represents the
         size of the input layer, the last element the size of the output
@@ -47,12 +51,22 @@ class NeuralNetwork(Policy):
         will be used.
     dtype : string
         Data type of input and output.
-    y_pred : tensorflow op
-        This is the actual neural network computing the next step.
-    sess : tensorflow session
-        The session the variables are initialized in. It is used to evaluate
-        and update the network.
-        Make sure session is set to an active session while running.
+    W_action : list of tf.Variable
+        The list contains the `tf.Variable` instances describing the mapping
+        between the hidden layers. The i-th entry describes the connection
+        between layer i and layer i+1.
+    W_var : list of tf.Variable
+        This list contains the weights used to compute the variance estimation.
+        Each entry corresponds to one layer and contains weights of shape
+        (layer[i], 1).
+    a_pred :
+        Action estimate of the fully connected neural network defined by
+        `W_action` and activation.
+    var :
+        Variance estimate which is a weighted sum of all hidden units.
+        The weights are described by `W_var`.
+    h : list of tf.Tensor
+        Hidden layers
     """
 
     def __init__(self, layers, state_space, action_space, weights=None,
@@ -117,30 +131,34 @@ class NeuralNetwork(Policy):
         is True, setup will automatically be called, when instantiating the
         class.
         """
+        if self.is_set_up:
+            raise MultipleCallsException('Network is already set up.')
+
         layers = self.layers
         weights = self.kwargs['weights']
 
-        with tf.variable_scope('policy_estimator'):
-            # Weights for the action estimation
-            with tf.variable_scope('action_estimator'):
-                if weights is None:
-                    w = []
-                    for i in range(len(layers) - 1):
-                        w.append(self.init_weights((layers[i], layers[i + 1])))
-                else:
-                    w = weights
-
-                self.W_action = w
-
-            # Weights for variance estimation
-            with tf.variable_scope('variance_estimator'):
-                self.W_var = []
+        # Weights for the action estimation
+        with tf.variable_scope('action_estimator'):
+            if weights is None:
+                w = []
                 for i in range(len(layers) - 1):
-                    self.W_var.append(self.init_weights((layers[i], 1)))
+                    w.append(self.init_weights((layers[i], layers[i + 1])))
+            else:
+                w = weights
 
-            # generate nn tensor
-            self.a_pred = self._generate_network()
-            self.var = self._generate_variance()
+            self.W_action = w
+
+        # generate network
+        self.a_pred = self._generate_network()
+
+        # Weights for variance estimation
+        with tf.variable_scope('variance_estimator'):
+            self.W_var = []
+            for i in range(len(layers) - 1):
+                self.W_var.append(self.init_weights((layers[i], 1)))
+
+        # generate variance network
+        self.var = self._generate_variance()
 
         self.is_set_up = True
 
@@ -160,7 +178,21 @@ class NeuralNetwork(Policy):
         return tf.abs(tf.add_n(var, name='variance'))
 
     def copy(self, scope, do_setup=True):
-        """Generate a copy of the network for workers."""
+        """Generate a copy of the network.
+
+        The copy will instantiate the class with the same arguments, but
+        replace `scope` and `do_setup` with the respective arguments passed
+        to this function.
+
+        Parameters
+        ----------
+        scope : String
+            Indication the scope that should be used when initializing the
+            network.
+        do_setup : Boolean
+            Default: True ; Indicating if the `setup` method, should be called
+            when instantiating.
+        """
         self.kwargs['scope'] = scope
         self.kwargs['do_setup'] = do_setup
         return NeuralNetwork(*self.args, **self.kwargs)

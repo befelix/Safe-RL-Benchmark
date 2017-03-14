@@ -14,3 +14,9 @@ class NotSupportedException(Exception):
     """Exception raised when requirements are not installed."""
 
     pass
+
+
+class MultipleCallsException(Exception):
+    """Exception raised when a setup method is called multiple times."""
+
+    pass

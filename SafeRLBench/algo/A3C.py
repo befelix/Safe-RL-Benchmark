@@ -5,10 +5,9 @@ https://github.com/dennybritz/reinforcement-learning/tree/master/PolicyGradient/
 """
 
 import copy
+import threading
 
 import numpy as np
-
-import threading
 
 from SafeRLBench import AlgorithmBase
 
@@ -31,6 +30,22 @@ class A3C(AlgorithmBase):
 
     Attributes
     ----------
+    environment :
+        Environment we want to optimize the policy for.
+    policy :
+        The policy we want to optimize.
+    max_it : integer
+        The maximal number of iterations before we abort.
+    num_workers : integer
+        Number of workers that should be used asynchronous.
+    rate : float
+        Gradient Descent rate.
+    discount : float
+        Discount factor for adjusted reward.
+    done : boolean
+        Indicates whether the run is done.
+    workers : list of _Worker instances
+    threads : list of Thread instances.
     """
 
     def __init__(self, environment, policy, max_it=1000, num_workers=2,
@@ -39,9 +54,8 @@ class A3C(AlgorithmBase):
         if tf is None:
             raise NotSupportedException(error.NO_TF_SUPPORT)
 
-        if policy.is_set_up and policy.scope != 'global':
-            raise(ValueError('Do not set do_setup to True, unless you know'
-                             + ' why!'))
+        if policy.is_set_up:
+            raise(ValueError('Policy should not be set up.'))
 
         super(A3C, self).__init__(environment, policy, max_it)
 
@@ -51,11 +65,10 @@ class A3C(AlgorithmBase):
 
         self.done = False
 
+        self.policy = policy
+
         # init networks
         with tf.variable_scope('global'):
-            if not policy.is_set_up:
-                policy.setup()
-            self.policy = policy
             self.p_net = _PolicyNet(self.policy, rate)
             self.v_net = _ValueNet(self.policy, rate)
 
@@ -85,9 +98,11 @@ class A3C(AlgorithmBase):
         init_op = tf.global_variables_initializer()
         self.sess = tf.Session()
         self.sess.run(init_op)
+
+        # Write a graph file
+        # TODO: enhance summary
         graph = self.sess.graph
-        writer = tf.summary.FileWriter(logdir='/Users/TheUser/Desktop',
-                                       graph=graph)
+        writer = tf.summary.FileWriter('logs/', graph=graph)
         writer.flush()
 
     def _step(self):
@@ -131,7 +146,6 @@ class _Worker(object):
         # generate local networks
         self.local_policy = policy.copy(name, do_setup=False)
         with tf.variable_scope(name):
-            self.local_policy.setup()
             self.local_p_net = _PolicyNet(self.local_policy,
                                           self.global_p_net.rate)
             self.local_v_net = _ValueNet(self.local_policy,
@@ -178,7 +192,7 @@ class _Worker(object):
                 advantages.append(advantage)
                 values.append(value)
                 states.append(state)
-                actions.append([action])
+                actions.append(action)
 
             # compute local gradients and train global network
             feed_dict = {
@@ -263,8 +277,10 @@ class _PolicyNet(object):
 
     def __init__(self, policy, rate, train=True):
         self.rate = rate
+        self.policy = policy
 
         with tf.variable_scope('policy_estimator'):
+            self.policy.setup()
 
             self.X = policy.X
             self.a = policy.a
