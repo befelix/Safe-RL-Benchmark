@@ -130,6 +130,11 @@ class A3C(AlgorithmBase):
             p_net_loss, v_net_loss = worker.run(sess)
             self.step()
 
+    # placeholder for now
+    def _after_optimize(self):
+        with self.sess.as_default():
+            super(A3C, self)._after_optimize()
+
 
 class _Worker(object):
     """Worker thread."""

@@ -5,6 +5,7 @@ from SafeRLBench import Policy
 import SafeRLBench.error as error
 from SafeRLBench.error import NotSupportedException, MultipleCallsException
 
+import numpy as np
 from numpy.random import normal
 
 try:
@@ -88,6 +89,8 @@ class NeuralNetwork(Policy):
             'dtype': dtype
         }
 
+        self.action_space = action_space
+        self.state_space = state_space
         self.dtype = dtype
         self.layers = layers
 
@@ -124,6 +127,8 @@ class NeuralNetwork(Policy):
 
             self.is_set_up = False
 
+        self.sess = None
+
     def setup(self):
         """Setup the network graph.
 
@@ -154,7 +159,7 @@ class NeuralNetwork(Policy):
         # Weights for variance estimation
         with tf.variable_scope('variance_estimator'):
             self.W_var = []
-            for i in range(len(layers) - 1):
+            for i in range(1, len(layers) - 1):
                 self.W_var.append(self.init_weights((layers[i], 1)))
 
         # generate variance network
@@ -173,9 +178,9 @@ class NeuralNetwork(Policy):
 
     def _generate_variance(self):
         var = []
-        for h_i, w_i in zip(self.W_var, self.h):
-            var.append(tf.reduce_sum(tf.multiply(h_i, w_i)))
-        return tf.abs(tf.add_n(var, name='variance'))
+        for h_i, w_i in zip(self.W_var, self.h[1:]):
+            var.append(tf.reduce_sum(tf.matmul(w_i, h_i)))
+        return tf.abs(tf.reduce_sum(var, name='variance'))
 
     def copy(self, scope, do_setup=True):
         """Generate a copy of the network.
@@ -200,11 +205,15 @@ class NeuralNetwork(Policy):
     def map(self, state):
         """Compute output in session.
 
-        Make sure a default session is set when calling.
+        Make sure a default session is set when calling the first time. The
+        session will be reused until there is a new default session.
         """
+        state = state.reshape((-1,))
         sess = tf.get_default_session()
-        mean, var = sess.run([self.a_pred, self.var], {self.X: [state]})
-        return normal(mean, var)
+        if sess is not None:
+            self.sess = sess
+        mean, var = self.sess.run([self.a_pred, self.var], {self.X: [state]})
+        return np.atleast_1d(np.array(normal(mean, var)))
 
     @property
     def parameters(self):
