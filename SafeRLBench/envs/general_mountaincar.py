@@ -103,7 +103,9 @@ class GeneralMountainCar(EnvironmentBase):
         velocity = max(min(velocity, bounds.upper[1]), bounds.lower[1])
         position = max(min(position, bounds.upper[0]), bounds.lower[0])
 
+        # make sure outputs have the right form
         self.state = np.array([position, velocity])
+        action = np.reshape(action, self.action_space.shape)
 
         return action, copy(self.state), self._reward()
 

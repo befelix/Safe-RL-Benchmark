@@ -208,13 +208,13 @@ class NeuralNetwork(Policy):
         Make sure a default session is set when calling.
         """
         assert(self.state_space.contains(state))
+        state = state.flatten()
 
         sess = tf.get_default_session()
         mean, var = sess.run([self.a_pred, self.var], {self.X: [state]})
 
         action = np.array(normal(mean, var))
-        action.reshape(self.action_space.shape)
-
+        action = action.reshape(self.action_space.shape)
         return action
 
     @property

@@ -108,6 +108,7 @@ class A3C(AlgorithmBase):
     def _step(self):
         self.global_counter += 1
         self.grad = [g for g, v in self.p_net.grads_and_vars]
+
         # TODO: Properly implement this.
         if self.global_counter % 100 == 0:
             logger.debug("Hey we are at step %d", self.global_counter)
@@ -189,6 +190,8 @@ class _Worker(object):
             value = 0.
 
             for (action, state, reward) in trace:
+                state = state.flatten()
+
                 value = reward + self.discount * value
 
                 # evaluate value net on state
