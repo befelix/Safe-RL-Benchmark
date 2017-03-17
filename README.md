@@ -7,7 +7,7 @@ only basic testing yet
 # TODO
 
 - Policy:
-  - [ ] TensorFlow NN
+  - [x] TensorFlow NN
 
 
 - Environment:
@@ -18,7 +18,7 @@ only basic testing yet
 
 - Algorithm:
   - [ ] Q-Learning Algorithms
-  - [ ] A3C
+  - [x] A3C
 
 
 - TESTS!!!
