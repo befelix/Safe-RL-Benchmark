@@ -23,12 +23,28 @@ class MultipleCallsException(Exception):
 
 
 def add_dependency(dep, dep_name='Some'):
-    """Dependency decorator."""
-    def dependency(cls):
+    """Dependency decorator.
+
+    Decorates a class with a dependency decorator, that will raise a
+    `NotSupportedException` when `dep` is None.
+
+    Parameters
+    ----------
+    dep : Module
+        The dependent module.
+    dep_name : String
+        Name of the dependency for a meaningful error message.
+
+    Notes
+    -----
+    Make sure not to call super within the class when using the decorator.
+    """
+    def dependency(dep_cls):
         class DependentClass(object):
-            def __init__(self, *args, **kwargs):
+            def __new__(cls, *args, **kwargs):
                 if dep is None:
                     raise NotSupportedException(dep_name + 'is not installed.')
-                return cls(*args, **kwargs)
+                return dep_cls(*args, **kwargs)
+        DependentClass.__name__ = dep_cls.__name__
         return DependentClass
     return dependency

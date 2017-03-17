@@ -18,27 +18,24 @@ docstyle:
 	@echo "${GREEN}Testing docstring conventions:${NC}"
 	@pydocstyle ${module} --match='(?!__init__).*\.py' 2>&1 | grep -v "WARNING: __all__"
 
-unittests2:
-	@echo "${GREEN}Running unit tests for 2.7:${NC}"
-	@nosetests-2.7 -v --with-doctest --cover-erase --cover-package=${module} ${module}
+unittests:
+	@echo "${GREEN}Running unit tests in current environment.${NC}"
+	@nosetests -v --with-doctest --with-coverage --cover-erase --cover-package=${module} ${module}
 
-unittests3:
-	@echo "${GREEN}Running unit tests for 3.5:${NC}"
-	@nosetests-3.5 -v --with-doctest --with-coverage --cover-erase --cover-package=${module} ${module}
-
-coverage: unittests3
+coverage: unittests
 	@echo "${GREEN}Create coverage report:${NC}"
 	@coverage html
 
-unittests: unittests2 unittests3
-
 test: style docstyle unittests
 
+# targets to setup docker images for testing
 setup_docker2:
 	docker build -f misc/Dockerfile.python2 -t srlb-py27-image .
 
 setup_docker3:
 	docker build -f misc/Dockerfile.python3 -t srlb-py35-image .
+
+setup_docker: setup_docker2 setup_docker3
 
 docker2:
 	@echo "${GREEN}Running unit tests for 2.7:${NC}"
@@ -47,6 +44,8 @@ docker2:
 docker3:
 	@echo "${GREEN}Running unit tests for 3.5:${NC}"
 	docker run -v $(shell pwd):/code/ srlb-py35-image nosetests --with-doctest --verbosity=2 SafeRLBench
+
+docker: docker2 docker3
 
 history:
 	git log --graph --decorate --oneline

@@ -1,8 +1,6 @@
 """Neural Network Policy implementation."""
 
 from SafeRLBench import Policy
-
-import SafeRLBench.error as error
 from SafeRLBench.error import add_dependency, MultipleCallsException
 
 import numpy as np

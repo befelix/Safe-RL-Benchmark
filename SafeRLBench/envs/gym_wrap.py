@@ -20,13 +20,26 @@ class GymWrap(EnvironmentBase):
     horizon : integer
         Horizon for rollout.
     render : boolean
-        Default False. If True simulation will be rendered during rollouts.
+        Default: False. If True simulation will be rendered during rollouts on
+        this instance.
     """
 
     def __init__(self, env, horizon=100, render=False):
-        """Initialize attributes."""
-        super(GymWrap, self).__init__(env.observation_space, env.action_space,
-                                      horizon)
+        """Initialize attributes.
+
+        Parameters
+        ----------
+        env : gym environment
+            Instance of the gym environment that should be optimized on.
+        horizon : integer
+            Horizon for rollout.
+        render : boolean
+            Default: False ; If True simulation will be rendered during
+            rollouts on this instance.
+        """
+        # Do not use super here.
+        EnvironmentBase.__init__(self, env.observation_space, env.action_space,
+                                 horizon)
         self.environment = env
         self.render = render
         self.done = False
