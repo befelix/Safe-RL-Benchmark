@@ -205,15 +205,17 @@ class NeuralNetwork(Policy):
     def map(self, state):
         """Compute output in session.
 
-        Make sure a default session is set when calling the first time. The
-        session will be reused until there is a new default session.
+        Make sure a default session is set when calling.
         """
-        state = state.reshape((-1,))
+        assert(self.state_space.contains(state))
+
         sess = tf.get_default_session()
-        if sess is not None:
-            self.sess = sess
-        mean, var = self.sess.run([self.a_pred, self.var], {self.X: [state]})
-        return np.atleast_1d(np.array(normal(mean, var)))
+        mean, var = sess.run([self.a_pred, self.var], {self.X: [state]})
+
+        action = np.array(normal(mean, var))
+        action.reshape(self.action_space.shape)
+
+        return action
 
     @property
     def parameters(self):
