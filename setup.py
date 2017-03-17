@@ -9,6 +9,7 @@ setup(
     description='Safe Reinforcement Learning Benchmark',
     install_requires=[
         'numpy >= 1.7',
-        'six >= 1.10'
+        'six >= 1.10',
+        'futures >= 3.0.5'
     ]
 )
