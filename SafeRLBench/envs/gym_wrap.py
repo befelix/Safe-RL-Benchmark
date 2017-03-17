@@ -1,8 +1,15 @@
 """Wrapper for OpenAI Gym."""
 
 from SafeRLBench import EnvironmentBase
+from SafeRLBench.error import add_dependency
+
+try:
+    import gym
+except:
+    gym = None
 
 
+@add_dependency(gym, 'Gym')
 class GymWrap(EnvironmentBase):
     """Wrapper class for the OpenAI Gym.
 

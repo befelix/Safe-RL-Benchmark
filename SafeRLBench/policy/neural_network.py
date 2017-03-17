@@ -3,7 +3,7 @@
 from SafeRLBench import Policy
 
 import SafeRLBench.error as error
-from SafeRLBench.error import NotSupportedException, MultipleCallsException
+from SafeRLBench.error import add_dependency, MultipleCallsException
 
 import numpy as np
 from numpy.random import normal
@@ -24,6 +24,7 @@ def default_init_weights(shape):
     return tf.Variable(weights)
 
 
+@add_dependency(tf, 'TensorFlow')
 class NeuralNetwork(Policy):
     """Fully connected Neural Network Policy.
 
@@ -74,9 +75,6 @@ class NeuralNetwork(Policy):
                  init_weights=None, activation=None, dtype='float',
                  scope='global', do_setup=False):
         """Initialize Neural Network wrapper."""
-        if tf is None:
-            raise NotSupportedException(error.NO_TF_SUPPORT)
-
         if (len(layers) < 2):
             raise ValueError('At least two layers needed.')
 

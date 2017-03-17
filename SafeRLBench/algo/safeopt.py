@@ -2,8 +2,7 @@
 
 from SafeRLBench import AlgorithmBase
 
-import SafeRLBench.error as error
-from SafeRLBench.error import NotSupportedException
+from SafeRLBench.error import add_dependency
 
 from numpy import mean, array
 
@@ -22,6 +21,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@add_dependency(safeopt, 'SafeOpt')
+@add_dependency(GPy, 'GPy')
 class SafeOpt(AlgorithmBase):
     """
     Wrap SafeOpt algorithm.
@@ -72,12 +73,6 @@ class SafeOpt(AlgorithmBase):
                  lipschitz=None, beta=3.0, num_contexts=0, threshold=0,
                  scaling='auto'):
         """Initialize Attributes."""
-        if SafeOpt is None:
-            raise NotSupportedException(error.NO_SO_SUPPORT)
-
-        if GPy is None:
-            raise NotSupportedException(error.NO_GPy_SUPPORT)
-
         super(SafeOpt, self).__init__(environment, policy, max_it)
 
         self.gp_opt = None

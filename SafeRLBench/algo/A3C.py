@@ -11,8 +11,7 @@ import numpy as np
 
 from SafeRLBench import AlgorithmBase
 
-import SafeRLBench.error as error
-from SafeRLBench.error import NotSupportedException
+from SafeRLBench.error import add_dependency
 
 try:
     import tensorflow as tf
@@ -25,6 +24,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@add_dependency(tf, 'TensorFlow')
 class A3C(AlgorithmBase):
     """Implementation of the Asynchronous Actor-Critic Agents Algorithm.
 
@@ -51,9 +51,6 @@ class A3C(AlgorithmBase):
     def __init__(self, environment, policy, max_it=1000, num_workers=2,
                  rate=0.1, discount=0.1):
         """Initialize A3C."""
-        if tf is None:
-            raise NotSupportedException(error.NO_TF_SUPPORT)
-
         if policy.is_set_up:
             raise(ValueError('Policy should not be set up.'))
 
