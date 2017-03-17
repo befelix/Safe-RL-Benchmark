@@ -11,7 +11,7 @@ class TestPolicyGradient(TestCase):
     """PolicyGradientTestClass."""
 
     def test_pg_init(self):
-        """Test initialization."""
+        """Test PolicyGradient initialization."""
         env_mock = MagicMock()
         pol_mock = Mock()
 

@@ -43,7 +43,7 @@ def add_dependency(dep, dep_name='Some'):
         class DependentClass(object):
             def __new__(cls, *args, **kwargs):
                 if dep is None:
-                    raise NotSupportedException(dep_name + 'is not installed.')
+                    raise NotSupportedException(dep_name + ' is not installed.')
                 return dep_cls(*args, **kwargs)
         DependentClass.__name__ = dep_cls.__name__
         return DependentClass
