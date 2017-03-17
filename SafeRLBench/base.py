@@ -138,6 +138,7 @@ class EnvironmentBase(EnvMonitor):
         return trace
 
     def __repr__(self):
+        """Return class name."""
         return self.__class__.__name__
 
 
@@ -231,6 +232,8 @@ class AlgorithmBase(AlgoMonitor):
         self.environment = environment
         self.policy = policy
         self.max_it = max_it
+
+        self.grad = None
 
     # Have to be overwritten.
     @abstractmethod

@@ -15,6 +15,9 @@ get_script_dir () {
      echo "$DIR"
 }
 
+# tensorflow environment variable
+export TF_CPP_MIN_LOG_LEVEL='3'
+
 # Change to script root
 cd $(get_script_dir)
 GREEN='\033[0;32m'
