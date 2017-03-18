@@ -85,10 +85,14 @@ class NeuralNetwork(Policy):
             'dtype': dtype
         }
 
-        self.action_space = action_space
         self.state_space = state_space
+        self.action_space = action_space
+
         self.dtype = dtype
         self.layers = layers
+        self.scope = scope
+
+        self.is_set_up = False
 
         if init_weights is None:
             self.init_weights = default_init_weights
@@ -120,10 +124,6 @@ class NeuralNetwork(Policy):
             self.a_pred = None
             self.var = None
             self.h = None
-
-            self.is_set_up = False
-
-        self.sess = None
 
     def setup(self):
         """Setup the network graph.
@@ -174,6 +174,8 @@ class NeuralNetwork(Policy):
 
     def _generate_variance(self):
         var = []
+        if not self.W_var:
+            return tf.constant(0, name='variance')
         for h_i, w_i in zip(self.W_var, self.h[1:]):
             var.append(tf.reduce_sum(tf.matmul(w_i, h_i)))
         return tf.abs(tf.reduce_sum(var, name='variance'))
@@ -210,6 +212,7 @@ class NeuralNetwork(Policy):
         mean, var = sess.run([self.a_pred, self.var], {self.X: [state]})
 
         action = np.array(normal(mean, var))
+        print(self.action_space.shape)
         action = action.reshape(self.action_space.shape)
         return action
 
@@ -223,20 +226,31 @@ class NeuralNetwork(Policy):
         The list of tf.Variables can be directly accessed through the
         attribute `W`.
         """
-        return self.W_action.eval()
+        return tf.get_default_session().run(self.W_action + self.W_var)
 
     @parameters.setter
     def parameters(self, update):
         """Setter function for parameters.
 
         Since the parameters are a list of tf.Variables, instead of directly
-        assigning to them you will need to pass an update tensor which updates
+        assigning to them you will need to pass an update op which updates
         the values. To create such a tensor access the `W` attribute which
-        contains the weight variables and use it to instantiate an update
-        tensor.
-        This method will then run the update tensor in the session.
+        contains the weight variables and use the assign operator to assign
+        the values.
+        This method will then run the update tensor in the default session.
+
+        Parameters
+        ----------
+        update : assign op
+            tensor flow assign op with variable assignments.
+
+        Notes
+        -----
+        Make sure there is a default session.
         """
-        self.sess.run(*update)
+        if not isinstance(update, list):
+            update = [update]
+        tf.get_default_session().run(update)
 
     @property
     def parameter_space(self):

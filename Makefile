@@ -20,7 +20,7 @@ docstyle:
 
 unittests:
 	@echo "${GREEN}Running unit tests in current environment.${NC}"
-	@nosetests -v --with-doctest --with-coverage --cover-erase --cover-package=${module} ${module}
+	@nosetests -v --with-doctest --with-coverage --cover-erase --cover-package=${module} ${module}  2>&1 | grep -v "^Level 1"
 
 coverage: unittests
 	@echo "${GREEN}Create coverage report:${NC}"
@@ -38,12 +38,12 @@ setup_docker3:
 setup_docker: setup_docker2 setup_docker3
 
 docker2:
-	@echo "${GREEN}Running unit tests for 2.7:${NC}"
-	docker run -v $(shell pwd):/code/ srlb-py27-image nosetests --with-doctest --verbosity=2 SafeRLBench
+	@echo "${GREEN}Running unit tests for 2.7 in docker container:${NC}"
+	@docker run -e "TF_CPP_MIN_LOG_LEVEL=2" -v $(shell pwd):/code/ srlb-py27-image nosetests --with-doctest --verbosity=2 SafeRLBench  2>&1 | grep -v "^Level 1"
 
 docker3:
-	@echo "${GREEN}Running unit tests for 3.5:${NC}"
-	docker run -v $(shell pwd):/code/ srlb-py35-image nosetests --with-doctest --verbosity=2 SafeRLBench
+	@echo "${GREEN}Running unit tests for 3.5 in docker container:${NC}"
+	@docker run -e "TF_CPP_MIN_LOG_LEVEL=2" -v $(shell pwd):/code/ srlb-py35-image nosetests --with-doctest --verbosity=2 SafeRLBench  2>&1 | grep -v "^Level 1"
 
 docker: docker2 docker3
 

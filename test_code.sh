@@ -38,7 +38,7 @@ echo -e "${GREEN}${BOLD}Testing docstring conventions:${NC}"
 pydocstyle $module --match='(?!__init__).*\.py' 2>&1 | grep -v "WARNING: __all__"
 
 echo -e "${GREEN}${BOLD}Running unit tests in current environment.${NC}"
-nosetests -v --with-doctest --with-coverage --cover-erase --cover-package=$module $module
+nosetests -v --with-doctest --with-coverage --cover-erase --cover-package=$module $module 2>&1 | grep -v "^Level 1"
 
 # Export html
 coverage html

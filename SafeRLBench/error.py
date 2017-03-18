@@ -13,7 +13,21 @@ NO_GPy_SUPPORT = "GPy is not installed."
 class NotSupportedException(Exception):
     """Exception raised when requirements are not installed."""
 
-    pass
+    def __init__(self, dep, name='Some'):
+        """Initialize NotSupportedException.
+
+        Parameters
+        ----------
+        dep : Module
+            The dependent module.
+        dep_name : String
+            Name of the dependency for a meaningful error message.
+        """
+        self.dep = dep
+        self.name = name
+
+    def __repr__(self):
+        return self.name + " is not supported on this system."
 
 
 class MultipleCallsException(Exception):
@@ -43,7 +57,7 @@ def add_dependency(dep, dep_name='Some'):
         class DependentClass(object):
             def __new__(cls, *args, **kwargs):
                 if dep is None:
-                    raise NotSupportedException(dep_name + ' is not installed.')
+                    raise NotSupportedException(dep, dep_name)
                 return dep_cls(*args, **kwargs)
         DependentClass.__name__ = dep_cls.__name__
         return DependentClass

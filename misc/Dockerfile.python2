@@ -1,5 +1,7 @@
 FROM continuumio/miniconda
 
+ENV TF_CPP_MIN_LOG_LEVEL=2
+
 # Install build essentials and clean up
 RUN apt-get update --quiet \
   && apt-get install -y --no-install-recommends --quiet build-essential \
