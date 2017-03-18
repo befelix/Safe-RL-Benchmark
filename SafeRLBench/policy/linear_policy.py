@@ -84,9 +84,6 @@ class LinearPolicy(Policy):
             ret = self._parameters.dot(state) + self._bias
         return ret
 
-    # private copy of map
-    __map = map
-
     @property
     def parameters(self):
         """
@@ -122,13 +119,16 @@ class LinearPolicy(Policy):
         # store parameter in original representation.
         self._par = par
 
+        if self.d_action == 1:
+            shape = (self.d_state,)
+        else:
+            shape = (self.d_action, self.d_state)
+
         if not self.biased:
-            self._parameters = par
+            self._parameters = par.reshape(shape)
         else:
             self._bias = par[-1]
-            self._parameters = par[0:-1].reshape((self.d_action, self.d_state))
-            if self.d_action == 1:
-                self._parameters.reshape((self.d_state,))
+            self._parameters = par[0:-1].reshape(shape)
 
     @property
     def parameter_space(self):
@@ -156,7 +156,7 @@ class LinearPolicy(Policy):
 
 
 class DiscreteLinearPolicy(LinearPolicy):
-    """LinearPolicy on a discrete action space of {-1, 0, 1}^d."""
+    """LinearPolicy on a discrete action space of {0, 1}^d."""
 
     def map(self, state):
         """Map to discrete action space.
@@ -165,6 +165,10 @@ class DiscreteLinearPolicy(LinearPolicy):
         ----------
         state : element of state space
             state to be mapped.
+
+        Returns
+        -------
+        action : Element of {0, 1}^d_action
         """
         cont_action = super(DiscreteLinearPolicy, self).map(state)
         if self.d_action == 1:
