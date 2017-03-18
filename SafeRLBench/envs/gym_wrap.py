@@ -40,31 +40,27 @@ class GymWrap(EnvironmentBase):
         # Do not use super here.
         EnvironmentBase.__init__(self, env.observation_space, env.action_space,
                                  horizon)
-        self.environment = env
+        self.environment = env.unwrapped
         self.render = render
         self.done = False
 
-        self._state = env.reset()
+        self.environment.reset()
 
     def _update(self, action):
         observation, reward, done, info = self.environment.step(action)
-        self._state = observation
         self.done = done
         return action, observation, reward
 
     def _reset(self):
-        self._state = self.environment.reset()
+        self.environment.reset()
         self.done = False
 
     def _rollout(self, policy):
-        state = self.environment.reset()
         trace = []
         for n in range(self.horizon):
             if self.render:
                 self.environment.render()
-            trace.append(self.update(policy(state)))
-            state = self.state
-
+            trace.append(self.update(policy(self.state)))
             if self.done:
                 break
         return trace
@@ -72,10 +68,9 @@ class GymWrap(EnvironmentBase):
     @property
     def state(self):
         """Observable system state."""
-        return self._state
+        return self.environment.state
 
     @state.setter
     def state(self, s):
         assert self.state_space.contains(s)
         self.environment.state = s
-        self._state = s
