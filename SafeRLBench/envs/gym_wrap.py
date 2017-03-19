@@ -22,6 +22,13 @@ class GymWrap(EnvironmentBase):
     render : boolean
         Default: False. If True simulation will be rendered during rollouts on
         this instance.
+
+    Notes
+    -----
+    The GymWrap class relies on the complete observability of the state
+    through a state field in the respective gym environment. For the classic
+    control problem this is indeed the case, but on other environment it
+    remains to be untested.
     """
 
     def __init__(self, env, horizon=100, render=False):
