@@ -28,7 +28,7 @@ NORMAL=$(tput sgr0)
 
 # Run style tests
 echo -e "${GREEN}${BOLD}Running style tests:${NC}"
-flake8 $module --exclude test*.py,__init__.py --show-source
+flake8 $module --exclude test*.py,__init__.py,_quadrocopter --show-source
 
 # Ignore import errors for __init__ and tests
 flake8 $module --filename=__init__.py,test*.py --ignore=F --show-source
