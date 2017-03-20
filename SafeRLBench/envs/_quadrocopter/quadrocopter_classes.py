@@ -27,39 +27,68 @@ from .transformations import (quaternion_from_euler, euler_from_matrix,
 __all__ = ['State', 'Parameters', 'StateVector']
 
 
-class StateVector(object):
-    """Class to provide same StateVector object as used in ROS."""
+class StateVector(np.ndarray):
 
-    def __init__(self):
-        super(StateVector, self).__init__()
-        self.pos = np.zeros(3)
-        self.vel = np.zeros(3)
-        self.acc = np.zeros(3)
-        self.euler = np.zeros(3)
-        self.omega_g = np.zeros(3)
-        self.omega_b = np.zeros(3)
-        self.quat = np.zeros(4)
-        self.quat[3] = 1
+    def __new__(cls):
+        obj = np.zeros(22).view(cls)
+        obj[-1] = 1
+        return obj
 
-    def asarray(self):
-        # this is much faster than hstack.
-        return np.array(list(self))
+    @property
+    def pos(self):
+        return self[0:3]
 
-    def __iter__(self):
-        for p in self.pos:
-            yield p
-        for v in self.vel:
-            yield v
-        for a in self.acc:
-            yield a
-        for e in self.euler:
-            yield e
-        for o in self.omega_g:
-            yield o
-        for o in self.omega_b:
-            yield o
-        for q in self.quat:
-            yield q
+    @pos.setter
+    def pos(self, pos):
+        self[0:3] = pos
+
+    @property
+    def vel(self):
+        return self[3:6]
+
+    @vel.setter
+    def vel(self, vel):
+        self[3:6] = vel
+
+    @property
+    def acc(self):
+        return self[6:9]
+
+    @acc.setter
+    def acc(self, acc):
+        self[6:9] = acc
+
+    @property
+    def euler(self):
+        return self[9:12]
+
+    @euler.setter
+    def euler(self, euler):
+        self[9:12] = euler
+
+    @property
+    def omega_g(self):
+        return self[12:15]
+
+    @omega_g.setter
+    def omega_g(self, omega_g):
+        self[12:15] = omega_g
+
+    @property
+    def omega_b(self):
+        return self[15:18]
+
+    @omega_b.setter
+    def omega_b(self, omega_b):
+        self[15:18] = omega_b
+
+    @property
+    def quat(self):
+        return self[18:22]
+
+    @quat.setter
+    def quat(self, quat):
+        self[18:22] = quat
 
 
 class State:
@@ -86,13 +115,13 @@ class State:
     def state_vector(self):
         """Return the state as a StateVector."""
         state = StateVector()
-        state.pos[:] = self.pos
-        state.vel[:] = self.vel
-        state.acc[:] = self.acc
-        state.quat[:] = self.quaternion
-        state.euler[:] = self.rpy
-        state.omega_b[:] = self.omega
-        state.omega_g[:] = self.R.dot(self.omega)
+        state.pos = self.pos
+        state.vel = self.vel
+        state.acc = self.acc
+        state.quat = self.quaternion
+        state.euler = self.rpy
+        state.omega_b = self.omega
+        state.omega_g = self.R.dot(self.omega)
         return state
 
     def rpy_to_R(self, rpy):

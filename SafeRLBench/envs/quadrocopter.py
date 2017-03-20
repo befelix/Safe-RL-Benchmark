@@ -16,6 +16,10 @@ from numpy import array
 from numpy import pi, cos, sin
 from numpy.linalg import norm
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Available reference functions.
 REFERENCE_TYPES = ['circle', 'stationary', 'oscillate']
 
@@ -57,6 +61,11 @@ class Quadrocopter(EnvironmentBase):
         seed : int
 
         """
+        # spaces
+        self.state_space = state_space
+        self.action_space = action_space
+
+        # seed
         if seed is not None:
             np.random.seed = seed
             self._seed = seed
@@ -81,6 +90,8 @@ class Quadrocopter(EnvironmentBase):
         if isinstance(ref, string_types):
             self.reference = Reference(ref, period)
 
+        self.reference.reset(self.state)
+
         self.horizon = int(1. / period) * num_sec
         self.pre_sim_horizon = int(1. / period) * num_init_sec
 
@@ -95,18 +106,18 @@ class Quadrocopter(EnvironmentBase):
 
         self.model.update_position(action)
 
-        state_vec = self.state_vec
+        state = self.state
 
         self._step += 1
         self._time.append(self._step * self.period)
         self._trajectory = np.vstack((self._trajectory, self.state.pos))
 
-        state = np.hstack((state_vec.pos,
-                           state_vec.vel,
-                           state_vec.euler,
-                           state_vec.omega_b))
+        state = np.hstack((state.pos,
+                           state.vel,
+                           state.euler,
+                           state.omega_b))
 
-        reward = self.reward()
+        reward = self._reward()
 
         return action, state, reward
 
@@ -116,10 +127,10 @@ class Quadrocopter(EnvironmentBase):
         self._step = 0
 
     def _reward(self):
-        state_vec = self.state_vec
-        ref_vec = self.reference.compute(state_vec)
+        state = self.state
+        ref = self.reference.compute(state)
 
-        return norm(state_vec.asarray() - ref_vec.asarray())
+        return norm(state - ref)
 
     @property
     def seed(self):
@@ -132,19 +143,14 @@ class Quadrocopter(EnvironmentBase):
         self._seed = value
 
     @property
-    def state_vec(self):
+    def state(self):
         """Provide access to state_vector."""
         # this whole state vector implementation is annoyingly inefficient.
         return self.model.state.state_vector
 
-    @state_vec.setter
-    def state_vec(self, state_vec):
-        self.model.state.state_vector = state_vec
-
-    @property
-    def state(self):
-        """Return state vector as numpy array."""
-        return self.state_vec.asarray()
+    @state.setter
+    def state(self, state):
+        self.model.state.state_vector = state.view(StateVector)
 
 
 class Reference(object):
@@ -174,7 +180,6 @@ class Reference(object):
         self._period = period
         self._iter = 0
         self._reference_function = self._reference_chooser(**kwargs)
-        self._current_ref = None
         self.keep_record = keep_record
         if keep_record:
             self._record = []
@@ -200,11 +205,12 @@ class Reference(object):
         if self.keep_record:
             return np.atleast_2d(self._record)
         else:
-            print("WARNING: Reference record has not been saved.")
+            logger.warning("Reference record has not been saved.")
 
-    def reset(self):
+    def reset(self, state=None):
         """Reset internal state."""
         self._iter = 0
+        self._current_ref = self._reference_function(state, 0, False)
         if self.keep_record:
             self._record = []
 
