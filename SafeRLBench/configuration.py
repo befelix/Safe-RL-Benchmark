@@ -127,7 +127,7 @@ class SRBConfig(object):
     def logger_add_stream_handler(self):
         """Set a handler to print logs to stdout."""
         if self._stream_handler is not None:
-            self.log.removeHandler(self.stream_handler)
+            self.log.removeHandler(self._stream_handler)
 
         ch = logging.StreamHandler(sys.stdout)
         ch.setFormatter(self._formatter)

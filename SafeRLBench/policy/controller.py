@@ -1,4 +1,5 @@
 from SafeRLBench import Policy
+from SafeRLBench.spaces import BoundedSpace
 
 import numpy as np
 
@@ -15,11 +16,19 @@ class NonLinearQuadrocopterController(Policy):
     def __init__(self, zeta_z=0.7, params=[.7, .7, .7, .5, .707],
                  reference=None):
         self._zeta_z = zeta_z
-        self._params = params
-        self._reference = reference
+        self._params = np.array(params)
+        self.reference = reference
+
+        if params is not None:
+            self.initialized = True
+        else:
+            self.initialized = False
+
+        self._par_space = BoundedSpace(np.array([0., 0., 0., 0., 0.]),
+                                       np.array([1., 1., 1., 1., 1.]))
 
     def map(self, state):
-        ref = self._reference.reference
+        ref = self.reference.reference
 
         # Allocate memory for the 4 outputs of the controller.
         action = np.empty((4,), dtype=np.float32)
@@ -76,8 +85,8 @@ class NonLinearQuadrocopterController(Policy):
 
     @parameters.setter
     def parameters(self, params):
-        self._params = params
+        self._params = np.array(params)
 
     @property
     def parameter_space(self):
-        return None
+        return self._par_space

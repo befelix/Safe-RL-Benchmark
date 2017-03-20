@@ -89,13 +89,16 @@ class Quadrocopter(EnvironmentBase):
 
         if isinstance(ref, string_types):
             self.reference = Reference(ref, period)
+        else:
+            self.reference = ref
+            self.period = ref.period
 
         self.reference.reset(self.state)
 
         self.horizon = int(1. / period) * num_sec
         self.pre_sim_horizon = int(1. / period) * num_init_sec
 
-        self.period = period
+        self.period = self.reference.period
 
         self._trajectory = np.atleast_2d(np.zeros(3))
         self._time = []
@@ -126,11 +129,21 @@ class Quadrocopter(EnvironmentBase):
         self._time = []
         self._step = 0
 
+    def _rollout(self, policy):
+        if hasattr(policy, 'reference'):
+            policy.reference = self.reference
+        self.reset()
+        trace = []
+        for n in range(self.horizon):
+            action = policy(self.state)
+            trace.append(self.update(action))
+        return trace
+
     def _reward(self):
         state = self.state
         ref = self.reference.compute(state)
 
-        return norm(state - ref)
+        return -norm(state - ref)
 
     @property
     def seed(self):
@@ -177,7 +190,7 @@ class Reference(object):
             raise ValueError(name + ' is not a valid reference.')
 
         self._name = name
-        self._period = period
+        self.period = period
         self._iter = 0
         self._reference_function = self._reference_chooser(**kwargs)
         self.keep_record = keep_record
@@ -216,7 +229,7 @@ class Reference(object):
 
     def compute(self, state, finished=False):
         """Compute the state of the reference object."""
-        time = self._iter * self._period
+        time = self._iter * self.period
         ref = self._reference_function(state, time, finished)
         self._iter += 1
 
