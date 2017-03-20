@@ -23,6 +23,7 @@ class EnvMonitor(object):
     """
 
     def __new__(cls, *args, **kwargs):
+        """Hook into subclasses."""
         obj = object.__new__(cls)
         obj.monitor = EnvData()
         return obj
@@ -107,6 +108,7 @@ class AlgoMonitor(object):
     """
 
     def __new__(cls, *args, **kwargs):
+        """Hook into subclasses."""
         obj = object.__new__(cls)
         obj.monitor = AlgoData()
         return obj
