@@ -6,8 +6,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+__all__ = ('NonLinearQuadrocopterController')
 
-class NonlinearQuadrocopterController(Policy):
+
+class NonLinearQuadrocopterController(Policy):
     """Non-linear quadrocopter controller."""
 
     def __init__(self, zeta_z=0.7, params=[.7, .7, .7, .5, .707],
