@@ -22,9 +22,10 @@ class EnvMonitor(object):
     _after_reset
     """
 
-    def __init__(self):
-        """Initialize attributes."""
-        self.monitor = EnvData()
+    def __new__(cls, *args, **kwargs):
+        obj = object.__new__(cls)
+        obj.monitor = EnvData()
+        return obj
 
     def _before_update(self):
         """
@@ -105,9 +106,10 @@ class AlgoMonitor(object):
     _after_step
     """
 
-    def __init__(self):
-        """Initialize attributes."""
-        self.monitor = AlgoData()
+    def __new__(cls):
+        obj = object.__new__(cls)
+        obj.monitor = AlgoData()
+        return obj
 
     def _before_optimize(self):
         """Setup montitor for optimization run.
