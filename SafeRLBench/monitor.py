@@ -106,7 +106,7 @@ class AlgoMonitor(object):
     _after_step
     """
 
-    def __new__(cls):
+    def __new__(cls, *args, **kwargs):
         obj = object.__new__(cls)
         obj.monitor = AlgoData()
         return obj

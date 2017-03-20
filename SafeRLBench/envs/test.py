@@ -16,6 +16,8 @@ gym.undo_logger_setup()
 
 from mock import Mock
 
+exclude = ['Quadrocopter']
+
 
 # TODO: Isolate unittests with mocks.
 class TestEnvironments(object):
@@ -41,22 +43,25 @@ class TestEnvironments(object):
     def test_environment_requirements(self):
         """Generate tests for environment implementations."""
         for c in self.classes:
-            # Generate NotImplementedError Test for _update
-            check_update = partial(self.check_env_update)
-            check_update.description = "Check update implementation for "
-            check_update.description += c.__name__
-            yield check_update, c
+            if c.__name__ in exclude:
+                pass
+            else:
+                # Generate NotImplementedError Test for _update
+                check_update = partial(self.check_env_update)
+                check_update.description = "Check update implementation for "
+                check_update.description += c.__name__
+                yield check_update, c
 
-            # Generate NotImplementedError Test for _reset
-            check_reset = partial(self.check_env_reset)
-            check_reset.description = "Check reset implementation for "
-            check_reset.description += c.__name__
-            yield check_reset, c
+                # Generate NotImplementedError Test for _reset
+                check_reset = partial(self.check_env_reset)
+                check_reset.description = "Check reset implementation for "
+                check_reset.description += c.__name__
+                yield check_reset, c
 
-            check_rollout = partial(self.check_env_rollout)
-            check_rollout.description = "Check rollout implementation for "
-            check_rollout.description += c.__name__
-            yield check_rollout, c
+                check_rollout = partial(self.check_env_rollout)
+                check_rollout.description = "Check rollout implementation for "
+                check_rollout.description += c.__name__
+                yield check_rollout, c
 
     def check_env_update(self, c):
         """Check if _update is implemented."""
