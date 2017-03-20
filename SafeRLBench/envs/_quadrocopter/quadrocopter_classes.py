@@ -41,6 +41,26 @@ class StateVector(object):
         self.quat = np.zeros(4)
         self.quat[3] = 1
 
+    def asarray(self):
+        # this is much faster than hstack.
+        return np.array(list(self))
+
+    def __iter__(self):
+        for p in self.pos:
+            yield p
+        for v in self.vel:
+            yield v
+        for a in self.acc:
+            yield a
+        for e in self.euler:
+            yield e
+        for o in self.omega_g:
+            yield o
+        for o in self.omega_b:
+            yield o
+        for q in self.quat:
+            yield q
+
 
 class State:
 

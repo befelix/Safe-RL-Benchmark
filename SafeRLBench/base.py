@@ -330,7 +330,7 @@ class Policy(object):
         """Current parameters."""
         pass
 
-    @abstractmethod
+    @abstractproperty
     def parameter_space(self):
         """Return parameter space."""
 

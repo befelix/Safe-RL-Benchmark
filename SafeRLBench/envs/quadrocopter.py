@@ -14,6 +14,7 @@ from six import string_types
 import numpy as np
 from numpy import array
 from numpy import pi, cos, sin
+from numpy.linalg import norm
 
 # Available reference functions.
 REFERENCE_TYPES = ['circle', 'stationary', 'oscillate']
@@ -105,8 +106,7 @@ class Quadrocopter(EnvironmentBase):
                            state_vec.euler,
                            state_vec.omega_b))
 
-        # TODO: Implement reward computation.
-        reward = 0
+        reward = self.reward()
 
         return action, state, reward
 
@@ -114,6 +114,12 @@ class Quadrocopter(EnvironmentBase):
         self._trajectory = np.atleast_2d(np.zeros(3))
         self._time = []
         self._step = 0
+
+    def _reward(self):
+        state_vec = self.state_vec
+        ref_vec = self.reference.compute(state_vec)
+
+        return norm(state_vec.asarray() - ref_vec.asarray())
 
     @property
     def seed(self):
@@ -134,6 +140,11 @@ class Quadrocopter(EnvironmentBase):
     @state_vec.setter
     def state_vec(self, state_vec):
         self.model.state.state_vector = state_vec
+
+    @property
+    def state(self):
+        """Return state vector as numpy array."""
+        return self.state_vec.asarray()
 
 
 class Reference(object):
@@ -163,6 +174,7 @@ class Reference(object):
         self._period = period
         self._iter = 0
         self._reference_function = self._reference_chooser(**kwargs)
+        self._current_ref = None
         self.keep_record = keep_record
         if keep_record:
             self._record = []
@@ -201,10 +213,18 @@ class Reference(object):
         time = self._iter * self._period
         ref = self._reference_function(state, time, finished)
         self._iter += 1
+
         if self.keep_record:
             ref_value = np.hstack((ref.pos, ref.vel, ref.euler, ref.omega_b))
             self._update_record(ref_value)
+
+        self._current_ref = ref
+
         return ref
+
+    @property
+    def reference(self):
+        return self._current_ref
 
     def _update_record(self, ref_value):
         self._record.append(ref_value)
