@@ -1,3 +1,4 @@
+"""Quadrocopter Controller."""
 from SafeRLBench import Policy
 from SafeRLBench.spaces import BoundedSpace
 
@@ -15,6 +16,14 @@ class NonLinearQuadrocopterController(Policy):
 
     def __init__(self, zeta_z=0.7, params=[.7, .7, .7, .5, .707],
                  reference=None):
+        """Initialize NonLinearQuadrocopterController.
+
+        Parameters
+        ----------
+        zeta_z :
+        params :
+        reference :
+        """
         self._zeta_z = zeta_z
         self._params = np.array(params)
         self.reference = reference
@@ -28,6 +37,21 @@ class NonLinearQuadrocopterController(Policy):
                                        np.array([1., 1., 1., 1., 1.]))
 
     def map(self, state):
+        """Map state to action.
+
+        Depends on a reference object. If the environment has a reference
+        object it needs to set the reference at the start of the rollout.
+
+        Parameters
+        ----------
+        state : array-like
+            Element of state space.
+
+        Returns
+        -------
+        action : ndarray
+            Element of action space.
+        """
         ref = self.reference.reference
 
         # Allocate memory for the 4 outputs of the controller.
@@ -81,6 +105,7 @@ class NonLinearQuadrocopterController(Policy):
 
     @property
     def parameters(self):
+        """Controller parameters."""
         return self._params
 
     @parameters.setter
@@ -89,4 +114,5 @@ class NonLinearQuadrocopterController(Policy):
 
     @property
     def parameter_space(self):
+        """Controller parameter space."""
         return self._par_space

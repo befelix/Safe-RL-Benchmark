@@ -21,7 +21,7 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 
 from .transformations import (quaternion_from_euler, euler_from_matrix,
-                              euler_matrix)
+                              euler_matrix, quaternion_matrix)
 
 
 __all__ = ['State', 'Parameters', 'StateVector']
@@ -123,6 +123,14 @@ class State:
         state.omega_b = self.omega
         state.omega_g = self.R.dot(self.omega)
         return state
+
+    @state_vector.setter
+    def state_vector(self, state):
+        self.pos = state.pos
+        self.vel = state.vel
+        self.acc = state.acc
+        self.omega = state.omega_b
+        self.R = quaternion_matrix(state.quat)[:3, :3]
 
     def rpy_to_R(self, rpy):
         return euler_matrix(*rpy)[:3, :3]

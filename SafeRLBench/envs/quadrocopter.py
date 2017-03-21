@@ -3,6 +3,7 @@
 from __future__ import division, print_function, absolute_import
 
 from SafeRLBench import EnvironmentBase
+from SafeRLBench.spaces import RdSpace
 
 from ._quadrocopter import QuadrotorDynamics
 from ._quadrocopter import StateVector
@@ -29,15 +30,15 @@ class Quadrocopter(EnvironmentBase):
 
     Attributes
     ----------
-    model : model object
-        Object simulating the quadrotor dynamics.
     horizon : int
         Number of iterations for the main simulation
     pre_sim_horizon : int
         Number of iterations for the pre-simulation.
+    _model : model object
+        Object simulating the quadrotor dynamics.
     """
 
-    def __init__(self, state_space, action_space,
+    def __init__(self,
                  init_pos=None, init_vel=None, num_sec=9,
                  num_init_sec=4, ref='circle', period=1 / 70.,
                  seed=None):
@@ -62,8 +63,8 @@ class Quadrocopter(EnvironmentBase):
 
         """
         # spaces
-        self.state_space = state_space
-        self.action_space = action_space
+        self.state_space = RdSpace((22,))
+        self.action_space = RdSpace((4,))
 
         # seed
         if seed is not None:
@@ -85,7 +86,7 @@ class Quadrocopter(EnvironmentBase):
             raise ValueError("init_vel with invalid length %d.", init_vel)
 
         # initialize model
-        self.model = QuadrotorDynamics(init_pos, init_vel)
+        self._model = QuadrotorDynamics(init_pos, init_vel)
 
         if isinstance(ref, string_types):
             self.reference = Reference(ref, period)
@@ -100,6 +101,9 @@ class Quadrocopter(EnvironmentBase):
 
         self.period = self.reference.period
 
+        self._init_pos = init_pos
+        self._init_vel = init_vel
+
         self._trajectory = np.atleast_2d(np.zeros(3))
         self._time = []
         self._step = 0
@@ -107,7 +111,7 @@ class Quadrocopter(EnvironmentBase):
     def _update(self, action):
         assert self.action_space.contains(action), "Invalid action."
 
-        self.model.update_position(action)
+        self._model.update_position(action)
 
         state = self.state
 
@@ -115,16 +119,12 @@ class Quadrocopter(EnvironmentBase):
         self._time.append(self._step * self.period)
         self._trajectory = np.vstack((self._trajectory, self.state.pos))
 
-        state = np.hstack((state.pos,
-                           state.vel,
-                           state.euler,
-                           state.omega_b))
-
         reward = self._reward()
 
         return action, state, reward
 
     def _reset(self):
+        self._model = QuadrotorDynamics(self._init_pos, self._init_vel)
         self._trajectory = np.atleast_2d(np.zeros(3))
         self._time = []
         self._step = 0
@@ -159,11 +159,11 @@ class Quadrocopter(EnvironmentBase):
     def state(self):
         """Provide access to state_vector."""
         # this whole state vector implementation is annoyingly inefficient.
-        return self.model.state.state_vector
+        return self._model.state.state_vector
 
     @state.setter
     def state(self, state):
-        self.model.state.state_vector = state.view(StateVector)
+        self._model.state.state_vector = state.view(StateVector)
 
 
 class Reference(object):
@@ -243,6 +243,7 @@ class Reference(object):
 
     @property
     def reference(self):
+        """Return the reference."""
         return self._current_ref
 
     def _update_record(self, ref_value):

@@ -11,12 +11,14 @@ from functools import partial
 
 import SafeRLBench.envs as envs
 
+import math
+
+import numpy as np
+
 import gym
 gym.undo_logger_setup()
 
 from mock import Mock
-
-exclude = ['Quadrocopter']
 
 
 # TODO: Isolate unittests with mocks.
@@ -27,6 +29,9 @@ class TestEnvironments(object):
     Note that you really dont want to inherit from unittest.TestCase here,
     because it will break reasonable output with verbose testing.
     """
+
+    exclude = []
+    not_deterministic = ['Quadrocopter']
 
     args = {
         'GymWrap': [gym.make('MountainCar-v0')],
@@ -43,7 +48,7 @@ class TestEnvironments(object):
     def test_environment_requirements(self):
         """Generate tests for environment implementations."""
         for c in self.classes:
-            if c.__name__ in exclude:
+            if c.__name__ in self.exclude:
                 pass
             else:
                 # Generate NotImplementedError Test for _update
@@ -84,6 +89,9 @@ class TestEnvironments(object):
 
     def check_env_rollout(self, c):
         """Check rollout correctness at random positions."""
+        if c.__name__ in self.not_deterministic:
+            return
+
         args = self.args.get(c.__name__, [])
         env = c(*args)
 
@@ -98,7 +106,10 @@ class TestEnvironments(object):
             env.state = (trace[idx - 1])[1].copy()
             t = trace[idx]
             t_verify = env._update(t[0])
-            assert(t_verify[0] == t[0])
+            if isinstance(t[0], np.ndarray):
+                assert(all(t_verify[0] == t[0]))
+            else:
+                assert(t_verify[0] == t[0])
             assert(all(t_verify[1] == t[1]))
             assert(t_verify[2] == t[2])
 
