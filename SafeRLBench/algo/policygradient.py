@@ -59,7 +59,7 @@ class PolicyGradient(AlgorithmBase):
         # outerwise draw an element at random from the parameter space
         parameter = self.parameter_space.sample()
 
-        for n in range(10000):
+        for _ in range(1000):
             self.policy.parameters = parameter
             grad = self.estimator(self.policy)
 
@@ -81,7 +81,12 @@ class PolicyGradient(AlgorithmBase):
         self.grad = grad
 
     def _is_finished(self):
-        return (norm(self.grad) < self.eps)
+        done = False
+        if np.isnan(self.grad).any():
+            done = True
+            logger.warning('Abort Optimization. Gradient contained not NaN')
+        done = done or (norm(self.grad) < self.eps)
+        return done
 
 
 @add_metaclass(ABCMeta)

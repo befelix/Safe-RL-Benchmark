@@ -113,18 +113,20 @@ class Quadrocopter(EnvironmentBase):
 
         self._model.update_position(action)
 
-        state = self.state
-
         self._step += 1
-        self._time.append(self._step * self.period)
+        time = self._step * self.period
+
+        self._time.append(time)
         self._trajectory = np.vstack((self._trajectory, self.state.pos))
 
         reward = self._reward()
+        self.reference.update(self.state, time)
 
-        return action, state, reward
+        return action, self.state, reward
 
     def _reset(self):
         self._model = QuadrotorDynamics(self._init_pos, self._init_vel)
+        self.reference.reset(self.state)
         self._trajectory = np.atleast_2d(np.zeros(3))
         self._time = []
         self._step = 0
@@ -141,9 +143,9 @@ class Quadrocopter(EnvironmentBase):
 
     def _reward(self):
         state = self.state
-        ref = self.reference.compute(state)
+        ref = self.reference.reference
 
-        return -norm(state - ref)
+        return -norm(state.pos - ref.pos) - norm(state.vel - ref.vel)
 
     @property
     def seed(self):
@@ -193,6 +195,7 @@ class Reference(object):
         self.period = period
         self._iter = 0
         self._reference_function = self._reference_chooser(**kwargs)
+        self._current_ref = None
         self.keep_record = keep_record
         if keep_record:
             self._record = []
@@ -227,9 +230,8 @@ class Reference(object):
         if self.keep_record:
             self._record = []
 
-    def compute(self, state, finished=False):
+    def update(self, state, time, finished=False):
         """Compute the state of the reference object."""
-        time = self._iter * self.period
         ref = self._reference_function(state, time, finished)
         self._iter += 1
 
@@ -256,7 +258,7 @@ class Reference(object):
             if kwargs.get('speed', False):
                 speed = kwargs['speed']
             else:
-                speed = np.pi / 2.
+                speed = pi / 2.
             if kwargs.get('initial_angle', False):
                 init_angle = kwargs['initial_angle']
             else:
@@ -312,9 +314,12 @@ def _circle_reference(state,
                       z_vel=None):
     ref = StateVector()
     angle = init_angle + speed / radius * time
-    ref.pos[:] = [radius * np.cos(angle), radius * np.sin(angle), z_vel * time]
-    ref.vel[:] = [-speed * np.sin(angle), speed * np.cos(angle), z_vel]
-    ref.euler[2] = np.pi + np.arctan2(state.pos[1], state.pos[0])
+
+    ref.pos = array([radius * cos(angle),
+                     radius * sin(angle),
+                     z_vel * time])
+    ref.vel[:] = [-speed * sin(angle), speed * cos(angle), z_vel]
+    ref.euler[2] = pi + np.arctan2(state.pos[1], state.pos[0])
     # reference.omega_b[2] = speed / radius
     return ref
 
@@ -341,9 +346,9 @@ def _oscillate_reference(state,
     ref = StateVector()
     angle = omega * time
     ref.pos[0] = x_vel * time
-    ref.pos[1] = radius * np.sin(angle)
+    ref.pos[1] = radius * sin(angle)
     ref.pos[2] = 0.
     ref.vel[0] = x_vel
-    ref.vel[1] = radius * omega * np.cos(angle)
+    ref.vel[1] = radius * omega * cos(angle)
     ref.vel[2] = 0.
     return ref

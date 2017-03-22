@@ -8,9 +8,13 @@ class SRBConfig(object):
 
     Attributes
     ----------
-    monitor :
-        Lazily generate monitor as configured.
     """
+
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    CRITICAL = logging.CRITICAL
 
     def __init__(self, log):
         """Initialize default configuration."""
@@ -25,6 +29,12 @@ class SRBConfig(object):
         self._formatter = logging.Formatter(self._fmt)
 
         self._id_cnt = 0
+
+        try:
+            import gym
+            gym.undo_logger_setup()
+        except:
+            pass
 
     def monitor_set_verbosity(self, verbose):
         """Set monitor verbosity level.

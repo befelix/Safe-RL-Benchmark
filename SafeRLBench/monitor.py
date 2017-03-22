@@ -150,9 +150,9 @@ class AlgoMonitor(object):
         if config.monitor_verbosity > 0:
             logger.info('Computing traces for %s run...', str(self))
 
-        for parameter in self.monitor.parameters:
+        for parameters in self.monitor.parameters:
 
-            self.policy.parameter = parameter
+            self.policy.parameters = parameters
 
             # compute trace
             trace = self.environment._rollout(self.policy)
@@ -193,10 +193,10 @@ class AlgoMonitor(object):
         self.monitor.rollout_cnts.append(emonitor.rollout_cnt)
 
         # retrieve information
-        parameter = self.policy.parameter
+        parameters = self.policy.parameters
 
         # store information
-        self.monitor.parameters.append(parameter)
+        self.monitor.parameters.append(parameters)
 
         # log if wanted
         self._step_log()
@@ -227,7 +227,7 @@ class AlgoMonitor(object):
             avg_s = "{:.3f}".format(t / n)
 
             # retrieve current state
-            par_s = str(self.policy.parameter)
+            par_s = str(self.policy.parameters)
 
             # generate log message
             msg = 'Status for ' + self.__class__.__name__ + ' on '
