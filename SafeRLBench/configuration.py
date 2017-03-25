@@ -3,6 +3,7 @@ import logging
 import sys
 
 
+# TODO: Config: documentation, missing tests
 class SRBConfig(object):
     """SafeRLBench configuration class.
 

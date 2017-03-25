@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 REFERENCE_TYPES = ['circle', 'stationary', 'oscillate']
 
 
+# TODO: Quadrocopter: Rollout tests, docs, examples
 class Quadrocopter(EnvironmentBase):
     """Quadrocopter simulation.
 

@@ -7,6 +7,7 @@ from SafeRLBench import EnvironmentBase
 from SafeRLBench.spaces import RdSpace, BoundedSpace
 
 
+# TODO: LinearCar: update docs, add examples
 class LinearCar(EnvironmentBase):
     """Implementation of LinearCar Environment."""
 

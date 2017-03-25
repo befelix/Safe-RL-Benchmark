@@ -21,6 +21,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# TODO: SafeOpt: add examples, more docs
 class SafeOpt(AlgorithmBase):
     """
     Wrap SafeOpt algorithm.

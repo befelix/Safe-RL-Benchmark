@@ -10,6 +10,7 @@ from SafeRLBench import AlgoMonitor, EnvMonitor
 __all__ = ('EnvironmentBase', 'Space')
 
 
+# TODO: Bases: Check if base class documentation is outdated
 @add_metaclass(ABCMeta)
 class EnvironmentBase(EnvMonitor):
     """Environment Base Class.

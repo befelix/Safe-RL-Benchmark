@@ -24,6 +24,7 @@ def _dispatch_wrap(run):
     return Bench._dispatch(run)
 
 
+# TODO: Bench: more documentation, examples
 class Bench(object):
     """Benchmarking class to benchmark algorithms on various environments.
 
@@ -115,6 +116,7 @@ class Bench(object):
         return run
 
 
+# TODO: BenchConfig: add examples to some methods
 class BenchConfig(object):
     """Benchmark configuration class.
 
@@ -258,6 +260,7 @@ class BenchConfig(object):
                     yield alg, env, alg_conf, env_conf
 
 
+# TODO: BenchRun: more method documentation, examples on how to access
 class BenchRun(object):
     """Wrapper containing instances and configuration for a run.
 

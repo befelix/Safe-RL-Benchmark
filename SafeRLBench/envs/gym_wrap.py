@@ -9,6 +9,7 @@ except:
     gym = None
 
 
+# TODO: GymWrap: Add examples to docs
 class GymWrap(EnvironmentBase):
     """Wrapper class for the OpenAI Gym.
 

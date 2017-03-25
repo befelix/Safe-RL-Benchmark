@@ -11,8 +11,6 @@ from functools import partial
 
 import SafeRLBench.envs as envs
 
-import math
-
 import numpy as np
 
 import gym
@@ -21,7 +19,6 @@ gym.undo_logger_setup()
 from mock import Mock
 
 
-# TODO: Isolate unittests with mocks.
 class TestEnvironments(object):
     """
     Test Class for Environment tests.
@@ -112,5 +109,3 @@ class TestEnvironments(object):
                 assert(t_verify[0] == t[0])
             assert(all(t_verify[1] == t[1]))
             assert(t_verify[2] == t[2])
-
-# TODO: Add better tests
