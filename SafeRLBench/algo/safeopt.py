@@ -21,8 +21,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@add_dependency(safeopt, 'SafeOpt')
-@add_dependency(GPy, 'GPy')
 class SafeOpt(AlgorithmBase):
     """
     Wrap SafeOpt algorithm.
@@ -73,6 +71,9 @@ class SafeOpt(AlgorithmBase):
                  lipschitz=None, beta=3.0, num_contexts=0, threshold=0,
                  scaling='auto'):
         """Initialize Attributes."""
+        add_dependency(safeopt, 'SafeOpt')
+        add_dependency(GPy, 'GPy')
+
         super(SafeOpt, self).__init__(environment, policy, max_it)
 
         self.gp_opt = None

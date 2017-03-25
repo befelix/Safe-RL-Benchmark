@@ -22,7 +22,6 @@ def default_init_weights(shape):
     return tf.Variable(weights)
 
 
-@add_dependency(tf, 'TensorFlow')
 class NeuralNetwork(Policy):
     """Fully connected Neural Network Policy.
 
@@ -73,6 +72,8 @@ class NeuralNetwork(Policy):
                  init_weights=None, activation=None, dtype='float',
                  scope='global', do_setup=False):
         """Initialize Neural Network wrapper."""
+        add_dependency(tf, 'TensorFlow')
+
         if (len(layers) < 2):
             raise ValueError('At least two layers needed.')
 

@@ -9,7 +9,6 @@ except:
     gym = None
 
 
-@add_dependency(gym, 'Gym')
 class GymWrap(EnvironmentBase):
     """Wrapper class for the OpenAI Gym.
 
@@ -44,7 +43,8 @@ class GymWrap(EnvironmentBase):
             Default: False ; If True simulation will be rendered during
             rollouts on this instance.
         """
-        # Do not use super here.
+        add_dependency(gym, 'Gym')
+
         EnvironmentBase.__init__(self, env.observation_space, env.action_space,
                                  horizon)
         self.environment = env.unwrapped

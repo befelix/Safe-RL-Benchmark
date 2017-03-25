@@ -24,7 +24,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@add_dependency(tf, 'TensorFlow')
 class A3C(AlgorithmBase):
     """Implementation of the Asynchronous Actor-Critic Agents Algorithm.
 
@@ -51,6 +50,8 @@ class A3C(AlgorithmBase):
     def __init__(self, environment, policy, max_it=1000, num_workers=2,
                  rate=0.1, discount=0.1):
         """Initialize A3C."""
+        add_dependency(tf, 'TensorFlow')
+
         if policy.is_set_up:
             raise(ValueError('Policy should not be set up.'))
 
