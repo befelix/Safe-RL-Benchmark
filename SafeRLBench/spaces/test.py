@@ -11,7 +11,8 @@ import SafeRLBench.spaces as spaces
 """Dictionary storing initialization arguments for classes."""
 class_arguments = {
     spaces.BoundedSpace: [array([-1, -2]), array([1, 0])],
-    spaces.RdSpace: [(3, 2)]
+    spaces.RdSpace: [(3, 2)],
+    spaces.DiscreteSpace: [5]
 }
 
 

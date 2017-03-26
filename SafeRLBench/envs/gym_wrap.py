@@ -82,3 +82,7 @@ class GymWrap(EnvironmentBase):
     def state(self, s):
         assert self.state_space.contains(s)
         self.environment.state = s
+
+
+def _get_test_args():
+    return [gym.make('MountainCar-v0')]
