@@ -19,4 +19,4 @@ script:
   - docker run test-image flake8 SafeRLBench --exclude "test*.py,__init__.py,_quadrocopter" --ignore=E402,W503 --show-source
   - docker run test-image flake8 SafeRLBench --filename="__init__.py,test*.py" --ignore=F,E402,W503 --show-source
   - docker run test-image pydocstyle SafeRLBench --match='(?!__init__).*\.py'
-  - docker run test-image nosetests --with-doctest --verbosity=2 SafeRLBench  2>&1 | grep -v "^Level "
+  - docker run test-image nosetests --with-doctest --verbosity=2 SafeRLBench
