@@ -21,14 +21,14 @@ class BoundedSpace(Space):
     individual bounds for each dimension, then you can directly pass the
     `lower` or `upper` bound as an array-like.
 
-    >>> BoundedSpace(np.array(-1,-2), np.array(1,0))
+    >>> space = BoundedSpace(np.array([-1, -2]), np.array([1, 0]))
 
     In this case the shape argument will be ignored. If you want to create a
     however shaped box, where all the bounds are the same, then, you may pass
     a lower and an upper bound as a scalar and make sure that you specify the
     shape.
 
-    >>> BoundedSpace(-1, 1, shape=(2,))
+    >>> space = BoundedSpace(-1, 1, shape=(2,))
     """
 
     def __init__(self, lower, upper, shape=None):

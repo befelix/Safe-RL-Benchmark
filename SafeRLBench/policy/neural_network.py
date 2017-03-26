@@ -2,6 +2,7 @@
 
 from SafeRLBench import Policy
 from SafeRLBench.error import add_dependency, MultipleCallsException
+from SafeRLBench.spaces import RdSpace
 
 import numpy as np
 from numpy.random import normal
@@ -68,14 +69,18 @@ class NeuralNetwork(Policy):
         Hidden layers
     """
 
-    def __init__(self, layers, state_space, action_space, weights=None,
-                 init_weights=None, activation=None, dtype='float',
-                 scope='global', do_setup=False):
+    def __init__(self,
+                 layers, weights=None, init_weights=None, activation=None,
+                 dtype='float', scope='global', do_setup=False):
         """Initialize Neural Network wrapper."""
         add_dependency(tf, 'TensorFlow')
 
         if (len(layers) < 2):
             raise ValueError('At least two layers needed.')
+
+        # determine state and action space
+        state_space = RdSpace((layers[0],))
+        action_space = RdSpace((layers[-1],))
 
         # store arguments convenient for copy operation
         self.args = [layers, state_space, action_space]

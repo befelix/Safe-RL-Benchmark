@@ -21,12 +21,12 @@ class TestNeuralNetwork(TestCase):
     def test_initialization(self):
         """Test NeuralNetwork initialization."""
         # test bad layer size:
-        args = [[2], Mock(), Mock()]
+        args = [[2]]
         with self.assertRaises(ValueError):
             NeuralNetwork(*args)
 
         # test field existence
-        args = [[2, 6, 1], Mock(), Mock()]
+        args = [[2, 6, 1]]
 
         fields = ['args', 'kwargs', 'action_space', 'state_space', 'dtype',
                   'layers', 'scope', 'init_weights', 'activation', 'X', 'a',
@@ -46,14 +46,12 @@ class TestNeuralNetwork(TestCase):
         # check field contents.
         assert(all([a == b for a, b in zip(args, nn.args)]))
         self.assertEqual(nn.layers, args[0])
-        self.assertEqual(nn.state_space, args[1])
-        self.assertEqual(nn.action_space, args[2])
         self.assertEqual(nn.dtype, 'float')
 
         self.assertEqual(len(nn.W_action), 2)
         self.assertEqual(len(nn.W_var), 1)
 
-        # well... when is does not work for whatever fucking reason.
+        # well... because is does not work for whatever fucking reason.
         self.assertEqual(str(type(nn.a_pred)), str(tf.Tensor))
         self.assertIn(str(type(nn.var)), (str(tf.Tensor), str(tf.constant)))
 
@@ -61,9 +59,7 @@ class TestNeuralNetwork(TestCase):
 
     def test_mapping(self):
         """Test NeuralNetwork mapping."""
-        action_space = Mock()
-        action_space.shape = (1,)
-        args = [[2, 1], Mock(), action_space]
+        args = [[2, 1]]
 
         kwargs = {
             'weights': [tf.constant([2., 1.], shape=(2, 1))],
@@ -79,10 +75,7 @@ class TestNeuralNetwork(TestCase):
 
     def test_variable_assignment(self):
         """Test NeuralNetwork parameter assignment."""
-        action_space = Mock()
-        action_space.shape = (1,)
-
-        args = [[2, 1], Mock(), action_space]
+        args = [[2, 1]]
         kwargs = {'do_setup': True}
 
         nn = NeuralNetwork(*args, **kwargs)

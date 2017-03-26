@@ -39,11 +39,11 @@ setup_docker: setup_docker2 setup_docker3
 
 docker2:
 	@echo "${GREEN}Running unit tests for 2.7 in docker container:${NC}"
-	@docker run -e "TF_CPP_MIN_LOG_LEVEL=2" -v $(shell pwd):/code/ srlb-py27-image nosetests --with-doctest --verbosity=2 SafeRLBench  2>&1 | grep -v "^Level 1"
+	@docker run -e "TF_CPP_MIN_LOG_LEVEL=2" -v $(shell pwd):/code/ srlb-py27-image nosetests --with-doctest --verbosity=2 SafeRLBench  2>&1 | grep -v "^Level "
 
 docker3:
 	@echo "${GREEN}Running unit tests for 3.5 in docker container:${NC}"
-	@docker run -e "TF_CPP_MIN_LOG_LEVEL=2" -v $(shell pwd):/code/ srlb-py35-image nosetests --with-doctest --verbosity=2 SafeRLBench  2>&1 | grep -v "^Level 1"
+	@docker run -e "TF_CPP_MIN_LOG_LEVEL=2" -v $(shell pwd):/code/ srlb-py35-image nosetests --with-doctest --verbosity=2 SafeRLBench  2>&1 | grep -v "^Level "
 
 docker: docker2 docker3
 
