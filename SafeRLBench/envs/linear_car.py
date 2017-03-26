@@ -29,8 +29,8 @@ class LinearCar(EnvironmentBase):
             Element of state_space. Specifies goal state.
             The goal state should contain zero velocity, anything else does
             not make sense.
-        step: double
-        eps: double
+        step: float
+        eps: float
             Reward at which we want to abort. If zero we do not abort at all.
         """
         # Initialize EnivronmentBase Parameters

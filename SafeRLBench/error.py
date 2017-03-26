@@ -36,6 +36,35 @@ class MultipleCallsException(Exception):
     pass
 
 
+class IncompatibilityException(Exception):
+    """Exception raised when any two parts are incompatible with each other.
+
+    Attributes
+    ----------
+    obj1 : object
+        Instance of the object calling the exception.
+    obj2 : object
+        Instance of the object being incompatible.
+    """
+
+    def __init__(self, obj1, obj2):
+        """Initialize IncompatibilityException.
+
+        Parameters
+        ----------
+        obj1 : object
+            Instance of the object calling the exception.
+        obj2 : object
+            Instance of the object being incompatible.
+        """
+        self.obj1 = obj1
+        self.obj2 = obj2
+
+    def __repr__(self):
+        return "%s is incompatible with %s." % (self.obj2.__name__,
+                                                self.obj1.__name__)
+
+
 def add_dependency(dep, dep_name='Some'):
     """Add dependency.
 

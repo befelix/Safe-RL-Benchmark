@@ -111,6 +111,7 @@ class AlgoMonitor(object):
         """Hook into subclasses."""
         obj = object.__new__(cls)
         obj.monitor = AlgoData()
+        obj.grad = None
         return obj
 
     def _before_optimize(self):
@@ -130,8 +131,18 @@ class AlgoMonitor(object):
         # init optimization time control
         self.monitor.optimize_start = time.time()
 
-    def _after_optimize(self):
-        """Catch data after optimization run."""
+    def _after_optimize(self, compute_traces=True):
+        """Catch data after optimization run.
+
+        Parameters
+        ----------
+        compute_traces : boolean
+            Usually we will compute the traces after the entire optimization
+            run. In case we need to overwrite this function in a subclass,
+            for example as in the case of q-learning, where the policy used
+            is entirely meaningless, this argument may be set to zero to
+            avoid useless computations.
+        """
         # retrieve time of optimization
         optimize_end = time.time()
         optimize_time = optimize_end - self.monitor.optimize_start
@@ -146,21 +157,22 @@ class AlgoMonitor(object):
         logger.debug('Finished optimization after %d steps with grad %s.',
                      self.monitor.step_cnt, str(self.grad))
 
-        # independently compute traces after optimization is finished
-        if config.monitor_verbosity > 0:
-            logger.info('Computing traces for %s run...', str(self))
+        if compute_traces:
+            # independently compute traces after optimization is finished
+            if config.monitor_verbosity > 0:
+                logger.info('Computing traces for %s run...', str(self))
 
-        for parameters in self.monitor.parameters:
+            for parameters in self.monitor.parameters:
 
-            self.policy.parameters = parameters
+                self.policy.parameters = parameters
 
-            # compute trace
-            trace = self.environment._rollout(self.policy)
-            self.monitor.traces.append(trace)
+                # compute trace
+                trace = self.environment._rollout(self.policy)
+                self.monitor.traces.append(trace)
 
-            # compute total reward
-            reward = sum([t[2] for t in trace])
-            self.monitor.rewards.append(reward)
+                # compute total reward
+                reward = sum([t[2] for t in trace])
+                self.monitor.rewards.append(reward)
 
     def _before_step(self):
         """Monitor algorithm before step.
