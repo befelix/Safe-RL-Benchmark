@@ -2,6 +2,8 @@
 
 from SafeRLBench import Space
 
+import numpy as np
+
 
 class DiscreteSpace(Space):
     """Discrete Space.
@@ -34,7 +36,7 @@ class DiscreteSpace(Space):
 
     def sample(self):
         """Sample an element of the space."""
-        pass
+        return np.random.randint(self._dim)
 
     @property
     def dimension(self):
