@@ -11,8 +11,6 @@ from functools import partial
 
 import SafeRLBench.envs as envs
 
-import math
-
 import numpy as np
 
 import gym
@@ -34,7 +32,8 @@ class TestEnvironments(object):
     not_deterministic = ['Quadrocopter']
 
     args = {
-        'GymWrap': [gym.make('MountainCar-v0')],
+        'GymWrap': envs.gym_wrap._get_test_args(),
+        'MDP': envs.mdp._get_test_args()
     }
 
     @classmethod
@@ -101,16 +100,29 @@ class TestEnvironments(object):
         policy_mock = Mock(side_effect=policy)
         trace = env._rollout(policy_mock)
 
+        # if the environment depends on a seed, reset it.
+        if hasattr(env, 'seed'):
+            env.seed = env.seed
+
         horizon = len(trace) - 1
+
+        # in case we use a random state we need to do an initial iteration,
+        # to obtain the same random state after reseeding.
+        env._update(policy(None))
+
         for idx in range(1, horizon):
             env.state = (trace[idx - 1])[1].copy()
             t = trace[idx]
             t_verify = env._update(t[0])
+
             if isinstance(t[0], np.ndarray):
                 assert(all(t_verify[0] == t[0]))
             else:
                 assert(t_verify[0] == t[0])
-            assert(all(t_verify[1] == t[1]))
+            if isinstance(t[1], np.ndarray):
+                assert(all(t_verify[1] == t[1]))
+            else:
+                assert(t_verify[1] == t[1])
             assert(t_verify[2] == t[2])
 
 # TODO: Add better tests
