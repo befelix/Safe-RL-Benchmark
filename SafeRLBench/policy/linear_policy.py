@@ -27,7 +27,7 @@ class LinearPolicy(Policy):
     def __init__(self, d_state, d_action,
                  par=None, par_space=None, biased=True):
         """
-        Initialize.
+        Initialize LinearPolicy.
 
         Parameters
         ----------
@@ -100,7 +100,7 @@ class LinearPolicy(Policy):
 
     @parameters.setter
     def parameters(self, par):
-        par = par.copy()
+        par = np.array(par).copy()
 
         if not self.initialized:
             shape = par.shape

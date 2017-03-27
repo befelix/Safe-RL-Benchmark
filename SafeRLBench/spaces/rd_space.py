@@ -28,3 +28,6 @@ class RdSpace(Space):
                 d *= self.shape[i]
             self._dim = d
         return self._dim
+
+    def __repr__(self):
+        return 'RdSpace(shape=%s)' % str(self.shape)

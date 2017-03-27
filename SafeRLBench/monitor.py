@@ -7,6 +7,8 @@ from SafeRLBench import config
 
 logger = logging.getLogger(__name__)
 
+__all__ = ('EnvMonitor', 'AlgoMonitor')
+
 
 class EnvMonitor(object):
     """
@@ -124,6 +126,9 @@ class AlgoMonitor(object):
         """
         if config.monitor_verbosity > 0:
             logger.info('Starting optimization of %s...', str(self))
+
+        # reset monitor object in case of rerun
+        self.monitor.reset()
 
         # init monitor dict for algorithm
         self.monitor.t = time.time()
@@ -287,6 +292,10 @@ class AlgoData(object):
 
     def __init__(self):
         """Initialize attributes."""
+        self.reset()
+
+    def reset(self):
+        """Reset monitor data."""
         self.optimize_start = 0
         self.optimize_time = 0
 

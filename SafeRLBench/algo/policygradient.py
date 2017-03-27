@@ -14,6 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# TODO: PolicyGradient: Better docs
 class PolicyGradient(AlgorithmBase):
     """
     Implementing many policy gradient methods.
@@ -24,6 +25,9 @@ class PolicyGradient(AlgorithmBase):
         environment we want to run the optimization
     policy :
         the policy to be optimized
+    eps :
+    rate :
+    estimator :
     """
 
     def __init__(self,
@@ -31,7 +35,17 @@ class PolicyGradient(AlgorithmBase):
                  max_it=1000, eps=0.0001, est_eps=0.001,
                  parameter_space=BoundedSpace(0, 1, (3,)),
                  rate=1, var=0.5):
-        """Initialize PolicyGradient."""
+        """Initialize PolicyGradient.
+
+        Parameters
+        ----------
+        environment :
+        policy :
+        est_eps :
+        parameter_space :
+        rate :
+        var :
+        """
         super(PolicyGradient, self).__init__(environment, policy, max_it)
 
         self.parameter_space = policy.parameter_space
