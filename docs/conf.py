@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # SafeRLBench documentation build configuration file, created by
-# sphinx-quickstart on Mon Dec 12 18:07:44 2016.
+# sphinx-quickstart on Mon Mar 27 16:08:01 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -19,9 +19,9 @@
 #
 import os
 import sys
-import sphinx_rtd_theme
+sys.path.insert(0, os.path.abspath('.'))
 
-sys.path.insert(0, os.path.abspath('..'))
+import sphinx_rtd_theme
 
 
 # -- General configuration ------------------------------------------------
@@ -35,8 +35,10 @@ sys.path.insert(0, os.path.abspath('..'))
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
     'numpydoc',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
 ]
 
 numpydoc_class_members_toctree = False
@@ -55,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'SafeRLBench'
-copyright = '2016, Nicolas Ochsner'
+copyright = '2017, Nicolas Ochsner'
 author = 'Nicolas Ochsner'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -63,7 +65,7 @@ author = 'Nicolas Ochsner'
 # built documents.
 #
 # The short X.Y version.
-version = '0.1.0'
+version = '0.1'
 # The full version, including alpha/beta/rc tags.
 release = '0.1.0'
 
