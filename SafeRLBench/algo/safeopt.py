@@ -71,7 +71,48 @@ class SafeOpt(AlgorithmBase):
                  kernel, likelihood, parameter_set, fmin,
                  lipschitz=None, beta=3.0, num_contexts=0, threshold=0,
                  scaling='auto'):
-        """Initialize Attributes."""
+        """Initialize Attributes.
+
+        Parameters
+        ----------
+        environment :
+            environmet to be optimized.
+        policy :
+            policy to be optimized.
+        max_it :
+            maximal number of iterations before we abort.
+        avg_reward : integer
+            average reward at which the optimization will be finished.
+        window : integer
+            window for the average reward
+        gp: GPy Gaussian process
+            A Gaussian process which is initialized with safe, initial data
+            points. If a list of GPs then the first one is the value, while all
+            the other ones are safety constraints.
+        parameter_set: 2d-array
+            List of parameters
+        fmin: list of floats
+            Safety threshold for the function value. If multiple safety
+            constraints are used this can also be a list of floats (the first
+            one is always the one for the values, can be set to None if not
+            wanted)
+        lipschitz: list of floats
+            The Lipschitz constant of the system, if None the GP confidence
+            intervals are used directly.
+        beta: float or callable
+            A constant or a function of the time step that scales the
+            confidence interval of the acquisition function.
+        threshold: float or list of floats
+            The algorithm will not try to expand any points that are below this
+            threshold. This makes the algorithm stop expanding points
+            eventually. If a list, this represents the stopping criterion for
+            all the gps. This ignores the scaling factor.
+        scaling: list of floats or "auto"
+            A list used to scale the GP uncertainties to compensate for
+            different input sizes. This should be set to the maximal variance
+            of each kernel. You should probably leave this to "auto" unless
+            your kernel is non-stationary.
+        """
         add_dependency(safeopt, 'SafeOpt')
         add_dependency(GPy, 'GPy')
 

@@ -27,10 +27,15 @@ logger = logging.getLogger(__name__)
 class A3C(AlgorithmBase):
     """Implementation of the Asynchronous Actor-Critic Agents Algorithm.
 
+    Here we use several workers threads, which asynchronously update their
+    local estimation networks. The networks consist of a policy estimation
+    network which estimates the policy and a value estimation network which
+    is used to estimate the expected reward.
+
     Attributes
     ----------
     environment :
-        Environment we want to optimize the policy for.
+        Environment we want to optimize the policy on.
     policy :
         The policy we want to optimize.
     max_it : integer
@@ -49,7 +54,24 @@ class A3C(AlgorithmBase):
 
     def __init__(self, environment, policy, max_it=1000, num_workers=2,
                  rate=0.1, discount=0.1):
-        """Initialize A3C."""
+        """Initialize A3C.
+
+        Parameters
+        ----------
+        environment :
+            Environment we want to optimize the policy on.
+        policy :
+            The policy we want to optimize. The policy needs be defined by a
+            tensorflow neural network and define certain attributes.
+        max_it : int
+            Maximum number of iterations.
+        num_workers : int
+            Number of workers.
+        rate : float
+            Update rate passed to the optimizer.
+        discount : float
+            Discount for the computation of the discounted reward.
+        """
         add_dependency(tf, 'TensorFlow')
 
         if policy.is_set_up:

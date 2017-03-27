@@ -16,18 +16,43 @@ logger = logging.getLogger(__name__)
 
 # TODO: PolicyGradient: Better docs
 class PolicyGradient(AlgorithmBase):
-    """
-    Implementing many policy gradient methods.
+    """Implementing many policy gradient methods.
+
+    This uses standard gradient descent using different policy gradient
+    estimators.
 
     Attributes
     ----------
     environment :
-        environment we want to run the optimization
+        Environment we want to optimize the policy on. This should be a
+        subclass of `EnvironmentBase`.
     policy :
-        the policy to be optimized
-    eps :
-    rate :
+        Policy we want to find parameters for. This should be a subclass of
+        `Policy`.
     estimator :
+        Either an estimator object, that is a subclass of
+        PolicyGradientEstimator or a string. A list of possible estimator
+        strings can be found in the Notes section. By default 'reinforce' will
+        be used
+    eps : float
+        The optimizer will stop optimization ones the norm of the gradient is
+        smaller than `eps`.
+    rate : float
+        This is the rate we use for the updates in each step
+
+    Notes
+    -----
+    These strings can be used to access the implemented estimators.
+
+    +------------+---------------------------------+
+    |'forward_fd'| Uses forward finite differences.|
+    +------------+---------------------------------+
+    |'central_fd'| Uses central finite differences.|
+    +------------+---------------------------------+
+    |'reinforce' | Classic reinforce estimator.    |
+    +------------+---------------------------------+
+    |'gpomdp'    | Uses GPOMDP estimator.          |
+    +------------+---------------------------------+
     """
 
     def __init__(self,
@@ -40,11 +65,29 @@ class PolicyGradient(AlgorithmBase):
         Parameters
         ----------
         environment :
+            Environment we want to optimize the policy on. This should be a
+            subclass of `EnvironmentBase`.
         policy :
-        est_eps :
+            Policy we want to find parameters for. This should be a subclass of
+            `Policy`.
+        estimator :
+            Either an estimator object, that is a subclass of
+            PolicyGradientEstimator or a string. A list of possible estimator
+            strings can be found in the Notes section. By default 'reinforce'
+            will be used
+        eps : float
+            The optimizer will stop optimization ones the norm of the gradient
+            is smaller than `eps`.
+        est_eps : float
+            In case an estimator needs to converge, this is the margin it will
+            use to stop.
         parameter_space :
-        rate :
-        var :
+        rate : float
+            This is the rate we use for the updates in each step
+        var : float
+            This parameter will be used depending on the estimator type. e.g.
+            for central differences this value corresponds to the grid size
+            that is used.
         """
         super(PolicyGradient, self).__init__(environment, policy, max_it)
 

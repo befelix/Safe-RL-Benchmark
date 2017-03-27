@@ -55,7 +55,7 @@ The best way to install and use this library is to clone it from the repository.
 In order to use the content that has already been implemented as is, navigate
 to the root directory and execute:
 
-  ``python setup.py``.
+  ``python setup.py install``
 
 In many cases it makes sense to extend or adapt the content. Then the develop
 setup is your friend. Again, navigate to the root directory of the repository
@@ -75,7 +75,7 @@ Optimizing a Policy
 
 To get started let us try to optimize a policy on a very simple environment.
 To accomplish this we need to make a few decisions. First we need some task that
-we can solve. This is implemented in the form of an environment in the ``envs``
+we can solve. This is implemented in the form of environments in the ``envs``
 module.
 
   >>> # import the linear car class
@@ -96,7 +96,7 @@ Notice that we did not use the default parameters this time. The LinearPolicy
 is a linear mapping from an element of a d_state-dimensional element to a
 d_action-dimensional element. Our ``linear_car`` instance with the default
 arguments is just a car with a (position, velocity)-state on a line, thus our
-state space is two dimensional and we can accelerate along the line, thus our
+state space is two dimensional and we can accelerate along the line, so our
 action space is one dimensional.
 
 Now we need our third and last ingredient, which is the algorithm, that optimizes
