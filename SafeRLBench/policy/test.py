@@ -112,13 +112,12 @@ class TestLinearPolicy(TestCase):
         with self.assertRaises(ValueError):
             lp_mocked = LinearPolicy(2, 1, par_mock, par_space_mock)
 
-        par_mock.shape = (2,)
-        par_mock.copy.return_value = par_mock
+        par_mock = [2, 1]
 
         lp_mocked = LinearPolicy(2, 1, par_mock, par_space_mock)
 
         self.assertTrue(lp_mocked.initialized)
-        self.assertEqual(par_mock, lp_mocked.parameters)
+        assert(all(par_mock == lp_mocked.parameters))
 
         self.assertEqual(par_space_mock, lp_mocked.parameter_space)
 
