@@ -126,7 +126,6 @@ class PolicyGradient(AlgorithmBase):
             parameter = self.parameter_space.sample()
 
         logger.error('Unable to find non-zero gradient.')
-        return parameter
 
     def _step(self):
         grad = self.estimator(self.policy)
