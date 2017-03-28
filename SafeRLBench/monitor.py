@@ -5,6 +5,8 @@ import time
 
 from SafeRLBench import config
 
+from contextlib import contextmanager
+
 logger = logging.getLogger(__name__)
 
 __all__ = ('EnvMonitor', 'AlgoMonitor')
@@ -30,9 +32,29 @@ class EnvMonitor(object):
         obj.monitor = EnvData()
         return obj
 
+    @contextmanager
+    def monitor_update(self):
+        """Context monitoring update."""
+        self._before_update()
+        yield self
+        self._after_update()
+
+    @contextmanager
+    def monitor_rollout(self):
+        """Context monitoring rollout."""
+        self._before_rollout()
+        yield self
+        self._after_rollout()
+
+    @contextmanager
+    def monitor_reset(self):
+        """Context monitoring reset."""
+        self._before_reset()
+        yield self
+        self._after_reset()
+
     def _before_update(self):
-        """
-        Monitor environment before update.
+        """Monitor environment before update.
 
         Parameters
         ----------
@@ -42,8 +64,7 @@ class EnvMonitor(object):
         pass
 
     def _after_update(self):
-        """
-        Monitor environment after update.
+        """Monitor environment after update.
 
         Parameters
         ----------
@@ -53,8 +74,7 @@ class EnvMonitor(object):
         pass
 
     def _before_rollout(self):
-        """
-        Monitor environment before rollout.
+        """Monitor environment before rollout.
 
         Parameters
         ----------
@@ -75,8 +95,7 @@ class EnvMonitor(object):
         self.monitor.rollout_cnt += 1
 
     def _before_reset(self):
-        """
-        Monitor environment before reset.
+        """Monitor environment before reset.
 
         Parameters
         ----------
@@ -86,8 +105,7 @@ class EnvMonitor(object):
         pass
 
     def _after_reset(self):
-        """
-        Monitor environment after reset.
+        """Monitor environment after reset.
 
         Parameters
         ----------
@@ -118,6 +136,27 @@ class AlgoMonitor(object):
         obj.grad = None
         obj.has_policy = True
         return obj
+
+    @contextmanager
+    def monitor_optimize(self):
+        """Context monitoring optimization."""
+        self._before_optimize()
+        yield self
+        self._after_optimize()
+
+    @contextmanager
+    def monitor_initialize(self):
+        """Context monitoring initialize."""
+        yield self
+        if self.has_policy:
+            self.monitor.parameters.append(self.policy.parameters)
+
+    @contextmanager
+    def monitor_step(self):
+        """Context monitoring stepping."""
+        self._before_step()
+        yield self
+        self._after_step()
 
     def _before_optimize(self):
         """Setup montitor for optimization run.

@@ -103,9 +103,8 @@ class EnvironmentBase(EnvMonitor):
             reward : float
                 reward for resulting state
         """
-        self._before_update()
-        t = self._update(action)
-        self._after_update()
+        with self.monitor_update():
+            t = self._update(action)
         return t
 
     def reset(self):
@@ -114,9 +113,8 @@ class EnvironmentBase(EnvMonitor):
         Reset wraps the subclass implementation _reset() providing monitoring
         capabilities.
         """
-        self._before_reset()
-        self._reset()
-        self._after_reset()
+        with self.monitor_reset():
+            self._reset()
 
     def rollout(self, policy):
         """Perform a rollout according to the actions selected by policy.
@@ -133,9 +131,8 @@ class EnvironmentBase(EnvMonitor):
         -------
         trace : list of (action, state, reward)-tuples
         """
-        self._before_rollout()
-        trace = self._rollout(policy)
-        self._after_rollout()
+        with self.monitor_rollout():
+            trace = self._rollout(policy)
         return trace
 
     def __repr__(self):
@@ -178,9 +175,11 @@ class AlgorithmBase(AlgoMonitor):
     """Baseclass for any algorithm.
 
     This baseclass defines a uniform interface for any algorithm part of
-    the algorithm module SafeRLBench.algo.
-    This baseclass features monitoring capabilities for algorithm
-    implementations.
+    the algorithm module SafeRLBench.algo. It features monitoring capabilities
+    for tracking and evaluating the execution of the algorithm.
+
+    Inheriting from `AlgorithmBase` is suspect to some constraints, i.e. any
+    algorithm needs to be implemented using the following functions.
 
     Any subclass must overwrite:
         * _initialize(policy)
@@ -192,6 +191,7 @@ class AlgorithmBase(AlgoMonitor):
 
     In case one does overwrite _optimize, the functions _initialize(),
     _step(parameter), _is_finished() may just pass unless they are used.
+    This may however change the information tracked by the monitor.
 
     Attributes
     ----------
@@ -220,9 +220,9 @@ class AlgorithmBase(AlgoMonitor):
     Specification of the private functions.
 
     _initialize(self):
-        Return initial parameter for policy.
+        Initialize the algorithm.
     _step():
-        Update policy parameter.
+        Compute one step of the algorithm.
     _is_finished():
         Return True when algorithm is supposed to finish.
     """
@@ -267,9 +267,8 @@ class AlgorithmBase(AlgoMonitor):
         ----------
         policy: PolicyBase subclass
         """
-        self._before_optimize()
-        self._optimize()
-        self._after_optimize()
+        with self.monitor_optimize():
+            self._optimize()
 
     def initialize(self):
         """Initialize policy parameter.
@@ -280,8 +279,8 @@ class AlgorithmBase(AlgoMonitor):
         ----------
         policy: PolicyBase subclass
         """
-        parameter = self._initialize()
-        self.policy.parameter = parameter
+        with self.monitor_initialize():
+            self._initialize()
 
     def step(self):
         """Update policy parameter.
@@ -292,9 +291,8 @@ class AlgorithmBase(AlgoMonitor):
         ----------
         policy: PolicyBase subclass
         """
-        self._before_step()
-        self._step()
-        self._after_step()
+        with self.monitor_step():
+            self._step()
 
     def is_finished(self):
         """Return True when algorithm is supposed to finish.
