@@ -98,8 +98,10 @@ class EnvMonitor(object):
 
 
 class AlgoMonitor(object):
-    """
-    Algorithm Monitor, providing tracking capabilities for algorithms.
+    """Algorithm monitor tracks algorithms' activity.
+
+    This class is inherited by the `AlgorithmBase` class and will provide it
+    with tracking capabilities.
 
     Methods
     -------
@@ -114,6 +116,7 @@ class AlgoMonitor(object):
         obj = object.__new__(cls)
         obj.monitor = AlgoData()
         obj.grad = None
+        obj.has_policy = True
         return obj
 
     def _before_optimize(self):
@@ -162,7 +165,7 @@ class AlgoMonitor(object):
         logger.debug('Finished optimization after %d steps with grad %s.',
                      self.monitor.step_cnt, str(self.grad))
 
-        if compute_traces:
+        if self.has_policy:
             # independently compute traces after optimization is finished
             if config.monitor_verbosity > 0:
                 logger.info('Computing traces for %s run...', str(self))
@@ -206,14 +209,15 @@ class AlgoMonitor(object):
 
         self.monitor.step_cnt += 1
 
-        # store the number of rollouts since before step
+        # store the number of rollouts
         self.monitor.rollout_cnts.append(emonitor.rollout_cnt)
 
-        # retrieve information
-        parameters = self.policy.parameters
-
-        # store information
-        self.monitor.parameters.append(parameters)
+        # retrieve information from the policy
+        if self.has_policy:
+            # retrieve current parameters
+            parameters = self.policy.parameters
+            # store information
+            self.monitor.parameters.append(parameters)
 
         # log if wanted
         self._step_log()
@@ -243,14 +247,14 @@ class AlgoMonitor(object):
             t_s = "{:.2f}".format(t)
             avg_s = "{:.3f}".format(t / n)
 
-            # retrieve current state
-            par_s = str(self.policy.parameters)
-
             # generate log message
             msg = 'Status for ' + self.__class__.__name__ + ' on '
             msg += self.environment.__class__.__name__ + ':\n\n'
             msg += '\tRun: %d\tTime: %s\t Avg: %s\n' % (n, t_s, avg_s)
-            msg += '\tParameter: \t%s\n' % (par_s)
+            if self.has_policy:
+                # retrieve current state
+                par_s = str(self.policy.parameters)
+                msg += '\tParameter: \t%s\n' % (par_s)
 
             logger.info(msg)
 
