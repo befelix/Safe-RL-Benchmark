@@ -121,6 +121,18 @@ class AlgoMonitor(object):
     This class is inherited by the `AlgorithmBase` class and will provide it
     with tracking capabilities.
 
+    Attributes
+    ----------
+    monitor :
+        This is the container where monitoring data will be stored.
+    grad :
+        The Alogrithm can set this field, to provide information about the
+        current gradient to the monitor.
+    has_policy :
+        In case the algorithm does not depend on a policy and does not need
+        any parameters, this can me set to False, to prevent issues with
+        tracking data that does not exist.
+
     Methods
     -------
     _before_optimize
@@ -178,18 +190,8 @@ class AlgoMonitor(object):
         # init optimization time control
         self.monitor.optimize_start = time.time()
 
-    def _after_optimize(self, compute_traces=True):
-        """Catch data after optimization run.
-
-        Parameters
-        ----------
-        compute_traces : boolean
-            Usually we will compute the traces after the entire optimization
-            run. In case we need to overwrite this function in a subclass,
-            for example as in the case of q-learning, where the policy used
-            is entirely meaningless, this argument may be set to zero to
-            avoid useless computations.
-        """
+    def _after_optimize(self):
+        """Catch data after optimization run."""
         # retrieve time of optimization
         optimize_end = time.time()
         optimize_time = optimize_end - self.monitor.optimize_start
@@ -201,8 +203,13 @@ class AlgoMonitor(object):
 
         self.monitor.optimize_time = optimize_time
 
-        logger.debug('Finished optimization after %d steps with grad %s.',
-                     self.monitor.step_cnt, str(self.grad))
+        # if the gradient attribute has been set
+        if self.grad is not None:
+            logger.debug('Finished optimization after %d steps with grad %s.',
+                         self.monitor.step_cnt, str(self.grad))
+        else:
+            logger.debug('Finished optimization after %d steps.',
+                         self.monitor.step_cnt)
 
         if self.has_policy:
             # independently compute traces after optimization is finished

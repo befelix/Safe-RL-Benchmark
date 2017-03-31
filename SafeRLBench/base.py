@@ -26,18 +26,21 @@ class EnvironmentBase(EnvMonitor):
     Any subclass might override:
         * _rollout(policy)
 
-    Initialization:
-        Make sure super().__init__ is called in any case as there may be
-        additions to the interface over time.
+    Make sure the `state_space`, `action_space` and `horizon` attributes will
+    be set in any subclass, as the default implementation and / or the monitor
+    may access them to retrieve information.
 
     Attributes
     ----------
     state_space :
+        State space of the environment.
     action_space :
+        Action space of the environment.
     horizon :
         Maximum number of iterations until rollout will stop.
     monitor : EnvData instance
-        Contains the monitoring data.
+        Contains the monitoring data. The monitor will be automatically
+        initialized during creation.
 
     Methods
     -------
@@ -55,7 +58,17 @@ class EnvironmentBase(EnvMonitor):
     """
 
     def __init__(self, state_space, action_space, horizon=0):
-        """Initialize base class."""
+        """Initialize EnvironmentBase.
+
+        Parameters
+        ----------
+        state_space :
+            State space of the environment.
+        action_space :
+            Action space of the environment.
+        horizon :
+            Maximum number of iterations until rollout will stop.
+        """
         super(EnvironmentBase, self).__init__()
         self.state_space = state_space
         self.action_space = action_space
@@ -202,7 +215,8 @@ class AlgorithmBase(AlgoMonitor):
     max_it : int
         Maximum number of iterations
     monitor : AlgoData instance
-        Contains monitoring data.
+        Contains monitoring data. The monitor will automatically initialize
+        on creation of an object.
 
     Methods
     -------
