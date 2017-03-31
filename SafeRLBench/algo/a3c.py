@@ -24,6 +24,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def _run_thread(alg, worker, sess, coord):
+    while not coord.should_stop() and not alg.is_finished():
+        p_net_loss, v_net_loss = worker.run(sess)
+        alg.step()
+
+    coord.request_stop()
+
+
 class A3C(AlgorithmBase):
     """Implementation of the Asynchronous Actor-Critic Agents Algorithm.
 
@@ -88,9 +96,10 @@ class A3C(AlgorithmBase):
         self.policy = policy
 
         # init networks
-        with tf.variable_scope('global'):
-            self.p_net = _PolicyNet(self.policy, rate)
-            self.v_net = _ValueNet(self.policy, rate)
+        with tf.device("/cpu:0"):
+            with tf.variable_scope('global'):
+                self.p_net = _PolicyNet(self.policy, rate)
+                self.v_net = _ValueNet(self.policy, rate)
 
         self.workers = []
         self.threads = []
@@ -98,6 +107,7 @@ class A3C(AlgorithmBase):
         self.global_counter = 0
 
         self.sess = None
+        self.coord = None
 
     def _initialize(self):
         self.global_counter = 0
@@ -105,6 +115,8 @@ class A3C(AlgorithmBase):
         self.threads = []
 
         self.done = False
+
+        self.coord = tf.train.Coordinator()
 
         for i in range(self.num_workers):
             worker = _Worker(self.environment,
@@ -119,6 +131,8 @@ class A3C(AlgorithmBase):
         self.sess = tf.Session()
         self.sess.run(init_op)
 
+        self.policy.sess = self.sess
+
         # Write a graph file
         # TODO: enhance summary
         graph = self.sess.graph
@@ -127,11 +141,10 @@ class A3C(AlgorithmBase):
 
     def _step(self):
         self.global_counter += 1
-        self.grad = [g for g, v in self.p_net.grads_and_vars]
 
-        # TODO: Properly implement this.
         if self.global_counter % 100 == 0:
-            logger.debug("Hey we are at step %d", self.global_counter)
+            logger.debug("Global update counter at step %d.",
+                         self.global_counter)
 
     def _is_finished(self):
         if self.global_counter >= self.max_it:
@@ -141,22 +154,13 @@ class A3C(AlgorithmBase):
     def _optimize(self):
         self.initialize()
         for worker in self.workers:
-            t = threading.Thread(target=self._start(worker, self.sess))
+            t = threading.Thread(target=_run_thread(self, worker, self.sess,
+                                                    self.coord))
             self.threads.append(t)
             t.start()
 
         for t in self.threads:
             t.join()
-
-    def _start(self, worker, sess):
-        while not self.is_finished():
-            p_net_loss, v_net_loss = worker.run(sess)
-            self.step()
-
-    # placeholder for now
-    def _after_optimize(self):
-        with self.sess.as_default():
-            super(A3C, self)._after_optimize()
 
 
 class _Worker(object):
