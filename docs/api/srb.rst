@@ -7,6 +7,8 @@ Modules
 .. toctree::
 
   algo
+  envs
+  policy
 
 Classes
 -------
