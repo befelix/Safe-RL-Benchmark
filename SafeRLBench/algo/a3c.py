@@ -61,7 +61,7 @@ class A3C(AlgorithmBase):
     """
 
     def __init__(self, environment, policy, max_it=1000, num_workers=1,
-                 rate=0.1, discount=0.2):
+                 rate=0.1, discount=0.1):
         """Initialize A3C.
 
         Parameters

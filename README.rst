@@ -117,3 +117,50 @@ set, but if we just preset the parameters, it will take what it gets.
   >>> policy.parameters = [1, 1, 1]
   >>> # and optimize it
   >>> optimizer.optimizer()
+
+Now the algorithm might run for a while depending on how much effort the
+optimization takes. Unfortunately no information on the progress shows up, yet.
+We will deal with that in the next part.
+
+Configuration
+~~~~~~~~~~~~~
+
+Especially when you try to set up a new environment it is often very usefull
+to get some logging information. In `SafeRLBench` there is an easy way to
+setup some global configurations. Let us access the global `config` variable:
+
+  >>> # import the config variable
+  >>> from SafeRLBench import config
+
+Well, thats it. The `config` variable is an instance of the class `SRBConfig`,
+which contains methods to manipulate the overall behaviour. For example we can
+easily make the logger print to stdout:
+
+  >>> # output to stdout
+  >>> config.logger_set_stream_handler()
+
+Or we might want to change the level of the logger:
+
+  >>> # print debug information
+  >>> config.logger_set_level(config.DEBUG)
+
+There are some more tricks and tweaks to it, which can be found directly in the
+class documentation. For example we can directly assign a handler or we can
+add an additional file handler that writes our output to a file, etc. For more
+information on that refer to the documentation.
+
+In general the class methods and attributes will follow the a naming
+convention, that is, the first part of the name will regard the part we want
+to configure and the second part will describe what we want to change.
+
+Apart from the logger, let's say we want to change the amount of jobs that are
+used by the benchmarking facility. (We will see it in the next section.)
+Simply configure it with:
+
+  >>> # set number of jobs to 4
+  >>> config.jobs_set(4)
+
+Or set the verbosity level of the monitor:
+
+  >>> # increase verbosity to 2
+  >>> config.monitor_set_verbosity(2)
