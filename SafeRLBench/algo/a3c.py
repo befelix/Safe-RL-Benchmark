@@ -60,8 +60,8 @@ class A3C(AlgorithmBase):
     threads : list of Thread instances.
     """
 
-    def __init__(self, environment, policy, max_it=1000, num_workers=2,
-                 rate=0.1, discount=0.1):
+    def __init__(self, environment, policy, max_it=1000, num_workers=1,
+                 rate=0.1, discount=0.2):
         """Initialize A3C.
 
         Parameters
@@ -142,7 +142,7 @@ class A3C(AlgorithmBase):
     def _step(self):
         self.global_counter += 1
 
-        if self.global_counter % 100 == 0:
+        if self.global_counter % 10 == 0:
             logger.debug("Global update counter at step %d.",
                          self.global_counter)
 
@@ -157,8 +157,9 @@ class A3C(AlgorithmBase):
             t = threading.Thread(target=_run_thread(self, worker, self.sess,
                                                     self.coord))
             self.threads.append(t)
-            t.start()
 
+        for t in self.threads:
+            t.start()
         for t in self.threads:
             t.join()
 
@@ -213,6 +214,7 @@ class _Worker(object):
 
             value = 0.
 
+            tot_reward = 0.
             for (action, state, reward) in trace:
                 state = state.flatten()
 
@@ -223,10 +225,14 @@ class _Worker(object):
                                       {self.local_v_net.X: [state]})
                 advantage = reward - value_pred.flatten()
 
+                tot_reward += reward
+
                 advantages.append(advantage)
                 values.append(value)
                 states.append(state)
                 actions.append(action)
+
+            print(tot_reward)
 
             # compute local gradients and train global network
             feed_dict = {
@@ -326,16 +332,8 @@ class _PolicyNet(object):
 
             dist = Normal(self.a_pred, self.var)
             self.log_probs = dist.log_pdf(self.a)
-            """
-            diff = tf.subtract(self.a, self.a_pred)
-            fac = tf.div(tf.constant(1 / np.sqrt(2 * np.pi), 'float'),
-                         self.var)
-            self.probs = tf.multiply(tf.exp(tf.square(tf.div(diff, self.var))),
-                                     fac)
-            self.log_probs = tf.log(self.probs)
-            """
 
-            self.losses = - (self.log_probs * self.target)
+            self.losses = self.log_probs * self.target
             self.loss = tf.reduce_sum(self.losses, name='loss')
 
             if train:
