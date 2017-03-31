@@ -9,6 +9,49 @@ class SRBConfig(object):
 
     Attributes
     ----------
+    logger_stream_handler :
+        This is a property wrapping the current stream handler. The current
+        stream handler can be accessed through this property, or it may even
+        be replaced with a new stream handler. In case of resetting the stream
+        handler, the old handler will be removed from the logger
+        automatically.
+    logger_file_handler :
+        This is a property wrapping the current file handler. The current
+        file handler can be accessed through this property, or it may even
+        be replaced with a new stream handler. In case of resetting the file
+        handler, the old handler will be removed from the logger
+        automatically.
+    logger_format :
+        This is a property to access the format stored. This is the default
+        format that will be used when adding the default handlers.
+        When assigned to, the formats of already set loggers will be changed
+        to the new format.
+    log :
+        The logger object.
+    n_jobs :
+        Number of jobs used by the library
+    monitor_verbosity :
+        Verbosity of the monitor.
+
+    Methods
+    -------
+    monitor_set_verbosity :
+    jobs_set :
+    logger_set_level :
+    logger_add_stream_handler :
+    logger_add_file_handler :
+
+    Notes
+    -----
+    Access logger levels through the static variables:
+
+    ----------- -----------------
+    DEBUG       logging.DEBUG
+    INFO        logging.INFO
+    WARNING     logging.WARNING
+    ERROR       logging.ERROR
+    CRITICAL    logging.CRITICAL
+    ----------- -----------------
     """
 
     DEBUG = logging.DEBUG
