@@ -15,3 +15,7 @@ nose-exclude >= 0.5.0
 coverage >= 4.3.4
 unittest2 >= 1.1.0
 mock >= 2.0.0
+
+# Documentation
+sphinx >= 1.5.3
+numpydoc >= 0.6.0
