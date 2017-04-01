@@ -5,6 +5,8 @@
 
 .. include:: ../README.rst
 
+.. include:: ../SafeRLBench/envs/README.rst
+
 .. include:: api.rst
 
 
