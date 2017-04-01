@@ -5,6 +5,8 @@ from SafeRLBench.spaces import BoundedSpace
 
 import numpy as np
 
+__all__ = ('LinearPolicy', 'DiscreteLinearPolicy', 'NoisyLinearPolicy')
+
 
 class LinearPolicy(Policy):
     """
