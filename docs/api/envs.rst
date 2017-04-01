@@ -1,9 +1,7 @@
 Environment Module
 ==================
 
-This module contains different environment implementations.
-
-.. contents::
+.. contents:: Contents
   :local:
 
 EnvironmentBase

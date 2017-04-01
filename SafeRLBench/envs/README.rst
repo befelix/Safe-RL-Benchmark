@@ -1,5 +1,5 @@
-Environments
-============
+Description
+-----------
 
 This module contains environment implementations. Each environment has to
 inherit from the `EnvironmentBase` class and should be accessed through

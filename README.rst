@@ -125,7 +125,7 @@ We will deal with that in the next part.
 Configuration
 ~~~~~~~~~~~~~
 
-Especially when you try to set up a new environment it is often very usefull
+Especially when you try to set up a new environment it is often very useful
 to get some logging information. In `SafeRLBench` there is an easy way to
 setup some global configurations. Let us access the global `config` variable:
 

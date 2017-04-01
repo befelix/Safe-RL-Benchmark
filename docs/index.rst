@@ -5,6 +5,10 @@
 
 .. include:: ../README.rst
 
+
+Environment Module
+==================
+
 .. include:: ../SafeRLBench/envs/README.rst
 
 .. include:: api.rst
@@ -15,5 +19,3 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
