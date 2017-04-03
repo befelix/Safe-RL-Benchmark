@@ -12,5 +12,5 @@ Modules
   spaces
   measure
 
-Classes
--------
+Base Classes
+------------

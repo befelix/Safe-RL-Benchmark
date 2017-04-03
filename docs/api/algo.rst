@@ -36,3 +36,9 @@ SafeOpt
 
 .. autoclass:: SafeRLBench.algo.SafeOpt
   :members:
+
+SafeOptSwarm
+------------
+
+.. autoclass:: SafeRLBench.algo.SafeOptSwarm
+  :members:

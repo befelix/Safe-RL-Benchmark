@@ -9,12 +9,12 @@ config = SRBConfig(logging.getLogger(__name__))
 
 from .monitor import AlgoMonitor, EnvMonitor
 from .base import EnvironmentBase, Space, AlgorithmBase, Policy, ProbPolicy
-from .measure import Measure, BestPerformance
 from .bench import Bench, BenchConfig
 from . import algo
 from . import envs
 from . import policy
 from . import error
+from . import measure
 
 # Add things to all
 __all__ = ['EnvironmentBase',
@@ -25,13 +25,12 @@ __all__ = ['EnvironmentBase',
            'AlgoMonitor',
            'EnvMonitor',
            'SRBConfig',
-           'Measure',
-           'BestPerformance',
            'Bench',
            'BenchConfig',
            'envs',
            'algo',
            'policy',
+           'measure',
            'error']
 
 

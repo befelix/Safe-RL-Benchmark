@@ -5,6 +5,8 @@ from six import add_metaclass
 
 from operator import itemgetter
 
+__all__ = ('Measure', 'BestPerformance', 'SafetyMeasure')
+
 
 @add_metaclass(ABCMeta)
 class Measure(object):
@@ -14,7 +16,6 @@ class Measure(object):
 
     Methods
     -------
-
     __call__(runs)
         Abstract! Evaluate a list of runs.
     result()
@@ -27,7 +28,6 @@ class Measure(object):
 
         Parameters
         ----------
-
         runs : List of BenchRun instances
             May be any subset of BenchRun instances passed in a list
         """

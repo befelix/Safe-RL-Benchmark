@@ -239,8 +239,8 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
         state : array-like
             Element of state space.
 
-        Return
-        ------
+        Returns
+        -------
         Element of action space.
         """
         noise = self.random_state.normal(0, self.sigma)
