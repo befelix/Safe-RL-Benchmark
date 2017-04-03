@@ -19,7 +19,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['SafeOpt', 'SafeOptSwarm']
+__all__ = ('SafeOpt', 'SafeOptSwarm')
 
 
 class _SafeOptWrap(AlgorithmBase):
