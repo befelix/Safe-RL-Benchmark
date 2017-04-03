@@ -91,10 +91,7 @@ class DiscreteQLearning(AlgorithmBase):
     def _is_finished(self):
         pass
 
-    def _after_optimize(self, compute_traces=False):
-        super(DiscreteQLearning, self)._after_optimize(compute_traces=False)
-
-        # TODO: Q-learning evaluate qlearning performance appropiately
+    # TODO: Q-learning evaluate qlearning performance appropiately
 
 
 class _RandomPolicy(Policy):
