@@ -51,34 +51,42 @@ class A3C(AlgorithmBase):
     num_workers : integer
         Number of workers that should be used asynchronous.
     rate : float
-        Gradient Descent rate.
+        Rate for Gradient Descent.
     discount : float
         Discount factor for adjusted reward.
+    log_file : string
+        Indicate the relative path to directory where a summary event file
+        should be generated. If `None` no tensorflow logs will be stored.
     done : boolean
         Indicates whether the run is done.
-    workers : list of _Worker instances
-    threads : list of Thread instances.
+    workers : list
+        List containing the worker instances.
+    threads : list
+        List containing the thread instances
     """
 
     def __init__(self, environment, policy, max_it=1000, num_workers=1,
-                 rate=0.1, discount=0.1):
+                 rate=0.1, discount=0.1, log_file=False):
         """Initialize A3C.
 
         Parameters
         ----------
-        environment :
+        environment:
             Environment we want to optimize the policy on.
-        policy :
+        policy:
             The policy we want to optimize. The policy needs be defined by a
             tensorflow neural network and define certain attributes.
-        max_it : int
+        max_it: int
             Maximum number of iterations.
-        num_workers : int
+        num_workers: int
             Number of workers.
-        rate : float
+        rate: float
             Update rate passed to the optimizer.
-        discount : float
+        discount: float
             Discount for the computation of the discounted reward.
+        log_file: string
+            Indicate the relative path to directory where a summary event file
+            should be generated. If `None` no tensorflow logs will be stored.
         """
         add_dependency(tf, 'TensorFlow')
 
@@ -92,6 +100,8 @@ class A3C(AlgorithmBase):
         self.discount = discount
 
         self.done = False
+
+        self.log_file = log_file
 
         self.policy = policy
 
@@ -134,10 +144,10 @@ class A3C(AlgorithmBase):
         self.policy.sess = self.sess
 
         # Write a graph file
-        # TODO: enhance summary
-        graph = self.sess.graph
-        writer = tf.summary.FileWriter('logs/', graph=graph)
-        writer.flush()
+        if self.log_file:
+            graph = self.sess.graph
+            writer = tf.summary.FileWriter(self.log_file, graph=graph)
+            writer.flush()
 
     def _step(self):
         self.global_counter += 1

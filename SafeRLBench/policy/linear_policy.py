@@ -8,9 +8,9 @@ import numpy as np
 __all__ = ('LinearPolicy', 'DiscreteLinearPolicy', 'NoisyLinearPolicy')
 
 
+# TODO: Linear Policy: Review API docs.
 class LinearPolicy(Policy):
-    """
-    Policy implementing a linear mapping from state to action space.
+    """Policy implementing a linear mapping from state to action space.
 
     Attributes
     ----------
@@ -28,8 +28,7 @@ class LinearPolicy(Policy):
 
     def __init__(self, d_state, d_action,
                  par=None, par_space=None, biased=True):
-        """
-        Initialize LinearPolicy.
+        """Initialize LinearPolicy.
 
         Parameters
         ----------
@@ -68,8 +67,7 @@ class LinearPolicy(Policy):
             self.parameter_space = par_space
 
     def map(self, state):
-        """
-        Map a state to an action.
+        """Map a state to an action.
 
         Parameters
         ----------
@@ -88,8 +86,7 @@ class LinearPolicy(Policy):
 
     @property
     def parameters(self):
-        """
-        Property to access parameters.
+        """Property to access parameters.
 
         The property returns the same representation as used when set.
         If the mapping contains a bias, then the input needs to be a ndarray
@@ -207,8 +204,7 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
 
     def __init__(self, d_state, d_action, sigma,
                  par=None, par_space=None, biased=False):
-        """
-        Initialize Noisy Linear Policy.
+        """Initialize Noisy Linear Policy.
 
         Parameters
         ----------
@@ -236,8 +232,7 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
                                                 par_space, biased)
 
     def map(self, state):
-        """
-        Map a state to an action.
+        """Map a state to an action.
 
         Parameters
         ----------
