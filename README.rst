@@ -91,6 +91,8 @@ implemented in the ``policy`` module.
   >>> from SafeRLBench.policy import LinearPolicy
   >>> # instantiate it with d_state=2 and d_action=1
   >>> policy = LinearPolicy(2, 1)
+  >>> # setup some initial parameters
+  >>> policy.parameters = [1, 1, 1]
 
 Notice that we did not use the default parameters this time. The LinearPolicy
 is a linear mapping from an element of a d_state-dimensional element to a
@@ -109,18 +111,27 @@ gradient estimator.
   >>> # instantiate it with the environment and algorithm
   >>> optimizer = PolicyGradient(linear_car, policy, estimator='central_fd')
 
-To make this reproducible we may want to set the initial parameters used for
-the optimization. PolicyGradient will randomly initialize, if no parameters are
-set, but if we just preset the parameters, it will take what it gets.
+Earlier we setup some initial parameters. The `PolicyGradient` optimizer will
+check if there are initial parameters and use those if present. If there are
+no preset parameters he will randomly initialize them, until he finds a
+nonzero gradient.
 
-  >>> # set policy parameters
-  >>> policy.parameters = [1, 1, 1]
-  >>> # and optimize it
+  >>> # optimize the policy when everything is set up.
   >>> optimizer.optimizer()
 
 Now the algorithm might run for a while depending on how much effort the
 optimization takes. Unfortunately no information on the progress shows up, yet.
 We will deal with that in the next part.
+
+Lets take a look at what actually happened during the run. For this we can
+access the `monitor` and generate some plots. For example, we could plot the
+reward evolution during optimization.
+
+  >>> # use matplotlib for plotting
+  >>> import matplotlib.pyplot as plt
+  >>> y = optimizer.monitor.rewards
+  >>> plt.plot(range(len(y)), y)
+  >>> plt.show()
 
 Configuration
 ~~~~~~~~~~~~~
