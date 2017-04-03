@@ -9,6 +9,8 @@ Modules
   algo
   envs
   policy
+  spaces
+  measure
 
 Classes
 -------
