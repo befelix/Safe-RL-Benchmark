@@ -43,8 +43,7 @@ class BestPerformance(Measure):
     """Find the best performance achieved within runs."""
 
     def __call__(self, runs):
-        """
-        Sort content of runs by performance.
+        """Sort content of runs by performance.
 
         This class creates a tuple with a BenchRun and its respective best
         performance and then stores in a descending sorted list.
@@ -52,7 +51,6 @@ class BestPerformance(Measure):
 
         Parameters
         ----------
-
         runs : List of BenchRun instances
             May be any subset of BenchRun instances in a list.
         """
@@ -68,7 +66,60 @@ class BestPerformance(Measure):
 
     @property
     def result(self):
-        """Property to store result."""
+        """Retrieve result."""
         if not hasattr(self, '_result'):
             self._result = None
         return self._result
+
+
+class SafetyMeasure(Measure):
+    """Detect Safety violations.
+
+    Attributes
+    ----------
+    threshold : float or integer
+        Reward threshold to detect violations.
+    """
+
+    def __init__(self, threshold):
+        """Initialize SafetyMeasure.
+
+        Parameters
+        ----------
+        threshold : float or integer
+            Reward threshold to detect violations.
+        """
+        self.threshold = threshold
+
+    def __call__(self, runs):
+        """Evaluate Safety violations.
+
+        This function will create a tuple for each `BenchRun` instance. The
+        first element will contain the instance that was evaluated, the second
+        the total number of violations that occured during optimization and
+        the third the sum of all those violations, i.e. the sum of the
+        difference between the effective reward and the threshold, in case
+        there was a violation.
+
+        Parameters
+        ----------
+        runs : List of BenchRun instances
+            May be any subset of BenchRun instances in a list.
+        """
+        self._result = []
+
+        for run in runs:
+            num_violations = 0
+            sum_violations = 0
+            for reward in run.get_alg_monitor().rewards:
+                if reward < self.threshold:
+                    num_violations += 1
+                    sum_violations += self.threshold - reward
+            self._result.append((run, num_violations, sum_violations))
+
+        @property
+        def result(self):
+            """Retrieve result."""
+            if not hasattr(self, '_result'):
+                self._result = None
+            return self._result
