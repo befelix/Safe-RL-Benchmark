@@ -74,8 +74,8 @@ class LinearPolicy(Policy):
         state : array-like
             Element of state space.
 
-        Return
-        ------
+        Returns
+        -------
         Element of action space.
         """
         if self.d_action == 1:
