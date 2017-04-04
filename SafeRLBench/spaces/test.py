@@ -17,12 +17,7 @@ class_arguments = {
 
 
 class TestSpaces(object):
-    """
-    Wrap spaces tests.
-
-    Note that you really dont want to inherit from unittest. TestCase here,
-    because it will break reasonable output with verbose testing.
-    """
+    """Wrap spaces tests."""
 
     classes = []
 

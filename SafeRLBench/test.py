@@ -13,7 +13,8 @@ from __future__ import division, print_function, absolute_import
 from SafeRLBench import config
 
 # Benchmark testing imports
-from SafeRLBench import Bench, BenchConfig, BestPerformance
+from SafeRLBench import Bench, BenchConfig
+from SafeRLBench.measure import BestPerformance
 from SafeRLBench.bench import BenchRun
 from SafeRLBench.algo import PolicyGradient
 from SafeRLBench.envs import LinearCar
