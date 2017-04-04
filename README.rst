@@ -5,6 +5,14 @@ Safe Reinforcement Learning Library for Python
   :target: https://travis-ci.com/befelix/Safe-RL-Benchmark
   :alt: Build Status
 
+.. image:: https://readthedocs.org/projects/saferlbench/badge/?version=latest
+  :target: http://saferlbench.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
+
+.. image:: https://codecov.io/gh/befelix/Safe-RL-Benchmark/coverage.svg?branch=master
+  :target: https://codecov.io/gh/befelix/Safe-RL-Benchmark?branch=master
+  :alt: Coverage
+
 SafeRLBench provides an interface for algorithms, environments and policies, in
 order to support a reusable benchmark environment.
 

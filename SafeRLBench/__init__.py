@@ -13,6 +13,7 @@ from .bench import Bench, BenchConfig
 from . import algo
 from . import envs
 from . import policy
+from . import spaces
 from . import error
 from . import measure
 
@@ -30,6 +31,7 @@ __all__ = ['EnvironmentBase',
            'envs',
            'algo',
            'policy',
+           'spaces',
            'measure',
            'error']
 
