@@ -22,4 +22,4 @@ script:
   - docker run test-image flake8 SafeRLBench --filename="__init__.py,test*.py" --ignore=F,E402,W503 --show-source
   - docker run test-image pydocstyle SafeRLBench --match='(?!__init__).*\.py'
   - ci_env=`bash <(curl -s https://codecov.io/env)`
-  - docker run $ci_env test-image /bin/bash -c "nosetests --with-doctest --with-coverage --cover-package=SafeRLBench --verbosity=2 SafeRLBench ; bash <(curl -s https://codecov.io/bash) -t 2407afd2-1b37-4f2d-b168-8ee9fbc25f07"
+  - docker run $ci_env test-image /bin/bash -c "nosetests --with-doctest --with-coverage --cover-package=SafeRLBench --verbosity=2 SafeRLBench ; bash <(curl -s https://codecov.io/bash)"
