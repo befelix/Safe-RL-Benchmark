@@ -123,8 +123,21 @@ class SRBConfig(object):
 
         Examples
         --------
-        ch = logging.StreamHandler(sys.stdout)
-        config.logger_stream_handler = ch
+
+        Setup a stream handler for the logger.
+
+        >>> from SafeRLBench import config
+        >>> import logging
+        >>> # configurate stream handler
+        >>> ch = logging.StreamHandler(sys.stdout)
+        >>> config.logger_stream_handler = ch
+
+        To use the default format:
+
+        >>> formatter = logging.Formatter(config.logger_format)
+        >>> ch.setFormatter(formatter)
+
+        which is equivalent to using `logger_add_stream_handler`.
         """
         return self._stream_handler
 
@@ -144,6 +157,24 @@ class SRBConfig(object):
 
         If overwritten with a new file handler, the logger will be updated with
         the new file handler.
+
+        Examples
+        --------
+
+        Setup a stream handler for the logger.
+
+        >>> from SafeRLBench import config
+        >>> import logging
+        >>> # configurate stream handler
+        >>> fh = logging.FileHandler('logs.log')
+        >>> config.logger_file_handler = fh
+
+        To use the default format:
+
+        >>> formatter = logging.Formatter(config.logger_format)
+        >>> fh.setFormatter(formatter)
+
+        which is equivalent to using `logger_add_file_handler`.
         """
         return self._file_handler
 
@@ -171,6 +202,8 @@ class SRBConfig(object):
     def logger_format(self, fmt):
         """Setter method for logger_format property."""
         self._formatter = logging.Formatter(fmt)
+
+        self._fmt = fmt
 
         if self.logger_stream_handler is not None:
             self.logger_stream_handler.setFormatter(self._formatter)
