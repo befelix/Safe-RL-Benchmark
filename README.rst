@@ -78,12 +78,15 @@ The following instructions can be executed in many ways. You may use your
 favorite interactive interpreter, include it in scripts or use some form of
 notebook to get started.
 
+There is also a notebook in the examples directory which contains the examples
+below.
+
 Optimizing a Policy
 ~~~~~~~~~~~~~~~~~~~
 
 To get started let us try to optimize a policy on a very simple environment.
-To accomplish this we need to make a few decisions. First we need some task that
-we can solve. This is implemented in the form of environments in the ``envs``
+To accomplish this we need to make a few decisions. First we need some task to
+solve. This is implemented in the form of environments in the ``envs``
 module.
 
   >>> # import the linear car class
@@ -103,8 +106,8 @@ implemented in the ``policy`` module.
   >>> policy.parameters = [1, 1, 1]
 
 Notice that we did not use the default parameters this time. The LinearPolicy
-is a linear mapping from an element of a d_state-dimensional element to a
-d_action-dimensional element. Our ``linear_car`` instance with the default
+is a linear mapping from an element of a d_state-dimensional space to a
+d_action-dimensional space. Our ``linear_car`` instance with the default
 arguments is just a car with a (position, velocity)-state on a line, thus our
 state space is two dimensional and we can accelerate along the line, so our
 action space is one dimensional.
