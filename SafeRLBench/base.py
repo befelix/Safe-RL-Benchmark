@@ -2,7 +2,7 @@
 
 from __future__ import division, print_function, absolute_import
 
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 from six import add_metaclass
 
 from SafeRLBench import AlgoMonitor, EnvMonitor
@@ -177,7 +177,8 @@ class Space(object):
         """Return an arbitrary element in space for unit testing."""
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def dimension(self):
         """Return the dimension of the space."""
         pass
@@ -338,12 +339,19 @@ class Policy(object):
         """Map element of state space to action space."""
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def parameters(self):
         """Current parameters."""
         pass
 
-    @abstractproperty
+    @parameters.setter
+    @abstractmethod
+    def parameters(self, par):
+        pass
+
+    @property
+    @abstractmethod
     def parameter_space(self):
         """Return parameter space."""
 

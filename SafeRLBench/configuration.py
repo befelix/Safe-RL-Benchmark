@@ -123,7 +123,6 @@ class SRBConfig(object):
 
         Examples
         --------
-
         Setup a stream handler for the logger.
 
         >>> from SafeRLBench import config
@@ -160,7 +159,6 @@ class SRBConfig(object):
 
         Examples
         --------
-
         Setup a stream handler for the logger.
 
         >>> from SafeRLBench import config
