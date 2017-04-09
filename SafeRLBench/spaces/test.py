@@ -29,7 +29,7 @@ class TestSpaces(object):
                 cls.classes.append(c)
 
     def exhaustive_tests(self):
-        """Check if initial values for all classes are defined."""
+        """Check: Spaces tests initial values for testing."""
         for c in self.classes:
             if c not in class_arguments:
                 assert(False)
@@ -39,7 +39,8 @@ class TestSpaces(object):
         for c in self.classes:
             if c in class_arguments:
                 check = partial(self.check_contains)
-                check.description = "Test implmemetation of " + c.__name__
+                check.description = ('Test: ' + c.__name__.upper()
+                                     + ': implementation.')
                 yield check, c
 
     def check_contains(self, c):

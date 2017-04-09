@@ -14,7 +14,7 @@ class TestPolicyGradient(TestCase):
     """PolicyGradientTestClass."""
 
     def test_pg_init(self):
-        """Test PolicyGradient initialization."""
+        """Test: POLICYGRADIENT: initialization."""
         env_mock = MagicMock()
         pol_mock = Mock()
 
@@ -33,7 +33,7 @@ class TestA3C(TestCase):
     """A3C Test Class."""
 
     def test_a3c_init(self):
-        """Test A3C initialization."""
+        """Test: A3C: initialization."""
         a3c = A3C(LinearCar(), NeuralNetwork([2, 6, 1]))
 
         fields = ['environment', 'policy', 'max_it', 'num_workers', 'rate',

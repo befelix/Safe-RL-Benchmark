@@ -19,7 +19,7 @@ class TestNeuralNetwork(TestCase):
     """Test the Neural Netork Policy."""
 
     def test_initialization(self):
-        """Test NeuralNetwork initialization."""
+        """Test: NEURALNETWORK: initialization."""
         # test bad layer size:
         args = [[2]]
         with self.assertRaises(ValueError):
@@ -58,7 +58,7 @@ class TestNeuralNetwork(TestCase):
         self.assertEqual(len(nn.h), 2)
 
     def test_mapping(self):
-        """Test NeuralNetwork mapping."""
+        """Test: NEURALNETWORK: mapping."""
         args = [[2, 1]]
 
         kwargs = {
@@ -74,7 +74,7 @@ class TestNeuralNetwork(TestCase):
             self.assertEqual(nn(np.array([2., 1.])), [5.])
 
     def test_variable_assignment(self):
-        """Test NeuralNetwork parameter assignment."""
+        """Test: NEURALNETWORK: parameter assignment."""
         args = [[2, 1]]
         kwargs = {'do_setup': True}
 
@@ -90,7 +90,7 @@ class TestLinearPolicy(TestCase):
     """Test the Linear Policy."""
 
     def test_initialization(self):
-        """Test LinearPolicy initialization."""
+        """Test: LINEARPOLICY: initialization."""
         lp = LinearPolicy(2, 1)
 
         self.assertEqual(lp.d_state, 2)
@@ -122,7 +122,7 @@ class TestLinearPolicy(TestCase):
         self.assertEqual(par_space_mock, lp_mocked.parameter_space)
 
     def test_discrete_map(self):
-        """Test DiscreteLinearPolicy map."""
+        """Test: DISCRETELINEARPOLICY: map."""
         dp = DiscreteLinearPolicy(2, 1, biased=False)
         dp.parameters = np.array([1, 1])
         self.assertEqual(dp([1, 1]), 1)

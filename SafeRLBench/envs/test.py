@@ -51,19 +51,19 @@ class TestEnvironments(object):
             else:
                 # Generate NotImplementedError Test for _update
                 check_update = partial(self.check_env_update)
-                check_update.description = "Check update implementation for "
-                check_update.description += c.__name__
+                check_update.description = ('Test: ' + c.__name__.upper()
+                                            + ': update implementation.')
                 yield check_update, c
 
                 # Generate NotImplementedError Test for _reset
                 check_reset = partial(self.check_env_reset)
-                check_reset.description = "Check reset implementation for "
-                check_reset.description += c.__name__
+                check_reset.description = ('Test: ' + c.__name__.upper()
+                                           + ': reset implementation.')
                 yield check_reset, c
 
                 check_rollout = partial(self.check_env_rollout)
-                check_rollout.description = "Check rollout implementation for "
-                check_rollout.description += c.__name__
+                check_rollout.description = ('Test: ' + c.__name__.upper()
+                                             + ': rollout implementation.')
                 yield check_rollout, c
 
     def check_env_update(self, c):
