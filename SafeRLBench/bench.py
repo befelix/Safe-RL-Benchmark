@@ -28,17 +28,25 @@ def _dispatch_wrap(run):
 class Bench(object):
     """Benchmarking class to benchmark algorithms on various environments.
 
+    This class needs a ``BenchConfig`` instance that provides it with the
+    necessary configurations. Refer to the ``BenchConfig`` documentations for
+    instruction of how to set up a configurations.
+
     Attributes
     ----------
-    algos : None
-        List of alorithms to be tested.
-    envs : None
-        List of environment to be tested.
     config :
-        Dictionary containing lists of configurations for every (alg, env)
-        tuple.
+        Instance of ``BenchConfig``
     measures :
-        Not clear yet
+        List of measures
+
+    Methods
+    -------
+    __call__()
+        Benchmark then evaluate.
+    benchmark()
+        Initialize and run benchmark as configured.
+    eval()
+        Evaluate measures on test runs.
     """
 
     def __init__(self, config=None, measures=None):
@@ -46,9 +54,13 @@ class Bench(object):
 
         Parameters
         ----------
-
         configs : BenchConfig instance
-            BenchConfig information supplying configurations. Default is None.
+            BenchConfig information supplying configurations. In case ``None``
+            is passed an empty configuration will be instantiated. It can be
+            populated with configurations using the ``add_tests`` methods of
+            the configuration object. Default is ``None``.
+        measures :
+            List of measures from the measure module.
         """
         if not isinstance(config, BenchConfig):
             self.config = BenchConfig()
@@ -57,14 +69,41 @@ class Bench(object):
 
         if measures is None:
             self.measures = []
-        else:
+        elif isinstance(measures, list):
             self.measures = measures
+        else:
+            self.measures = [measures]
 
         self.runs = []
+
+    @staticmethod
+    def make_bench(algs, envs, measures=None):
+        """Construct a Bench directly.
+
+        This will create the configuration instance and use it to create the
+        bench. For detailed instructions on how the arguments work refer to
+        the **Getting Started** section in the documentation or the
+        ``BenchConfig`` documentation.
+
+        Parameters
+        ----------
+        algs :
+            List of list of tuples where the first element is an algorithm and
+            the second a list of configurations. Any inner list may also be a
+            single element instead of a list.
+        envs :
+            List of listof tuples where the first element is an environment and
+            the second a configuration.
+        measures :
+            List of measures from the measure module.
+        """
+        config = BenchConfig(algs, envs)
+        return Bench(config, measures)
 
     def __call__(self):
         """Initialize and run benchmark as configured."""
         self.benchmark()
+        self.eval()
 
     def benchmark(self):
         """Initialize and run benchmark as configured."""
@@ -76,8 +115,6 @@ class Bench(object):
             self._benchmark_par()
         else:
             self._benchmark()
-
-        self.eval()
 
     def eval(self):
         """Evaluate measures on test runs."""
@@ -169,15 +206,19 @@ class BenchConfig(object):
 
     >>> from SafeRLBench.algo import PolicyGradient
     >>> from SafeRLBench.policy import LinearPolicy
-    >>> from copy import copy
-    >>>
     >>> algs = [[
     ...     (PolicyGradient, [{
-    ...                         'policy': LinearPolicy(2, 1),
+    ...                         'policy': LinearPolicy(2, 1, par=[1, 1, 1]),
     ...                         'estimator': 'central_fd',
     ...                         'var': var
-    ...                       } for var in [1, 2, 3, 4, 5]])
+    ...                       } for var in [1, 1.5, 2, 2.5]])
     ... ]]
+
+    Last we can retrieve an instance and use it to initialize the ``Bench``.
+
+    >>> from SafeRLBench import Bench, BenchConfig
+    >>> config = BenchConfig(algs, envs)
+    >>> bench = Bench(config)
     """
 
     def __init__(self, algs=None, envs=None):
@@ -192,7 +233,6 @@ class BenchConfig(object):
             List of list of tuples where the first element is an algorithm and
             the second a list of configurations. Any inner list may also be a
             single element instead of a list.
-
         envs :
             List of listof tuples where the first element is an environment and
             the second a configuration.
@@ -260,7 +300,6 @@ class BenchConfig(object):
                     yield alg, env, alg_conf, env_conf
 
 
-# TODO: BenchRun: more method documentation, examples on how to access
 class BenchRun(object):
     """Wrapper containing instances and configuration for a run.
 
@@ -268,15 +307,19 @@ class BenchRun(object):
     ----------
     alg :
         Algorithm instance
-
     env :
         Environment instance
-
     alg_conf : Dictionary
         Algorithm configuration
-
     env_conf : Dictionary
         Environment configuration
+
+    Methods
+    -------
+    get_alg_monitor()
+        Retrieve the data container from the algorithm instance.
+    get_env_monitor()
+        Retrieve the data container from the environment instance.
     """
 
     def __init__(self, alg, env, alg_conf, env_conf):

@@ -140,6 +140,7 @@ reward evolution during optimization.
 
   >>> # use matplotlib for plotting
   >>> import matplotlib.pyplot as plt
+  >>> # retrieve the rewards
   >>> y = optimizer.monitor.rewards
   >>> plt.plot(range(len(y)), y)
   >>> plt.show()
@@ -186,3 +187,64 @@ Or set the verbosity level of the monitor:
 
   >>> # increase verbosity to 2
   >>> config.monitor_set_verbosity(2)
+
+Benchmarking
+~~~~~~~~~~~~
+
+We can run optimize policies on environments now, the next thing we want to do
+is benchmarking. For this we can use the benchmark facilities that the
+library provides. In order to run a benchmark, we need to produce an instance
+``BenchConfig``.
+
+When we take a look at the documentation of this class, it takes two arguments.
+The first one is ``algs`` the second one ``envs``. And now it gets a litte bit
+weird, both of them are a list of a list of tuples where the second element is
+a list of dictionaries. Confused? Yes, but here is a simple example:
+
+>>> # define environment configuration.
+>>> envs = [[(LinearCar, {'horizon': 100})]]
+>>> # define algorithms configuration.
+>>> algs = [[
+...   (PolicyGradient, [{
+...     'policy': LinearPolicy(2, 1, par=[1, 1, 1]),
+...     'estimator': 'central_fd',
+...     'var': var
+...   } for var in [1, 1.5, 2, 2.5]])
+... ]]
+
+Ok, so here we did not really use the outer lists, but in the case of
+reinforcement learning we have the problem, that many environments will require
+individual configuration of an algorithm. The structure of ``envs`` and
+``algs`` allows for a lot of flexibility, although in many cases the outer-most
+list will not be needed.
+
+So what happens? The outer most lists of envs and algs will get zipped, such
+that we can support pair wise configurations. Further, the tuple contains a
+class in the first element and a list of configurations dictionaries in the
+second element. This essentially allows quick generation of many configurations
+for a single algorithm or environment. Finally the cartesian product of **all**
+configurations in the inner lists will be executed by the ``Bench``.
+
+So in the example above, we only have a single environment configuration,
+but the corresponding list in ``algs`` contains four configurations for the
+``PolicyGradient``. Overall this will result in four test runs.
+
+In case we had
+
+>>> envs_two = [(LinearCar, {'horizon': 100}), (LinearCar, {'horizon': 200})]
+
+``BenchConfig`` would supply eight configurations to the ``Bench``. By the way,
+in case we do not need the outer most list, we could even leave it away.
+
+>>> # instantiate BenchConfig
+>>> config = BenchConfig(algs, envs)
+
+Next we can evaluate the configuration achieving the best performance. Again,
+the library contains a tool for this, the measures.
+
+>>> # import the best performance measure
+>>> from SafeRLBench.measures import BestPerformance
+>>> # import the Bench
+>>> from SafeRLBench import Bench
+>>> # instantiate the bench
+>>> bench = Bench(config, BestPerformance())
