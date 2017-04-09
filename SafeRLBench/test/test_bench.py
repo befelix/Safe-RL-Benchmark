@@ -1,26 +1,9 @@
-"""
-SafeRLBench module testing.
-
-These tests do not test specific behavior yet or ensure correctness in any way,
-since the monitor may be suspect to large changes soon.
-However a high coverage is able to detect some kind of problems in case parts
-of the code are not used a lot, when the library is used correctly and may thus
-bring weak parts to the attention of the programmer.
-"""
-
-from __future__ import division, print_function, absolute_import
-
-from SafeRLBench import config
-
-# Benchmark testing imports
 from SafeRLBench import Bench, BenchConfig
-from SafeRLBench.measure import BestPerformance
 from SafeRLBench.bench import BenchRun
 from SafeRLBench.algo import PolicyGradient
 from SafeRLBench.envs import LinearCar
-from SafeRLBench.policy import LinearPolicy
 
-# General testing imports
+
 from mock import Mock, MagicMock, patch
 from unittest2 import TestCase
 
@@ -29,79 +12,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def _check_attr_impl(obj, attr_list):
-    for attr in attr_list:
-        assert(hasattr(obj, attr))
-
-
-class TestIntegration(TestCase):
-    """Test integration with PolicyGradient and LinearCar."""
-
-    # TODO: So far there is just a bm run to check if things work together.
-    def test_integration(self):
-        """Integration of PG and LC."""
-        # setup config:
-        config.logger_set_level(logging.DEBUG)
-        config.monitor_set_verbosity(3)
-
-        policy = LinearPolicy(2, 1, biased=True)
-        algs = [(PolicyGradient, {'policy': policy,
-                                  'max_it': 10,
-                                  'estimator': 'central_fd'})]
-        env = [[(LinearCar, {'horizon': 100})]]
-
-        test_config = BenchConfig(algs, env)
-
-        benchmark = Bench(test_config, [BestPerformance()])
-        benchmark.benchmark()
-
-        assert(benchmark.measures[0].result is not None)
-
-    def test_parallel_integration(self):
-        """Parallel integration of PG and LC."""
-        # setup config:
-        config.logger_set_level(logging.DEBUG)
-        config.monitor_set_verbosity(3)
-        config.jobs_set(2)
-
-        policy = LinearPolicy(2, 1)
-        algs = [(PolicyGradient, [{'policy': policy,
-                                   'max_it': 10,
-                                   'estimator': 'central_fd'},
-                                  {'policy': policy,
-                                   'max_it': 20,
-                                   'estimator': 'central_fd'}])]
-        env = [[(LinearCar, {'horizon': 100})]]
-
-        test_config = BenchConfig(algs, env)
-
-        benchmark = Bench(test_config, [BestPerformance()])
-        benchmark.benchmark()
-
-        assert(benchmark.measures[0].result is not None)
-        assert(len(benchmark.measures[0].result) == 2)
-
-
-# TODO: Monitor testing needs improvement
-class TestMonitor(TestCase):
-    """Monitor module testing..."""
-
-    pass
-    # TODO: Test Monitor
-
-
-# TODO: Test the base.
-class TestBase(object):
-    """Test Base classes in base.py."""
-
-    pass
-
-
 class TestBench(TestCase):
     """Bench tests."""
 
     def test_bench_init(self):
-        """Test Bench initialization."""
+        """Test: BENCH: initialization."""
         bench = Bench()
 
         self.assertIsInstance(bench.config, BenchConfig)
@@ -114,7 +29,7 @@ class TestBench(TestCase):
 
     @patch('SafeRLBench.bench.BenchRun')
     def test_bench_benchmark(self, bench_run_mock):
-        """Test Bench benchmark invokation."""
+        """Test: BENCH: benchmark invokation."""
         # setup mocks
         bench_run_obj_mock = Mock()
         bench_conf_mock = MagicMock(spec=BenchConfig)
@@ -171,7 +86,7 @@ class TestBenchConfig(TestCase):
                     assert(isinstance(dict_elem, dict))
 
     def test_benchconfig_init(self):
-        """Test Bench Config initialization structure."""
+        """Test: BENCHCONFIG: initialization structure."""
         # apply test configuration
         config = BenchConfig(self.alg_config, self.env_config)
 
@@ -180,7 +95,7 @@ class TestBenchConfig(TestCase):
         self._check_structure(config.envs)
 
     def test_benchconfig_add_tests(self):
-        """Test BenchConfig add_tests."""
+        """Test: BENCHCONFIG: add_tests."""
         # setup test configuration
         config = BenchConfig()
 
@@ -192,7 +107,7 @@ class TestBenchConfig(TestCase):
         self._check_structure(config.envs)
 
     def test_benchconfig_exceptions(self):
-        """Test BenchConfig exceptions."""
+        """Test: BENCHCONFIG: exceptions."""
         # setup bad test configurations
         alg_bad_tuple = [PolicyGradient, {}]
         env_bad_tuple = (LinearCar, {})
@@ -218,7 +133,7 @@ class TestBenchConfig(TestCase):
                 self.assertRaises(ValueError, BenchConfig, *test)
 
     def test_benchconfig_iterator(self):
-        """Test BenchConfig Iterator."""
+        """Test: BENCHCONFIG: Iterator."""
         conf = BenchConfig(self.alg_config, self.env_config)
 
         for alg, env, alg_conf, env_conf in conf:
@@ -232,7 +147,7 @@ class TestBenchRun(TestCase):
     """Test BenchRun class."""
 
     def test_benchrun_init(self):
-        """Test Bench Run initialization."""
+        """Test: BENCHRUN: initialization."""
         args = [MagicMock() for i in range(4)]
         attr = ['alg', 'env', 'alg_conf', 'env_conf']
 
@@ -242,6 +157,14 @@ class TestBenchRun(TestCase):
             assert getattr(run, a) is m
 
     def test_benchrun_get_monitor(self):
-        """Test Monitor getters."""
-        # TODO: Rewrite
-        pass
+        """Test: BENCHRUN: monitor getters."""
+        env = LinearCar()
+        alg = PolicyGradient(env, Mock())
+
+        run = BenchRun(alg, env, None, None)
+
+        alg_monitor = run.get_alg_monitor()
+        self.assertEqual(alg_monitor, alg.monitor)
+
+        env_monitor = run.get_env_monitor()
+        self.assertEqual(env_monitor, env.monitor)

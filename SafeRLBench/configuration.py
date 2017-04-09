@@ -3,7 +3,7 @@ import logging
 import sys
 
 
-# TODO: Config: documentation, missing tests
+# TODO: Config: missing tests
 class SRBConfig(object):
     """SafeRLBench configuration class.
 
@@ -35,11 +35,16 @@ class SRBConfig(object):
 
     Methods
     -------
-    monitor_set_verbosity :
-    jobs_set :
-    logger_set_level :
-    logger_add_stream_handler :
-    logger_add_file_handler :
+    monitor_set_verbosity(verbosity)
+        Set monitor verbosity level.
+    jobs_set(n_jobs)
+        Set the amount of jobs used by a worker pool.
+    logger_set_level(level=logging.INFO)
+        Set the logger level package wide.
+    logger_add_stream_handler()
+        Set a handler to print logs to stdout.
+    logger_add_file_handler(path)
+        Set a handler to print to file.
 
     Notes
     -----
@@ -72,15 +77,13 @@ class SRBConfig(object):
                      + ' - %(message)s')
         self._formatter = logging.Formatter(self._fmt)
 
-        self._id_cnt = 0
-
         try:
             import gym
             gym.undo_logger_setup()
         except:
             pass
 
-    def monitor_set_verbosity(self, verbose):
+    def monitor_set_verbosity(self, verbosity):
         """Set monitor verbosity level.
 
         Parameters
@@ -88,9 +91,9 @@ class SRBConfig(object):
         verbose : int
             Non negative verbosity level
         """
-        if verbose < 0:
+        if verbosity < 0:
             raise ValueError('Verbosity level can not be negative.')
-        self.monitor_verbosity = verbose
+        self.monitor_verbosity = verbosity
 
     def jobs_set(self, n_jobs):
         """Set the amount of jobs used by a worker pool.
@@ -142,7 +145,7 @@ class SRBConfig(object):
 
     @logger_stream_handler.setter
     def logger_stream_handler(self, ch):
-        """Setter method for logger_stream_handler propert."""
+        """Setter method for logger_stream_handler property."""
         if self._stream_handler is not None:
             self.log.removeHandler(self._stream_handler)
 
