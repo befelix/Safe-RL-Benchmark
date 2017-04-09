@@ -17,9 +17,8 @@ logger = logging.getLogger(__name__)
 class TestIntegration(TestCase):
     """Test integration with PolicyGradient and LinearCar."""
 
-    # TODO: So far there is just a bm run to check if things work together.
     def test_integration(self):
-        """Integration of PG and LC."""
+        """Integration: bench with pc and lc."""
         # setup config:
         config.logger_set_level(logging.DEBUG)
         config.monitor_set_verbosity(3)
@@ -33,12 +32,12 @@ class TestIntegration(TestCase):
         test_config = BenchConfig(algs, env)
 
         benchmark = Bench(test_config, [BestPerformance()])
-        benchmark.benchmark()
+        benchmark()
 
         assert(benchmark.measures[0].result is not None)
 
     def test_parallel_integration(self):
-        """Parallel integration of PG and LC."""
+        """Integration: bench with pc and lc (parallel)."""
         # setup config:
         config.logger_set_level(logging.DEBUG)
         config.monitor_set_verbosity(3)
@@ -56,7 +55,7 @@ class TestIntegration(TestCase):
         test_config = BenchConfig(algs, env)
 
         benchmark = Bench(test_config, [BestPerformance()])
-        benchmark.benchmark()
+        benchmark()
 
         assert(benchmark.measures[0].result is not None)
         assert(len(benchmark.measures[0].result) == 2)

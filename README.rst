@@ -212,12 +212,6 @@ a list of dictionaries. Confused? Yes, but here is a simple example:
 ...   } for var in [1, 1.5, 2, 2.5]])
 ... ]]
 
-Ok, so here we did not really use the outer lists, but in the case of
-reinforcement learning we have the problem, that many environments will require
-individual configuration of an algorithm. The structure of ``envs`` and
-``algs`` allows for a lot of flexibility, although in many cases the outer-most
-list will not be needed.
-
 So what happens? The outer most lists of envs and algs will get zipped, such
 that we can support pair wise configurations. Further, the tuple contains a
 class in the first element and a list of configurations dictionaries in the
@@ -248,3 +242,15 @@ the library contains a tool for this, the measures.
 >>> from SafeRLBench import Bench
 >>> # instantiate the bench
 >>> bench = Bench(config, BestPerformance())
+
+It is also possible to avoid the config step and do it automatically with a
+bench factory.
+
+>>> # create bench instance with constructor
+>>> bench = Bench.make_bench(algs, envs, BestPerformance())
+
+Either way, now we can run it. Calling the instance will first run and then
+evaluate the results.
+
+>>> # run the benchmark
+>>> bench()

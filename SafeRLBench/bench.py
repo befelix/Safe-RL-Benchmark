@@ -41,12 +41,56 @@ class Bench(object):
 
     Methods
     -------
+    make_bench(algs, envs, measures=None)
+        Static method that generates a configuration and returns an instance
+        of Bench using this configuration.
     __call__()
         Benchmark then evaluate.
     benchmark()
         Initialize and run benchmark as configured.
     eval()
         Evaluate measures on test runs.
+
+    Examples
+    --------
+    We can configure this class either in two steps, using the ``BenchConfig``
+    class or in a single step using the ``make_bench`` method.
+
+    Either way we start by defining our test runs. First define the environment
+    configuration, e.g. LinearCar:
+
+    >>> from SafeRLBench.envs import LinearCar
+    >>> envs = [[(LinearCar, {'horizon': 100})]]
+
+    Now we want to define a couple of different configurations for the
+    PolicyGradient algorithm using list comprehension.
+
+    >>> from SafeRLBench.algo import PolicyGradient
+    >>> from SafeRLBench.policy import LinearPolicy
+    >>> algs = [[
+    ...     (PolicyGradient, [{
+    ...         'policy': LinearPolicy(2, 1, par=[1, 1, 1]),
+    ...         'estimator': 'central_fd',
+    ...         'var': var
+    ...     } for var in [1, 1.5, 2, 2.5]])
+    ... ]]
+
+    Now the first thing we could do is to manually generate a configuration and
+    then use it to initialize ``Bench``.
+
+    >>> from SafeRLBench import Bench, BenchConfig
+    >>> config = BenchConfig(algs, envs)
+    >>> bench = Bench(config)
+
+    or we can do it in a single step using the static constructor in the
+    ``Bench`` class.
+
+    >>> # single step version is equivalent
+    >>> bench = Bench.make_bench(algs, envs)
+
+    To run the benchmarking and evaluation
+
+    >>> bench()
     """
 
     def __init__(self, config=None, measures=None):
@@ -96,6 +140,10 @@ class Bench(object):
             the second a configuration.
         measures :
             List of measures from the measure module.
+
+        Returns
+        -------
+        ``Bench`` instance.
         """
         config = BenchConfig(algs, envs)
         return Bench(config, measures)
@@ -199,7 +247,7 @@ class BenchConfig(object):
     First define the environment configuration, e.g. LinearCar:
 
     >>> from SafeRLBench.envs import LinearCar
-    >>> env = [[(LinearCar, {'horizon': 100})]]
+    >>> envs = [[(LinearCar, {'horizon': 100})]]
 
     Now we want to define a couple of different configurations for the
     PolicyGradient algorithm using list comprehension.
@@ -208,10 +256,10 @@ class BenchConfig(object):
     >>> from SafeRLBench.policy import LinearPolicy
     >>> algs = [[
     ...     (PolicyGradient, [{
-    ...                         'policy': LinearPolicy(2, 1, par=[1, 1, 1]),
-    ...                         'estimator': 'central_fd',
-    ...                         'var': var
-    ...                       } for var in [1, 1.5, 2, 2.5]])
+    ...         'policy': LinearPolicy(2, 1, par=[1, 1, 1]),
+    ...         'estimator': 'central_fd',
+    ...         'var': var
+    ...     } for var in [1, 1.5, 2, 2.5]])
     ... ]]
 
     Last we can retrieve an instance and use it to initialize the ``Bench``.
@@ -255,16 +303,16 @@ class BenchConfig(object):
         self.envs = envs
 
     def add_tests(self, algs, envs):
-        """Add one environment configuration and algorithm configurations.
+        """Add one set of environment and algorithm configurations.
 
         Parameters
         ----------
         algs :
             List of tuples where the first element is an algorithm and the
             second a list of configurations. May also be single elements.
-        env :
-            tuple of environment and list of configurations or configuration
-            dictionary.
+        envs :
+            List of tuple where the first element is an environment and the
+            second a list of configurations. May also be single elements.
         """
         algs = self._listify(algs)
         envs = self._listify(envs)
