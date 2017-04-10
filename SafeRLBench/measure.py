@@ -1,6 +1,6 @@
 """Define Measurements."""
 
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 from six import add_metaclass
 
 from operator import itemgetter
@@ -33,7 +33,8 @@ class Measure(object):
         """
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def result(self):
         """Return the result of evaluation."""
         pass
@@ -75,6 +76,12 @@ class BestPerformance(Measure):
 class SafetyMeasure(Measure):
     """Detect Safety violations.
 
+    The measure evaluates to a list of 3-tuples, where the first
+    element contains the instance that was evaluated, the second one
+    the number of violations that occured and the third the sum of
+    those violations, i.e. the sum of the difference between the
+    effective reward and the threshold, for every violation.
+
     Attributes
     ----------
     threshold : float or integer
@@ -94,13 +101,6 @@ class SafetyMeasure(Measure):
     def __call__(self, runs):
         """Evaluate Safety violations.
 
-        This function will create a tuple for each `BenchRun` instance. The
-        first element will contain the instance that was evaluated, the second
-        the total number of violations that occured during optimization and
-        the third the sum of all those violations, i.e. the sum of the
-        difference between the effective reward and the threshold, in case
-        there was a violation.
-
         Parameters
         ----------
         runs : List of BenchRun instances
@@ -117,9 +117,22 @@ class SafetyMeasure(Measure):
                     sum_violations += self.threshold - reward
             self._result.append((run, num_violations, sum_violations))
 
-        @property
-        def result(self):
-            """Retrieve result."""
-            if not hasattr(self, '_result'):
-                self._result = None
-            return self._result
+    @property
+    def result(self):
+        """Retrieve result.
+
+        If a run has been evaluated, this function will retrieve the
+        result otherwise it will return ``None``.
+        The function evaluates to a list of 3-tuples, where the first
+        element contains the instance that was evaluated, the second one
+        the number of violations that occured and the third the sum of
+        those violations, i.e. the sum of the difference between the
+        effective reward and the threshold, for every violation.
+
+        Returns
+        -------
+        Tuple - (run, violation_count, violation_amount)
+        """
+        if not hasattr(self, '_result'):
+            self._result = None
+        return self._result
