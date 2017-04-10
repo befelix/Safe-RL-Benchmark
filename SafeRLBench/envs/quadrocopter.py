@@ -121,7 +121,7 @@ class Quadrocopter(EnvironmentBase):
         reward = self._reward()
         self.reference.update(self.state, time)
 
-        return action, self.state, reward
+        return action, self.state.copy(), reward
 
     def _reset(self):
         self._model = QuadrotorDynamics(self._init_pos, self._init_vel)

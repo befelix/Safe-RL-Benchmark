@@ -5,13 +5,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-NO_TF_SUPPORT = "TensorFlow is not installed."
-NO_SO_SUPPORT = "SafeOpt is not installed."
-NO_GPy_SUPPORT = "GPy is not installed."
-
-
 class NotSupportedException(Exception):
-    """Exception raised when requirements are not installed."""
+    """Exception raised when requirements are not installed.
+
+    Attributes
+    ----------
+    dep : Module
+        The dependent module.
+    dep_name : String
+        Name of the dependency for a meaningful error message.
+    """
 
     def __init__(self, dep, name='Some'):
         """Initialize NotSupportedException.
@@ -23,11 +26,12 @@ class NotSupportedException(Exception):
         dep_name : String
             Name of the dependency for a meaningful error message.
         """
+        msg = name + " is not installed on this system."
+
+        super(NotSupportedException, self).__init__(msg)
+
         self.dep = dep
         self.name = name
-
-    def __repr__(self):
-        return self.name + " is not supported on this system."
 
 
 class MultipleCallsException(Exception):
@@ -57,12 +61,13 @@ class IncompatibilityException(Exception):
         obj2 : object
             Instance of the object being incompatible.
         """
+        msg = "%s is incompatible with %s." % (self.obj2.__name__,
+                                               self.obj1.__name__)
+
+        super(IncompatibilityException, self).__init__(msg)
+
         self.obj1 = obj1
         self.obj2 = obj2
-
-    def __repr__(self):
-        return "%s is incompatible with %s." % (self.obj2.__name__,
-                                                self.obj1.__name__)
 
 
 def add_dependency(dep, dep_name='Some'):

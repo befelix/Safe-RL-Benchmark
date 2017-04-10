@@ -25,6 +25,10 @@ logger = logging.getLogger(__name__)
 class TestNeuralNetwork(TestCase):
     """Test the Neural Netork Policy."""
 
+    fields = ['args', 'kwargs', 'action_space', 'state_space', 'dtype',
+              'layers', 'scope', 'init_weights', 'activation', 'X', 'a',
+              'W_action', 'W_var', 'a_pred', 'var', 'h', 'is_set_up']
+
     def test_initialization(self):
         """Test: NEURALNETWORK: initialization."""
         # test bad layer size:
@@ -35,12 +39,9 @@ class TestNeuralNetwork(TestCase):
         # test field existence
         args = [[2, 6, 1]]
 
-        fields = ['args', 'kwargs', 'action_space', 'state_space', 'dtype',
-                  'layers', 'scope', 'init_weights', 'activation', 'X', 'a',
-                  'W_action', 'W_var', 'a_pred', 'var', 'h', 'is_set_up']
         nn = NeuralNetwork(*args)
 
-        for field in fields:
+        for field in self.fields:
             assert hasattr(nn, field)
 
         # test network setup
@@ -91,6 +92,19 @@ class TestNeuralNetwork(TestCase):
             nn.parameters = nn.W_action[0].assign([[2.], [1.]])
             assert((np.array([[2.], [1.]]) == nn.parameters).all())
             self.assertEqual(nn(np.array([2., 1.])), [5.])
+
+    def test_copy(self):
+        """Test: NEURALNETWORK: copy."""
+        nn = NeuralNetwork([2, 6, 1])
+        nn_copy = nn.copy(scope='copy', do_setup=False)
+
+        exclude = ('scope', 'kwargs')
+
+        for field in self.fields:
+            if field not in exclude and field in nn.kwargs.keys():
+                print(field)
+                self.assertEquals(getattr(nn, field, None),
+                                  getattr(nn_copy, field, None))
 
 
 class TestLinearPolicy(TestCase):

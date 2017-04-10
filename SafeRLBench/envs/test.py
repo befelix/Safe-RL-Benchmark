@@ -27,9 +27,6 @@ class TestEnvironments(object):
     because it will break reasonable output with verbose testing.
     """
 
-    exclude = []
-    not_deterministic = ['Quadrocopter']
-
     args = {
         'GymWrap': envs.gym_wrap._get_test_args(),
         'MDP': envs.mdp._get_test_args()
@@ -87,11 +84,10 @@ class TestEnvironments(object):
 
     def check_env_rollout(self, c):
         """Check rollout correctness at random positions."""
-        if c.__name__ in self.not_deterministic:
-            return
-
         args = self.args.get(c.__name__, [])
         env = c(*args)
+
+        init_state = env.state
 
         def policy(state):
             return env.action_space.sample()
@@ -99,27 +95,30 @@ class TestEnvironments(object):
         policy_mock = Mock(side_effect=policy)
         trace = env._rollout(policy_mock)
 
+        # reset the environment
+        env._reset()
+        env.state = init_state
+
         # if the environment depends on a seed, reset it.
         if hasattr(env, 'seed'):
             env.seed = env.seed
 
-        horizon = len(trace) - 1
+        actions = [t[0] for t in trace]
 
-        # in case we use a random state we need to do an initial iteration,
-        # to obtain the same random state after reseeding.
-        env._update(policy(None))
+        policy_mock_redo = Mock(side_effect=actions)
 
-        for idx in range(1, horizon):
-            env.state = (trace[idx - 1])[1].copy()
-            t = trace[idx]
-            t_verify = env._update(t[0])
+        trace_verify = env._rollout(policy_mock_redo)
 
+        for t, t_verify in zip(trace, trace_verify):
+            print(t)
+            print(t_verify)
             if isinstance(t[0], np.ndarray):
-                assert(all(t_verify[0] == t[0]))
+                assert(all(np.isclose(t_verify[0], t[0])))
             else:
-                assert(t_verify[0] == t[0])
+                assert(np.isclose(t_verify[0], t[0]))
             if isinstance(t[1], np.ndarray):
-                assert(all(t_verify[1] == t[1]))
+                print(t_verify[1] - t[1])
+                assert(all(np.isclose(t_verify[1], t[1])))
             else:
-                assert(t_verify[1] == t[1])
-            assert(t_verify[2] == t[2])
+                assert(np.isclose(t_verify[1], t[1]))
+            assert(np.isclose(t_verify[2], t[2]))

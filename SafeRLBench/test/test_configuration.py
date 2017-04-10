@@ -47,6 +47,11 @@ class TestSRBConfig(TestCase):
         config.logger_file_handler = handler2
         self.assertNotEqual(handler1, config.logger_file_handler)
 
+        self.assertTrue(os.path.isfile('logs.log'))
+        self.assertTrue(os.path.isfile('logs2.log'))
+
+        config.logger_file_handler = None
+
     def test_logger_format(self):
         """Test: CONFIG: logger format."""
         config = SRBConfig(logger)
@@ -92,3 +97,11 @@ class TestSRBConfig(TestCase):
 
         with self.assertRaises(ValueError):
             config.jobs_set(-1)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up created file."""
+        if os.path.isfile('logs.log'):
+            os.remove('logs.log')
+        if os.path.isfile('logs2.log'):
+            os.remove('logs2.log')
