@@ -206,7 +206,7 @@ a list of dictionaries. Confused? Yes, but here is a simple example:
 >>> # define algorithms configuration.
 >>> algs = [[
 ...   (PolicyGradient, [{
-...     'policy': LinearPolicy(2, 1, par=[1, 1, 1]),
+...     'policy': LinearPolicy(2, 1, par=[-1, -1, 1]),
 ...     'estimator': 'central_fd',
 ...     'var': var
 ...   } for var in [1, 1.5, 2, 2.5]])
@@ -228,8 +228,10 @@ In case we had
 >>> envs_two = [(LinearCar, {'horizon': 100}), (LinearCar, {'horizon': 200})]
 
 ``BenchConfig`` would supply eight configurations to the ``Bench``. By the way,
-in case we do not need the outer most list, we could even leave it away.
+if the outer list is not needed, it can safely be omitted.
 
+>>> # import BenchConfig
+>>> from SafeRlBench import BenchConfig
 >>> # instantiate BenchConfig
 >>> config = BenchConfig(algs, envs)
 
@@ -237,7 +239,7 @@ Next we can evaluate the configuration achieving the best performance. Again,
 the library contains a tool for this, the measures.
 
 >>> # import the best performance measure
->>> from SafeRLBench.measures import BestPerformance
+>>> from SafeRLBench.measure import BestPerformance
 >>> # import the Bench
 >>> from SafeRLBench import Bench
 >>> # instantiate the bench
@@ -249,8 +251,24 @@ bench factory.
 >>> # create bench instance with constructor
 >>> bench = Bench.make_bench(algs, envs, BestPerformance())
 
-Either way, now we can run it. Calling the instance will first run and then
-evaluate the results.
+Either way, now the bench is ready to run. Calling the instance will first run
+and then evaluate the results.
 
 >>> # run the benchmark
 >>> bench()
+
+The result of the evaluation is stored in the measure, which is stored in the
+measures field. ``measures`` is a list of all measure instances we passed and
+their result can be accessed through the ``result`` property.
+
+>>> bench.measures[0]
+<SafeRLBench.measure.BestPerformance at 0x1211307b8>
+>>> best_run = bench.measures[0].result[0][0]
+>>> monitor = best_run.get_alg_monitor()
+>>> # extract the best trace
+>>> best_trace = monitor.traces[monitor.rewards.index(max(monitor.rewards))]
+>>> # plot the position of the best trace
+>>> y = [t[1][0] for t in best_trace]
+>>> x = range(len(y))
+>>> plt.plot(x, y)
+>>> plt.show()
