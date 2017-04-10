@@ -1,6 +1,7 @@
 """Quadrocopter Controller."""
 from SafeRLBench import Policy
 from SafeRLBench.spaces import BoundedSpace
+from SafeRLBench.envs._quadrocopter import StateVector
 
 import numpy as np
 
@@ -54,6 +55,7 @@ class NonLinearQuadrocopterController(Policy):
             Element of action space.
         """
         ref = self.reference.reference
+        state = StateVector(state)
 
         # Allocate memory for the 4 outputs of the controller.
         action = np.empty((4,), dtype=np.float32)

@@ -1,15 +1,22 @@
 """Policy tests."""
 from __future__ import division, print_function, absolute_import
 
-from unittest2 import TestCase
-
-from SafeRLBench.policy import NeuralNetwork
-from SafeRLBench.policy import LinearPolicy, DiscreteLinearPolicy
+from SafeRLBench.spaces import BoundedSpace
+from SafeRLBench.envs.quadrocopter import Reference
+from SafeRLBench.envs._quadrocopter import StateVector
+from SafeRLBench.policy import (NeuralNetwork,
+                                LinearPolicy,
+                                DiscreteLinearPolicy,
+                                NonLinearQuadrocopterController)
 
 import numpy as np
+from numpy import isclose
+
 import tensorflow as tf
 
+from unittest2 import TestCase
 from mock import Mock
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -132,3 +139,37 @@ class TestLinearPolicy(TestCase):
         dp2.parameters = np.array([1, 1, -1, -1])
         assert(all(dp2([1, 1]) == [1, 0]))
         assert(all(dp2([-1, -1]) == [0, 1]))
+
+
+class TestController(TestCase):
+    """Test NonLinearQuadrocopterController."""
+
+    def test_controller_init(self):
+        """Test: CONTROLLER: initialization."""
+        ctrl = NonLinearQuadrocopterController()
+
+        self.assertEquals(ctrl._zeta_z, .7)
+        assert(all(isclose(ctrl._params, [.7, .7, .7, .5, .707])))
+        self.assertIsNone(ctrl.reference)
+        self.assertTrue(ctrl.initialized)
+        self.assertIsInstance(ctrl._par_space, BoundedSpace)
+
+    def test_controller_map(self):
+        """Test: CONTROLLER: mapping."""
+        ref = Reference('circle', 1 / 70.)
+        ref.reset(StateVector())
+        ctrl = NonLinearQuadrocopterController(reference=ref)
+
+        action = ctrl(StateVector())
+
+        print(action)
+        assert all(isclose(action, [0.20510876, -0.30667618, 0., -6.28318548]))
+
+    def test_controller_properties(self):
+        """Test: CONTROLLER: properties."""
+        ctrl = NonLinearQuadrocopterController()
+
+        ctrl.parameters = [0., 1., 0., 1., 0.]
+        assert(all(np.isclose(ctrl.parameters, [0., 1., 0., 1., 0.])))
+
+        self.assertEquals(ctrl.parameter_space, ctrl._par_space)

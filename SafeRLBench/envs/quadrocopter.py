@@ -53,15 +53,13 @@ class Quadrocopter(EnvironmentBase):
         init_vel : array-like
             Initial velocity of the quadrocopter. Default: None ; which will
             set init_vel to [0, pi / 2, 0]
-        num_sec :
-        num_init_sec :
+        num_sec : integer
+        num_init_sec : integer
         ref : string or reference object
             Name of the reference. Currently supported are 'circle',
             'stationary' or 'oscillate'.
         period : float
-
         seed : int
-
         """
         # spaces
         self.state_space = RdSpace((22,))

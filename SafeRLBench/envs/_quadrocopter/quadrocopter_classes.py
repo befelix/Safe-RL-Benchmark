@@ -29,9 +29,13 @@ __all__ = ['State', 'Parameters', 'StateVector']
 
 class StateVector(np.ndarray):
 
-    def __new__(cls):
+    def __new__(cls, input=None):
         obj = np.zeros(22).view(cls)
         obj[-1] = 1
+
+        if input is not None:
+            obj[:len(input)] = input
+
         return obj
 
     @property
