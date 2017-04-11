@@ -27,6 +27,8 @@ class TestEnvironments(object):
     because it will break reasonable output with verbose testing.
     """
 
+    exclude = []
+
     args = {
         'GymWrap': envs.gym_wrap._get_test_args(),
         'MDP': envs.mdp._get_test_args()
