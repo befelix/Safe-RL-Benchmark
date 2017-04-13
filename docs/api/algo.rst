@@ -4,7 +4,7 @@ Algorithm Module
 This module contains implementations of different algorithms. Please refer to
 the class documentation for detailed instructions on how to use them.
 
-.. contents::
+.. contents:: Contents
   :local:
 
 AlgorithmBase

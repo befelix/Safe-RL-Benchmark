@@ -191,7 +191,7 @@ Or set the verbosity level of the monitor:
 Benchmarking
 ~~~~~~~~~~~~
 
-We can run optimize policies on environments now, the next thing we want to do
+We can optimize policies on environments now, the next thing we want to do
 is benchmarking. For this we can use the benchmark facilities that the
 library provides. In order to run a benchmark, we need to produce an instance
 ``BenchConfig``.

@@ -6,6 +6,14 @@ import sys
 class SRBConfig(object):
     """SafeRLBench configuration class.
 
+    This is a configuration class providing a container for global variables
+    and configuration functions.
+
+    In general this class should not be instantiated directly, but rather
+    accessed through the global variable ``SafeRLBench.config``, which is
+    created when the package is imported and will contain the root logger of
+    the package.
+
     Attributes
     ----------
     logger_stream_handler :
@@ -49,13 +57,17 @@ class SRBConfig(object):
     -----
     Access logger levels through the static variables:
 
-    ----------- -----------------
-    DEBUG       logging.DEBUG
-    INFO        logging.INFO
-    WARNING     logging.WARNING
-    ERROR       logging.ERROR
-    CRITICAL    logging.CRITICAL
-    ----------- -----------------
+    +-----------+------------------+
+    |DEBUG      | logging.DEBUG    |
+    +-----------+------------------+
+    |INFO       | logging.INFO     |
+    +-----------+------------------+
+    |WARNING    | logging.WARNING  |
+    +-----------+------------------+
+    |ERROR      | logging.ERROR    |
+    +-----------+------------------+
+    |CRITICAL   | logging.CRITICAL |
+    +-----------+------------------+
     """
 
     DEBUG = logging.DEBUG

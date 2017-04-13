@@ -107,7 +107,7 @@ class EnvironmentBase(EnvMonitor):
 
         Returns
         -------
-        Tuple: (action, state, reward):
+        tuple : 3-tuple
             action : array-like
                 element of action space as it has been applied in update
             state : array-like
@@ -142,7 +142,8 @@ class EnvironmentBase(EnvMonitor):
 
         Returns
         -------
-        trace : list of (action, state, reward)-tuples
+        trace : list of 3-tuple
+            List of (action, state, reward)-tuple as returned by update().
         """
         with self.monitor_rollout():
             trace = self._rollout(policy)
