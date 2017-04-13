@@ -1,8 +1,5 @@
-SafeRLBench
-===========
-
-Modules
--------
+API
+===
 
 .. toctree::
 

@@ -1,9 +1,10 @@
 Description
 -----------
 
-This module contains environment implementations. Each environment has to
-inherit from the `EnvironmentBase` class and should be accessed through
-the base class interface.
+The ``envs`` module contains environment implementations based on the
+``EnvironmentBase`` class.
+The objects should only be accessed through the interface functions defined
+in the base class.
 
 Overview
 --------
