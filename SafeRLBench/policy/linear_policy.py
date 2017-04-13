@@ -76,7 +76,8 @@ class LinearPolicy(Policy):
 
         Returns
         -------
-        Element of action space.
+        action : ndarray
+            Element of action space.
         """
         if self.d_action == 1:
             ret = self._parameters.dot(state).item() + self._bias
@@ -167,7 +168,8 @@ class DiscreteLinearPolicy(LinearPolicy):
 
         Returns
         -------
-        action : Element of {0, 1}^d_action
+        action : ndarray
+            Element of {0, 1}^d_action
         """
         cont_action = super(DiscreteLinearPolicy, self).map(state)
         if self.d_action == 1:
@@ -241,7 +243,8 @@ class NoisyLinearPolicy(LinearPolicy, ProbPolicy):
 
         Returns
         -------
-        Element of action space.
+        action : ndarray
+            Element of action space.
         """
         noise = self.random_state.normal(0, self.sigma)
         return super(NoisyLinearPolicy, self).map(state) + noise

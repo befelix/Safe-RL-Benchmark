@@ -131,7 +131,14 @@ class SafetyMeasure(Measure):
 
         Returns
         -------
-        Tuple - (run, violation_count, violation_amount)
+        result : 3-tuple
+            (run, count, amount)-tuple
+            run : ``BenchRun`` object
+                Object that has been evaluated
+            count : int
+                Number of rollouts where the safety threshold was violated.
+            amount : float
+                Sum of difference between violations and threshold.
         """
         if not hasattr(self, '_result'):
             self._result = None

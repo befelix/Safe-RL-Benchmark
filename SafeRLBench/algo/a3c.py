@@ -45,7 +45,15 @@ class A3C(AlgorithmBase):
     environment :
         Environment we want to optimize the policy on.
     policy :
-        The policy we want to optimize.
+        The policy we want to optimize. The policy has to comply with some
+        special requirements to run with this algorithm. It needs to
+        implement a tensorflow graph with placeholders stored in the
+        attributes X, for the input, and a, for the output.
+        Further it will need to implement a ``setup()`` method which will
+        effectively assemble the neural network, as well as a ``copy()``
+        method that will generate a copy of the network for the worker
+        threads. Unfortunately there is no base class for this yet, see
+        the ``NeuralNetwork`` policy as a reference implementation.
     max_it : integer
         The maximal number of iterations before we abort.
     num_workers : integer
@@ -63,6 +71,16 @@ class A3C(AlgorithmBase):
         List containing the worker instances.
     threads : list
         List containing the thread instances
+
+    Notes
+    -----
+    A proper neural network policy base class does not exist yet, but would
+    be very nice to have.
+
+    Bug:
+        A3C does not properly run parallel. Actually according to tensorflow
+        the GIL should be release upon run invocation, but every thread but
+        one just stalls until one worker finished everything on his own.
     """
 
     def __init__(self, environment, policy, max_it=1000, num_workers=1,

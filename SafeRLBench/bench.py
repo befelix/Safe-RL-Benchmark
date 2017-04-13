@@ -143,7 +143,8 @@ class Bench(object):
 
         Returns
         -------
-        ``Bench`` instance.
+        bench : ``Bench`` object
+            Confifigured ``Bench`` object.
         """
         config = BenchConfig(algs, envs)
         return Bench(config, measures)

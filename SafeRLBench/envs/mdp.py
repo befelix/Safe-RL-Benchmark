@@ -12,18 +12,20 @@ class MDP(EnvironmentBase):
 
     Attributes
     ----------
-    transitions :
-
-    rewards :
-
-    action_space :
-
-    state_space :
-
-    init_state :
-
-    state :
-
+    transitions : array-like
+        Array holding transition matrix for each action. The dimension of
+        the state and action spaces will be deduced from this array.
+    rewards : array-like
+        Array holding the reward matrix for each action. It needs to comply
+        with the dimensions deduced from the transitions array.
+    action_space : DiscreteSpace object
+        Action space as determined from the transitions array
+    state_space : DiscreteSpace object
+        State space as determined from the transitions array.
+    init_state : int
+        Initial state of the process. If None, it will be set to 0.
+    state : int
+        Current state of the system.
     """
 
     def __init__(self, transitions, rewards, horizon=100, init_state=None,
@@ -32,10 +34,10 @@ class MDP(EnvironmentBase):
 
         Parameters
         ----------
-        transitions : array
+        transitions : array-like
             Array holding transition matrix for each action. The dimension of
             the state and action spaces will be deduced from this array.
-        rewards : array
+        rewards : array-like
             Array holding the reward matrix for each action. It needs to comply
             with the dimensions deduced from the transitions array.
         init_state : int

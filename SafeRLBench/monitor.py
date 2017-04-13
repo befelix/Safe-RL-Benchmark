@@ -16,14 +16,25 @@ class EnvMonitor(object):
     """
     Environment Monitor, providing tracking for environments.
 
+    Attributes
+    ----------
+    monitor :
+        This is the container where monitoring data will be stored.
+
     Methods
     -------
-    _before_update
-    _after_update
-    _before_rollout
-    _after_rollout
-    _before_reset
-    _after_reset
+    monitor_update()
+        Context manager for monitoring environment updates. It should be used
+        when invoking the private ``_update`` implementation from the interface
+        method.
+    monitor_rollout()
+        Context manager for monitoring environment rollout. It should be used
+        when invoking the private ``_rollout`` implementation from the
+        interface method.
+    monitor_reset()
+        Context manager for monitoring environment resets. It should be used
+        when invoking the private ``_reset`` implementation from the interface
+        method.
     """
 
     def __new__(cls, *args, **kwargs):
@@ -135,10 +146,18 @@ class AlgoMonitor(object):
 
     Methods
     -------
-    _before_optimize
-    _after_optimize
-    _before_step
-    _after_step
+    monitor_optimize()
+        Context manager for monitoring algorithm optimizations. It should be
+        used when invoking the private ``_optimize`` implementation from the
+        interface method.
+    monitor_initialize()
+        Context manager for monitoring algorithm initializations. It should be
+        used when invoking the private ``_initialize`` implementation from the
+        interface method.
+    monitor_step()
+        Context manager for monitoring algorithm step. It should be used when
+        invoking the private ``_step`` implementation from the interface
+        method.
     """
 
     def __new__(cls, *args, **kwargs):
