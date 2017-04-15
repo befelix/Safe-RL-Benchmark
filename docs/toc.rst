@@ -1,5 +1,5 @@
-Table of Content
-================
+Content
+=======
 
 .. toctree::
   :maxdepth: 2
