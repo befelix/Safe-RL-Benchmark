@@ -1,28 +1,29 @@
 """General Mountain Car."""
 import numpy as np
-from numpy import pi, array, copy
-
-import theano.tensor as T
-from theano.tensor import TensorVariable
-from theano import function, grad
+from numpy import pi, array, copy, cos, sin
 
 from SafeRLBench.base import EnvironmentBase
 from SafeRLBench.spaces import BoundedSpace
 
 
-def is_contour(contour):
-    """Check if contour is a valid contour."""
-    if isinstance(contour, tuple):
-        if (isinstance(contour[0], TensorVariable)
-                and isinstance(contour[1], TensorVariable)):
-            return(True)
-
-    return(False)
-
-
-# TODO: MountainCar: Check docs
 class GeneralMountainCar(EnvironmentBase):
-    """Implementation of a GeneralMountainCar Environment."""
+    """Implementation of a GeneralMountainCar Environment.
+
+    Attributes
+    ----------
+    state_space : BoundedSpace
+        Space object describing the state space.
+    action_space : BoundedSpace
+        Space object describing the action space.
+    state : array-like
+        Current state of the car.
+    initial_state : array-like
+        Initial state of the car.
+    gravitation : double
+    power : double
+    goal : double
+        Goal along x-coordinate
+    """
 
     def __init__(self,
                  state_space=BoundedSpace(array([-1, -0.07]),
@@ -31,23 +32,24 @@ class GeneralMountainCar(EnvironmentBase):
                  state=np.array([0, 0]),
                  contour=None, gravitation=0.0025, power=0.0015,
                  goal=0.6, horizon=100):
-        """
-        Initialize EnvironmentBase parameters and other additional parameters.
+        """Initialize GeneralMountainCar Environment.
 
-        Baseclass Parameters as in base.py.
-
-        Attributes
+        Parameters
         ----------
-        state: array-like with shape (2,)
-            Initial state
-        contour: tuple of TensorVariables
-            If contour is None, a default shape will be generated.
-            A valid needs to contain a dscalar as the first element
-            and some function depending on the first element in the
-            second element of the tuple.
-        gravitation: double
-        power: double
-        goal: double
+        state_space : BoundedSpace
+            Space object describing the state space.
+        action_space : BoundedSpace
+            Space object describing the action space.
+        state : array-like
+            Initial state of the car
+        contour : tuple of callables
+            If contour is None, a default shape will be generated. A valid
+            tuple needs to contain a function for the height at a position
+            in the first element and a function for the gradient at a position
+            in the second argument.
+        gravitation : double
+        power : double
+        goal : double
             Goal along x-coordinate
         """
         # Initialize Environment Base Parameters
@@ -61,26 +63,21 @@ class GeneralMountainCar(EnvironmentBase):
         self.gravitation = gravitation
 
         # setup contour
-        if is_contour(contour):
-            self.x = contour[0]
-            self.y = contour[1]
+        if contour is None:
+            def _hx(x):
+                return -cos(pi * x)
+            self._hx = _hx
+
+            def _dydx(x):
+                return pi * sin(pi * x)
+            self._dydx = _dydx
         else:
-            self.x = T.dscalar('x')
-            self.y = -T.cos(pi * self.x)
-
-        self.hx = function([self.x], self.y)
-
-        self.dydx_var = grad(self.y, self.x)
-        self.dydx = function([self.x], self.dydx_var)
+            self._hx = contour[0]
+            self._dydx = contour[1]
 
         # init state
         self.state = copy(state)
         self.initial_state = state
-
-        # setup plot fields
-        self.figure = None
-        self.plot = None
-        self.point = None
 
     def _update(self, action):
         """Compute step considering the action."""
@@ -96,7 +93,7 @@ class GeneralMountainCar(EnvironmentBase):
         velocity = self.state[1]
 
         velocity += (action_in * self.power
-                     - self.dydx(position) * self.gravitation)
+                     - self._dydx(position) * self.gravitation)
         position += velocity
 
         bounds = self.state_space
@@ -128,7 +125,7 @@ class GeneralMountainCar(EnvironmentBase):
 
     def height(self):
         """Compute current height."""
-        return(self.hx(self.state[0].item()).item())
+        return(self._hx(self.state[0].item()).item())
 
     def position(self):
         """Compute current position in x."""

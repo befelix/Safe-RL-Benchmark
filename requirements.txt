@@ -2,6 +2,3 @@ numpy >= 1.7
 scipy >= 0.19.0
 six >= 1.10
 futures >= 3.0.5
-
-# to be removed
-theano >= 0.8.2
