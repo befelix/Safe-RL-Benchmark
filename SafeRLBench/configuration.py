@@ -78,6 +78,10 @@ class SRBConfig(object):
 
     def __init__(self, log):
         """Initialize default configuration."""
+        # some libraries think it is a good idea to add handlers by default
+        # without documenting that at all, thanks gpy...
+        log.propagate = False
+
         self.log = log
         self.n_jobs = 1
         self.monitor_verbosity = 0

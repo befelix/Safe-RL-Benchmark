@@ -72,6 +72,13 @@ class BestPerformance(Measure):
             self._result = None
         return self._result
 
+    @property
+    def best_result(self):
+        """Retrieve the best run."""
+        if self.result is not None:
+            return self.result[0]
+        return None
+
 
 class SafetyMeasure(Measure):
     """Detect Safety violations.

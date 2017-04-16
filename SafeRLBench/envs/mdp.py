@@ -6,7 +6,6 @@ from SafeRLBench import EnvironmentBase
 from SafeRLBench.spaces import DiscreteSpace
 
 
-# TODO: Implementation, Docs
 class MDP(EnvironmentBase):
     """Discrete Markov Decision Process Environment.
 

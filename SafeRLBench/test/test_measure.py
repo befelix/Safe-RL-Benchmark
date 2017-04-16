@@ -37,6 +37,11 @@ class TestMeasure(TestCase):
         self.assertEquals(result[0][1], 4)
         self.assertEquals(result[1][1], 3)
 
+        best_result = measure.best_result
+
+        self.assertEquals(best_result[0], run2)
+        self.assertEquals(best_result[1], 4)
+
     def test_safety_measure(self):
         """Test: MEASURE: SafetyMeasure."""
         measure = SafetyMeasure(0)

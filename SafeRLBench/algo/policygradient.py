@@ -14,7 +14,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# TODO: PolicyGradient: Better docs
 class PolicyGradient(AlgorithmBase):
     """Implementing many policy gradient methods.
 

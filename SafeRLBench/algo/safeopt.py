@@ -56,7 +56,7 @@ class _SafeOptWrap(AlgorithmBase):
 
         # Initialize gaussian process with args:
         gp = []
-        for pars in self.gp_par:
+        for pars in zip(*self.gp_par):
             gp.append(GPy.core.GP(array([parameters]), array([[reward]]),
                       *pars))
 
@@ -116,7 +116,7 @@ class SafeOpt(_SafeOptWrap):
                  environment, policy, max_it, avg_reward, window,
                  kernel, likelihood, parameter_set, fmin,
                  lipschitz=None, beta=3.0, num_contexts=0, threshold=0,
-                 scaling='auto'):
+                 scaling='auto', info=None):
         """Initialize Attributes.
 
         Parameters
@@ -162,6 +162,9 @@ class SafeOpt(_SafeOptWrap):
             different input sizes. This should be set to the maximal variance
             of each kernel. You should probably leave this to "auto" unless
             your kernel is non-stationary.
+        info :
+            Dummy argument that can hold anything usable to identify the
+            configuration.
         """
         add_dependency(safeopt, 'SafeOpt')
         add_dependency(GPy, 'GPy')
@@ -185,7 +188,7 @@ class SafeOpt(_SafeOptWrap):
             'kernel and likelihood need to have same length (%d /= %d)'
             % (len(likelihood), len(kernel)))
 
-        gp_par = zip(kernel, likelihood)
+        gp_par = (kernel, likelihood)
 
         super(SafeOpt, self).__init__(safeopt.SafeOpt, gp_opt_par, gp_par,
                                       environment, policy, max_it, avg_reward,
@@ -224,7 +227,7 @@ class SafeOptSwarm(_SafeOptWrap):
     def __init__(self,
                  environment, policy, max_it, avg_reward, window,
                  kernel, likelihood, fmin, bounds, beta=3.0, threshold=0,
-                 scaling='auto', swarm_size=20):
+                 scaling='auto', swarm_size=20, info=None):
         """Initialize Attributes.
 
         Parameters
@@ -272,6 +275,9 @@ class SafeOptSwarm(_SafeOptWrap):
             kernel is non-stationary
         swarm_size : int
             The number of particles in each of the optimization swarms
+        info :
+            Dummy argument that can hold anything usable to identify the
+            configuration.
         """
         add_dependency(safeopt, 'SafeOpt')
         add_dependency(GPy, 'GPy')
@@ -295,7 +301,7 @@ class SafeOptSwarm(_SafeOptWrap):
             'kernel and likelihood need to have same length (%d /= %d)'
             % (len(likelihood), len(kernel)))
 
-        gp_par = zip(kernel, likelihood)
+        gp_par = (kernel, likelihood)
 
         super(SafeOptSwarm, self).__init__(safeopt.SafeOptSwarm, gp_opt_par,
                                            gp_par, environment, policy, max_it,

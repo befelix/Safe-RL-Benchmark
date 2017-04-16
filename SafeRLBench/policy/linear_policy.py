@@ -8,7 +8,6 @@ import numpy as np
 __all__ = ('LinearPolicy', 'DiscreteLinearPolicy', 'NoisyLinearPolicy')
 
 
-# TODO: Linear Policy: Review API docs.
 class LinearPolicy(Policy):
     """Policy implementing a linear mapping from state to action space.
 
