@@ -85,8 +85,9 @@ class DiscreteQLearning(AlgorithmBase):
     def _step(self):
         trace = self.environment.rollout(self.policy)
         for (action, state, reward) in trace:
-            dq = reward + self.discount * self.Q[action, :].max() - self.Q
-            self.Q += self.rate * dq
+            dq = (reward + self.discount * self.Q[state, :].max()
+                  - self.Q[state, action])
+            self.Q[state, action] += self.rate * dq
 
     def _is_finished(self):
         pass
