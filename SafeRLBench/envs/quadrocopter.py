@@ -143,7 +143,12 @@ class Quadrocopter(EnvironmentBase):
         state = self.state
         ref = self.reference.reference
 
-        return -norm(state.pos - ref.pos) - norm(state.vel - ref.vel)
+        reward = -norm(state.pos - ref.pos) - norm(state.vel - ref.vel)
+
+        if np.isnan(reward):
+            reward = -1.79769313e+308
+
+        return reward
 
     @property
     def seed(self):

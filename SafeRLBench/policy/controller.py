@@ -71,6 +71,10 @@ class NonLinearQuadrocopterController(Policy):
             tau_y = 1e-3
             logger.warning('Parameter `tau_y` too small for controller, '
                            + 'has been clipped to 1e-3"')
+        if tau_w < 1e-3:
+            tau_w = 1e-3
+            logger.warning('Parameter `tau_w` too small for controller, '
+                           + 'has been clipped to 1e-3"')
         if zeta < 1e-3:
             zeta = 1e-3
             logger.warning('Parameter `zeta` too small for controller, '

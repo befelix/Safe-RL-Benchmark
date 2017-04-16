@@ -82,7 +82,6 @@ class _SafeOptWrap(AlgorithmBase):
             return False
 
 
-# TODO: SafeOpt: add examples, more docs
 class SafeOpt(_SafeOptWrap):
     """Wrap SafeOpt algorithm.
 

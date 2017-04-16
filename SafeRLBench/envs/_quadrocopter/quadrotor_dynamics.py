@@ -27,6 +27,11 @@ class QuadrotorDynamics(object):
     external_forces: list
         a list of callables that take the state as input and return forces on
         the quadrotor in global coordinates.
+
+    Notes
+    -----
+    There seems to be an instability where the acceleration overflows and then
+    causes issues in the controller.
     """
 
     def __init__(self, pos=None, vel=None, acc=None, R=None,
