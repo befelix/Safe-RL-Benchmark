@@ -19,9 +19,10 @@ order to support a reusable benchmark environment.
 Overview
 --------
 
-Documentation: `saferlbench.readthedocs.io<http://saferlbench.readthedocs.io/>`_
-Repository: `github.com/befelix/Safe-RL-Benchmark<https://github.com/befelix/Safe-RL-Benchmark>`_
-PyPI: `pypi.python.org/pypi/SafeRLBench<https://testpypi.python.org/pypi/SafeRLBench>`_
+| PyPI: `pypi.python.org/pypi/SafeRLBench <https://testpypi.python.org/pypi/SafeRLBench>`_
+| Repository: `github.com/befelix/Safe-RL-Benchmark <https://github.com/befelix/Safe-RL-Benchmark>`_
+| Documentation: `saferlbench.readthedocs.io <http://saferlbench.readthedocs.io/>`_
+|
 
 Structure
 ---------
