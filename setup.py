@@ -2,12 +2,19 @@ from setuptools import setup
 
 setup(
     name='SafeRLBench',
-    version='1.0',
+    version='1.0.1',
     author='Nicolas Ochsner',
-    author_email='ochsnern (at) student.ethz.ch',
-    packages=['SafeRLBench'],
+    author_email='ochsnern@student.ethz.ch',
+    packages=[
+        'SafeRLBench',
+        'SafeRLBench.algo',
+        'SafeRLBench.envs',
+        'SafeRLBench.spaces',
+        'SafeRLBench.policy',
+    ],
     description='Safe Reinforcement Learning Benchmark',
     keywords='reinforcement-learning benchmark',
+    url='https://github.com/befelix/Safe-RL-Benchmark',
     install_requires=[
         'numpy >= 1.7',
         'scipy >= 0.19.0',
