@@ -16,6 +16,12 @@ Safe Reinforcement Learning Library for Python
 SafeRLBench provides an interface for algorithms, environments and policies, in
 order to support a reusable benchmark environment.
 
+Overview
+--------
+
+Documentation: `saferlbench.readthedocs.io<http://saferlbench.readthedocs.io/>`_
+Repository: `github.com/befelix/Safe-RL-Benchmark<https://github.com/befelix/Safe-RL-Benchmark>`_
+PyPI: `pypi.python.org/pypi/SafeRLBench<https://testpypi.python.org/pypi/SafeRLBench>`_
 
 Structure
 ---------
@@ -50,13 +56,22 @@ SafeRLBench requires:
   - NumPy >= 1.7
   - SciPy >= 0.19.0
   - six >= 1.10
-  - futures >= 3.0.5
+  - futures >= 3.0.5 for python 2.7
+
+Pip
+~~~
+
+The package is available on PyPi, which means it can easily be installed using
+pip.
+
+  ``pip install SafeRLBench``
 
 
-Cloning
-~~~~~~~
+Clone
+~~~~~
 
-The best way to install and use this library is to clone it from the repository.
+The best way to install and use this library is to clone or fork it from the
+repository.
 
   ``git clone https://github.com/befelix/Safe-RL-Benchmark.git``
 
