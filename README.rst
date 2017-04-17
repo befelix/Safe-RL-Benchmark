@@ -128,7 +128,7 @@ no preset parameters he will randomly initialize them, until he finds a
 nonzero gradient.
 
   >>> # optimize the policy when everything is set up.
-  >>> optimizer.optimizer()
+  >>> optimizer.optimize()
 
 Now the algorithm might run for a while depending on how much effort the
 optimization takes. Unfortunately no information on the progress shows up, yet.
@@ -160,7 +160,7 @@ which contains methods to manipulate the overall behaviour. For example we can
 easily make the logger print to stdout:
 
   >>> # output to stdout
-  >>> config.logger_set_stream_handler()
+  >>> config.logger_add_stream_handler()
 
 Or we might want to change the level of the logger:
 
@@ -231,7 +231,7 @@ In case we had
 if the outer list is not needed, it can safely be omitted.
 
 >>> # import BenchConfig
->>> from SafeRlBench import BenchConfig
+>>> from SafeRLBench import BenchConfig
 >>> # instantiate BenchConfig
 >>> config = BenchConfig(algs, envs)
 
@@ -272,3 +272,92 @@ their result can be accessed through the ``result`` property.
 >>> x = range(len(y))
 >>> plt.plot(x, y)
 >>> plt.show()
+
+Using SafeOpt
+~~~~~~~~~~~~~
+
+The last section of **Getting Started** involves optimization using `SafeOpt`.
+There is a notebook SafeOpt.ipynb in the examples directory containing the
+following and further examples.
+
+To use `SafeOpt` additional requirements are needed: safeopt, GPy
+
+In the following we want to use `SafeOpt` to safely optimize a controller for
+the quadrocopter environment.
+As always, we start by importing all the necessary tools:
+
+>>> # GPy is needed to supply `safeopt` with a kernel
+>>> import GPy
+>>> # Algorithm, Environment and Controller
+>>> from SafeRLBench.algo import SafeOptSwarm
+>>> from SafeRLBench.envs import Quadrocopter
+>>> from SafeRLBench.policy import NonLinearQuadrocopterController
+>>> # Bench and Measures
+>>> from SafeRLBench import Bench
+>>> from SafeRLBench.measure import SafetyMeasure, BestPerformance
+
+Unfortunately we can not use multiple jobs when optimizing with `SafeOpt`,
+because `GPy` does contain lambda expressions, which are not pickable.
+Let us make sure that everything is configured properly.
+
+>>> from SafeRLBench import config
+>>> config.jobs_set(1)
+>>> config.logger_add_stream_handler()
+>>> config.logger_set_level(config.INFO)
+>>> config.monitor_set_verbosity(2)
+
+Not with everything imported we are ready to define our test runs. For the
+environment, let us just take the default configuration of the quadrocopter:
+
+>>> envs = [(Quadrocopter, {})]
+
+And for the algorithm, let us try different values for the variance.
+
+>>> noise_var = 0.05**2
+>>> # the safety constraint on the performance, we do not want to drop below fmin.
+>>> fmin = -2300
+>>> # bounds for the possible controller parameters
+>>> bounds = [(0., 1.), (0., 1.), (0., 1.), (0., 1.), (0., 1.)]
+>>> algos = [
+...   (SafeOptSwarm, [{
+...     'policy': NonLinearQuadrocopterController(),
+...     'kernel': GPy.kern.RBF(input_dim=len(bounds), variance=std**2, lengthscale=0.2, ARD=True),
+...     'likelihood': GPy.likelihoods.gaussian.Gaussian(variance=noise_var),
+...     'max_it': 20,
+...     'avg_reward': -1500,
+...     'window': 3,
+...     'fmin': fmin,
+...     'bounds': bounds,
+...     'swarm_size': 1000,
+...     'info': std,
+...   } for std in [1000, 1250, 1500, 1750, 2000]])]
+
+Ok there are a lot of arguments here. The documentation contains descriptions
+for each of them. Here we will just observe what happens.
+
+>>> # produce the bench, initialize the safety measure with fmin
+>>> bench = Bench.make_bench(algos, envs, measures=[SafetyMeasure(fmin), BestPerformance()])
+>>> # start the run and evaluation
+>>> bench()
+
+After the run is finished we can observe what happened by analyzing the measures.
+This is a bit cumbersome, but will potentially be improved in the future with
+some additional convenience methods.
+Anyways the evaluation of the `SafetyMeasure` could be accessed as follows.
+
+>>> # (std, number of violations, amount of violations)
+>>> [(t[0].alg_conf['info'], t[1], t[2]) for t in bench.measures[0].result]
+[(1000, 0, 0), (1250, 0, 0), (1500, 0, 0), (1750, 0, 0), (2000, 0, 0)]
+
+And the performance:
+
+>>> # (std, max reward)
+>>> print([(t[0].alg_conf['info'], int(t[1])) for t in bench.measures[1].result])
+[(1000, -1781), (1250, -1853), (2000, -1901), (1500, -1906), (1750, -1958)]
+
+Note that the numbers where produced in an example run. Since the optimization
+process uses a random number generator, the results will be different at every
+run.
+If we need to get a statistical estimate for the results, we could produce many
+runs with the same parameters and then use comprehension to estimate the
+expectation and standard deviation.
