@@ -19,7 +19,7 @@ order to support a reusable benchmark environment.
 Overview
 --------
 
-| PyPI: `pypi.python.org/pypi/SafeRLBench <https://testpypi.python.org/pypi/SafeRLBench>`_
+| PyPI: `pypi.python.org/pypi/SafeRLBench <https://pypi.python.org/pypi/SafeRLBench>`_
 | Repository: `github.com/befelix/Safe-RL-Benchmark <https://github.com/befelix/Safe-RL-Benchmark>`_
 | Documentation: `saferlbench.readthedocs.io <https://saferlbench.readthedocs.io/>`_
 |

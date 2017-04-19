@@ -35,7 +35,9 @@ class Bench(object):
     ----------
     config :
         Instance of ``BenchConfig``
-    measures :
+    runs : list
+        List of ``BenchRun`` objects.
+    measures : list
         List of measures
 
     Methods
