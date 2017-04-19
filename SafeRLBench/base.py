@@ -342,7 +342,7 @@ class Policy(object):
     @property
     @abstractmethod
     def parameters(self):
-        """Current parameters."""
+        """Access current parameters."""
         pass
 
     @parameters.setter

@@ -38,7 +38,7 @@ class EnvMonitor(object):
     """
 
     def __new__(cls, *args, **kwargs):
-        """Hook into subclasses."""
+        """Create monitor in subclasses."""
         obj = object.__new__(cls)
         obj.monitor = EnvData()
         return obj
@@ -161,7 +161,7 @@ class AlgoMonitor(object):
     """
 
     def __new__(cls, *args, **kwargs):
-        """Hook into subclasses."""
+        """Create monitor in subclasses."""
         obj = object.__new__(cls)
         obj.monitor = AlgoData()
         obj.grad = None
@@ -190,7 +190,7 @@ class AlgoMonitor(object):
         self._after_step()
 
     def _before_optimize(self):
-        """Setup montitor for optimization run.
+        """Set monitor up for optimization run.
 
         Parameters
         ----------
