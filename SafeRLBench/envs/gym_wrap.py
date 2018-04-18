@@ -5,7 +5,7 @@ from SafeRLBench.error import add_dependency
 
 try:
     import gym
-except:
+except ModuleNotFoundError:
     gym = None
 
 

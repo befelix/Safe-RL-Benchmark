@@ -16,7 +16,7 @@ from SafeRLBench.error import add_dependency
 try:
     import tensorflow as tf
     from tensorflow.contrib.distributions import Normal
-except:
+except ModuleNotFoundError:
     tf = None
 
 import logging

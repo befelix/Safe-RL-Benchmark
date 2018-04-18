@@ -61,8 +61,8 @@ class IncompatibilityException(Exception):
         obj2 : object
             Instance of the object being incompatible.
         """
-        msg = "%s is incompatible with %s." % (self.obj2.__name__,
-                                               self.obj1.__name__)
+        msg = "%s is incompatible with %s." % (obj2.__name__,
+                                               obj1.__name__)
 
         super(IncompatibilityException, self).__init__(msg)
 

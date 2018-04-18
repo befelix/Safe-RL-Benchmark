@@ -5,8 +5,11 @@ ENV TF_CPP_MIN_LOG_LEVEL=2
 # Install build essentials and clean up
 RUN apt-get update --quiet \
   && apt-get install -y --no-install-recommends --quiet build-essential \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean
+
+# Fix matlab issues.
+RUN apt-get install -y --quiet libfreetype6-dev pkg-config libpng12-dev \
+  && apt-get clean
 
 # Update conda, install packages, and clean up
 RUN conda update conda --yes --quiet \

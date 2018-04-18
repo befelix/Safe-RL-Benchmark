@@ -9,7 +9,7 @@ from numpy.random import normal
 
 try:
     import tensorflow as tf
-except:
+except ModuleNotFoundError:
     tf = None
 
 import logging
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def default_init_weights(shape):
-    """Default weights initialization."""
+    """Initialize default weights."""
     weights = tf.random_normal(shape, mean=0, stddev=0.1, name='weights')
     return tf.Variable(weights)
 
@@ -134,7 +134,7 @@ class NeuralNetwork(Policy):
         self.sess = None
 
     def setup(self):
-        """Setup the network graph.
+        """Set up the network graph.
 
         The weights and graph will be initialized by this function. If do_setup
         is True, setup will automatically be called, when instantiating the

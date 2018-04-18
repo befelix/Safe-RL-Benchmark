@@ -112,7 +112,7 @@ class NonLinearQuadrocopterController(Policy):
 
     @property
     def parameters(self):
-        """Controller parameters."""
+        """Set controller parameters."""
         return self._params
 
     @parameters.setter
@@ -121,5 +121,5 @@ class NonLinearQuadrocopterController(Policy):
 
     @property
     def parameter_space(self):
-        """Controller parameter space."""
+        """Set controller parameter space."""
         return self._par_space

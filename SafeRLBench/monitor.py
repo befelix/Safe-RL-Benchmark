@@ -323,6 +323,10 @@ class AlgoMonitor(object):
 
             logger.info(msg)
 
+    def _alg_reset(self):
+        """Reset the algorithm monitor."""
+        self.monitor.reset()
+
 
 class EnvData(object):
     """Class to store environment tracking data.

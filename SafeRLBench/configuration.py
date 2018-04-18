@@ -92,12 +92,6 @@ class SRBConfig(object):
                      + ' - %(message)s')
         self._formatter = logging.Formatter(self._fmt)
 
-        try:
-            import gym
-            gym.undo_logger_setup()
-        except:
-            pass
-
     def monitor_set_verbosity(self, verbosity):
         """Set monitor verbosity level.
 
@@ -247,7 +241,7 @@ class SRBConfig(object):
             Path to log file.
         """
         if self._file_handler is not None:
-            self.log.removeHandler(self.file_handler)
+            self.log.removeHandler(self._file_handler)
 
         fh = logging.FileHandler(path)
         fh.setFormatter(self._formatter)

@@ -7,12 +7,12 @@ from numpy import mean, array
 
 try:
     import safeopt
-except:
+except ModuleNotFoundError:
     safeopt = None
 
 try:
     import GPy
-except:
+except ModuleNotFoundError:
     GPy = None
 
 import logging

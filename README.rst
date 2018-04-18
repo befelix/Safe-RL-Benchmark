@@ -13,8 +13,8 @@ Safe Reinforcement Learning Library for Python
   :target: https://codecov.io/gh/befelix/Safe-RL-Benchmark?branch=master
   :alt: Coverage
 
-SafeRLBench provides an interface for algorithms, environments and policies, in
-order to support a reusable benchmark environment.
+SafeRLBench provides an interface for algorithms, environments and policies, to
+support a reusable benchmark environment.
 
 Overview
 --------
@@ -27,10 +27,9 @@ Overview
 Structure
 ---------
 
-The main module of the library contains the base classes providing the
-interface, as well as the benchmark facilities used to run and compare the
-algorithms. Further it contains the three submodules that contain content that
-has been implemented using the respective baseclasses.
+The main module contains base classes that define an interface and benchmark
+facilities that are used to run and compare algorithms. Further the library
+contains three submodules that contain content using respective base classes.
 
 Algorithm module ``algo``
   Contains algorithm implementations like ``PolicyGradient`` or ``SafeOpt``.
@@ -42,8 +41,8 @@ Environment module ``envs``
 
 Policy module ``policy``
   Contains policies. Although some policies are specific for the use with
-  certain algorithms, they are still seperated in an individual module,
-  providing a interface as definde through the ``Policy`` baseclass, since in
+  certain algorithms, they are still separated in an individual module,
+  providing a interface as defined through the ``Policy`` base class, since in
   there are cases in which they can be optimized through different algorithms.
 
 Installation
@@ -76,8 +75,8 @@ repository.
 
   ``git clone https://github.com/befelix/Safe-RL-Benchmark.git``
 
-In order to use the content that has already been implemented as is, navigate
-to the root directory and execute:
+To use the content that has already been implemented as is, navigate into the
+root directory and execute:
 
   ``python setup.py install``
 
@@ -94,13 +93,13 @@ The following instructions can be executed in many ways. You may use your
 favorite interactive interpreter, include it in scripts or use some form of
 notebook to get started.
 
-There is also a notebook in the examples directory which contains the examples
-below.
+In the examples directory one may find a notebook containing the examples
+described below.
 
 Optimizing a Policy
 ~~~~~~~~~~~~~~~~~~~
 
-To get started let us try to optimize a policy on a very simple environment.
+To get started we will try and optimize a policy on a very simple environment.
 To accomplish this we need to make a few decisions. First we need some task to
 solve. This is implemented in the form of environments in the ``envs``
 module.
@@ -128,20 +127,20 @@ arguments is just a car with a (position, velocity)-state on a line, thus our
 state space is two dimensional and we can accelerate along the line, so our
 action space is one dimensional.
 
-Now we need our third and last ingredient, which is the algorithm, that optimizes
-the policy on the environment. Well, an algorithm that is very stable on this
-environment is the ``PolicyGradient`` algorithm with a central differences
-gradient estimator.
+Now we need our third and last ingredient, which is the algorithm that
+optimizes the policy on the environment. On this environment ``PolicyGradient``
+with central differences gradient estimator proved to be a very stable
+algorithm.
 
   >>> # import the policy gradient class
   >>> from SafeRLBench.algo import PolicyGradient
   >>> # instantiate it with the environment and algorithm
   >>> optimizer = PolicyGradient(linear_car, policy, estimator='central_fd')
 
-Earlier we setup some initial parameters. The `PolicyGradient` optimizer will
+Earlier we set some initial parameters. The `PolicyGradient` optimizer will
 check if there are initial parameters and use those if present. If there are
-no preset parameters he will randomly initialize them, until he finds a
-nonzero gradient.
+no parameters set he will randomly initialize them, until he finds a nonzero
+gradient.
 
   >>> # optimize the policy when everything is set up.
   >>> optimizer.optimize()
@@ -172,7 +171,7 @@ setup some global configurations. Let us access the global `config` variable:
   >>> from SafeRLBench import config
 
 Well, thats it. The `config` variable is an instance of the class `SRBConfig`,
-which contains methods to manipulate the overall behaviour. For example we can
+which contains methods to manipulate the overall behavior. For example we can
 easily make the logger print to stdout:
 
   >>> # output to stdout
@@ -251,8 +250,8 @@ if the outer list is not needed, it can safely be omitted.
 >>> # instantiate BenchConfig
 >>> config = BenchConfig(algs, envs)
 
-Next we can evaluate the configuration achieving the best performance. Again,
-the library contains a tool for this, the measures.
+Next we can evaluate the configuration achieving the best performance. The
+library contains a tool for this, the measures.
 
 >>> # import the best performance measure
 >>> from SafeRLBench.measure import BestPerformance
@@ -314,7 +313,7 @@ As always, we start by importing all the necessary tools:
 
 Unfortunately we can not use multiple jobs when optimizing with `SafeOpt`,
 because `GPy` does contain lambda expressions, which are not pickable.
-Let us make sure that everything is configured properly.
+Let us make sure everything is configured properly.
 
 >>> from SafeRLBench import config
 >>> config.jobs_set(1)
@@ -322,7 +321,7 @@ Let us make sure that everything is configured properly.
 >>> config.logger_set_level(config.INFO)
 >>> config.monitor_set_verbosity(2)
 
-Not with everything imported we are ready to define our test runs. For the
+Now, with everything imported we are ready to define our test runs. For the
 environment, let us just take the default configuration of the quadrocopter:
 
 >>> envs = [(Quadrocopter, {})]
@@ -356,10 +355,10 @@ for each of them. Here we will just observe what happens.
 >>> # start the run and evaluation
 >>> bench()
 
-After the run is finished we can observe what happened by analyzing the measures.
-This is a bit cumbersome, but will potentially be improved in the future with
-some additional convenience methods.
-Anyways the evaluation of the `SafetyMeasure` could be accessed as follows.
+After the run is finished we can observe what happened by analyzing the
+measures. This is a bit cumbersome at the moment, but will potentially be
+improved in the future with some additional convenience methods.
+Anyways, the evaluation of the `SafetyMeasure` could be accessed as follows.
 
 >>> # (std, number of violations, amount of violations)
 >>> [(t[0].alg_conf['info'], t[1], t[2]) for t in bench.measures[0].result]
@@ -372,8 +371,8 @@ And the performance:
 [(1000, -1781), (1250, -1853), (2000, -1901), (1500, -1906), (1750, -1958)]
 
 Note that the numbers where produced in an example run. Since the optimization
-process uses a random number generator, the results will be different at every
+process uses a random number generator, the results will be different for every
 run.
-If we need to get a statistical estimate for the results, we could produce many
-runs with the same parameters and then use comprehension to estimate the
+If we needed a statistical estimate for the results, we could run the algorithm
+multiple times with the same parameters and use comprehension to estimate
 expectation and standard deviation.
