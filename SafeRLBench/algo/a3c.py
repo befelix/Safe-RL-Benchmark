@@ -359,7 +359,7 @@ class _PolicyNet(object):
             self.var = policy.var
 
             dist = Normal(self.a_pred, self.var)
-            self.log_probs = dist.log_pdf(self.a)
+            self.log_probs = dist.log_prob(self.a)
 
             self.losses = self.log_probs * self.target
             self.loss = tf.reduce_sum(self.losses, name='loss')
